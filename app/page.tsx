@@ -1,0 +1,217 @@
+import type { Metadata } from 'next'
+import Image from 'next/image'
+import Button from '@/components/ui/Button'
+import AboutSection from '@/components/home/AboutSection'
+import ReviewsSection from '@/components/home/ReviewsSection'
+
+export const metadata: Metadata = {
+  title: 'Главная | Коровушкино',
+  description: 'Натуральные фермерские продукты и готовые продуктовые корзины.',
+}
+
+type HighlightTile = {
+  id: string
+  title: string
+  /** Классы размещения в lg-сетке 3×4: колонки 1–2 — по 2 высокие карточки, колонка 3 — четыре низкие */
+  lgClass: string
+  /** Крупные плитки (молоко, сыры, мясо, птица) — на lg квадратные */
+  tileSize: 'large' | 'small'
+  /** PNG в public/images/home/highlight/ — поверх фона, под заголовком */
+  backgroundImage?: string
+}
+
+export default function HomePage() {
+  const heroBgImage = '/images/home/hero-bg.png'
+
+  const homeBenefits = [
+    {
+      icon: '/images/home-benefits/icon-leaf.svg',
+      text: 'Только натуральные ингредиенты',
+    },
+    {
+      icon: '/images/home-benefits/icon-scroll.svg',
+      text: 'Сохраняем традиции в рецептах',
+    },
+    {
+      icon: '/images/home-benefits/icon-thermometer.svg',
+      text: 'Контроль температуры при транспортировке',
+    },
+    {
+      icon: '/images/home-benefits/icon-clipboard-check.svg',
+      text: 'Каждая партия проходит проверку',
+    },
+    {
+      icon: '/images/home-benefits/icon-truck.svg',
+      text: 'Доставим продукты прямо до двери',
+    },
+  ] as const
+
+  const homeHighlightGrid: HighlightTile[] = [
+    {
+      id: 'dairy',
+      title: 'Молочная продукция',
+      lgClass: 'lg:col-start-1 lg:row-start-1 lg:row-span-2',
+      tileSize: 'large',
+      backgroundImage: '/images/home/highlight/dairy.png',
+    },
+    {
+      id: 'meat',
+      title: 'Мясо',
+      lgClass: 'lg:col-start-1 lg:row-start-3 lg:row-span-2',
+      tileSize: 'large',
+      backgroundImage: '/images/home/highlight/meat.png',
+    },
+    {
+      id: 'cheese',
+      title: 'Сыры',
+      lgClass: 'lg:col-start-2 lg:row-start-1 lg:row-span-2',
+      tileSize: 'large',
+      backgroundImage: '/images/home/highlight/cheese.png',
+    },
+    {
+      id: 'poultry',
+      title: 'Птица',
+      lgClass: 'lg:col-start-2 lg:row-start-3 lg:row-span-2',
+      tileSize: 'large',
+      backgroundImage: '/images/home/highlight/poultry.png',
+    },
+    {
+      id: 'meat-products',
+      title: 'Мясная продукция',
+      lgClass: 'lg:col-start-3 lg:row-start-1 lg:row-span-1',
+      tileSize: 'small',
+      backgroundImage: '/images/home/highlight/meat-products.png',
+    },
+    {
+      id: 'honey',
+      title: 'Мед',
+      lgClass: 'lg:col-start-3 lg:row-start-2 lg:row-span-1',
+      tileSize: 'small',
+      backgroundImage: '/images/home/highlight/honey.png',
+    },
+    {
+      id: 'fish',
+      title: 'Рыба',
+      lgClass: 'lg:col-start-3 lg:row-start-3 lg:row-span-1',
+      tileSize: 'small',
+      backgroundImage: '/images/home/highlight/fish.png',
+    },
+    {
+      id: 'semi-finished',
+      title: 'Полуфабрикаты',
+      lgClass: 'lg:col-start-3 lg:row-start-4 lg:row-span-1',
+      tileSize: 'small',
+      backgroundImage: '/images/home/highlight/semi-finished.png',
+    },
+  ]
+
+  return (
+    <div className="min-h-screen">
+      <section
+        className="relative bg-cover bg-center bg-no-repeat pb-16 pt-28 sm:pb-20 sm:pt-32 lg:pb-24 lg:pt-40"
+        style={{ backgroundImage: `url('${heroBgImage}')` }}
+      >
+        <div className="container relative z-10">
+          <div className="max-w-[402px]">
+            <h1 className="mb-5 text-[30px] font-normal leading-[1.2] text-[#FFFFFF] lg:mb-6 lg:text-[36px]">
+              Собери свою корзину
+            </h1>
+            <p className="mb-8 text-base font-normal leading-[1.45] text-[#FFFFFF] sm:text-lg lg:text-[20px]">
+              Мы подготовили для вас готовые <strong className="font-bold">продуктовые корзины</strong>,
+              чтобы вы могли познакомиться с нашим ассортиментом и попробовать самые популярные
+              продукты.
+            </p>
+            <p className="mb-8 text-base font-normal leading-[1.45] text-[#FFFFFF] sm:text-lg lg:text-[20px]">
+              Это простой и выгодный способ <strong className="font-bold">оценить вкус</strong> настоящей
+              фермерской продукции и найти свои любимые позиции.
+            </p>
+            <div className="flex">
+              <Button
+                size="md"
+                className="rounded-lg bg-[#3D8C13] px-8 py-3 text-base font-normal text-[#FFFFFF] hover:bg-[#367c11] sm:px-10 sm:text-lg lg:text-[20px]"
+              >
+                Перейти к корзинам
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mt-0 bg-[#fdfbf6] py-8 sm:py-10">
+        <div className="container">
+          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5 lg:gap-4 xl:gap-5">
+            {homeBenefits.map((item) => (
+              <li
+                key={item.text}
+                className="flex items-center gap-3 rounded-lg border border-[#C88C39] bg-[#FFF6E7] p-4 sm:gap-4 sm:p-5"
+              >
+                <div className="flex shrink-0 items-center justify-center">
+                  <Image
+                    src={item.icon}
+                    alt=""
+                    width={20}
+                    height={20}
+                    sizes="20px"
+                    className="h-auto w-[20px] object-contain"
+                  />
+                </div>
+                <p className="min-w-0 text-sm font-normal leading-snug text-black sm:text-[15px]">
+                  {item.text}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* Категории: на lg — 3 колонки, слева и в центре по 2 высокие карточки, справа 4 низкие */}
+      <section className="bg-[#fdfbf6] py-8 sm:py-10">
+        <div className="container">
+          <ul className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:grid-rows-4 lg:gap-5">
+            {homeHighlightGrid.map((item) => (
+              <li key={item.id} className={`min-w-0 ${item.lgClass}`}>
+                <article
+                  className={`relative flex h-full min-h-[200px] overflow-hidden rounded-xl border border-[#C88C39] bg-[#FFF6E7] lg:min-h-0 ${
+                    item.tileSize === 'large' ? 'aspect-square' : ''
+                  }`}
+                >
+                  {item.backgroundImage ? (
+                    <div className="pointer-events-none absolute inset-0 z-[1]" aria-hidden>
+                      <Image
+                        src={item.backgroundImage}
+                        alt=""
+                        fill
+                        className="object-cover object-center"
+                        sizes="(max-width: 1024px) 100vw, 33vw"
+                      />
+                    </div>
+                  ) : null}
+                  <h3 className="relative z-10 w-full self-start p-[40px] text-left text-[20px] font-bold leading-snug text-black">
+                    {item.title}
+                  </h3>
+                </article>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <ReviewsSection />
+
+      <AboutSection />
+
+      <div
+        className="flex flex-col items-center justify-center gap-4 bg-[#fdfbf6] py-16 sm:py-20"
+        aria-hidden
+      >
+        <div
+          className="h-8 w-8 animate-spin rounded-full border-2 border-[#C88C39]/25 border-t-[#3D8C13]"
+          role="presentation"
+        />
+        <p className="text-base font-bold tracking-wide text-[#232326] sm:text-lg">
+          connecting....
+        </p>
+      </div>
+    </div>
+  )
+}

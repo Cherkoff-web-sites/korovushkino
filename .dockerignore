@@ -1,0 +1,34 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Build output (будет создано в Docker)
+.next
+out
+dist
+
+# Development
+.git
+.gitignore
+.env*.local
+*.log
+npm-debug.log*
+.DS_Store
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Testing
+coverage
+.nyc_output
+__tests__
+*.test.*
+*.spec.*
+
+# Documentation (опционально - можно убрать для уменьшения размера образа)
+README.md
+*.md

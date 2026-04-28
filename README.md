@@ -1,126 +1,123 @@
-# CAREL Professional Service — сайт на Next.js
+# Коровушкино — сайт на Next.js
 
-## 🎯 Архитектура проекта
+Фермерские продукты и корзины. Стек: **Next.js 14** (App Router), **React 18**, **TypeScript**, **Tailwind CSS**.
 
-Гибридный подход Next.js 14 с App Router, комбинирующий SSG и CSR для оптимального баланса SEO и интерактивности.
+Пакет в `package.json` по-прежнему может называться `carel-professional-service` — это историческое имя; продукт и метаданные сайта — **Коровушкино**.
 
-### SSG (Static Site Generation) - для контентных страниц:
-- ✅ `/` - Главная страница
-- ✅ `/about` - О компании
-- ✅ `/contact` - Контакты
-- ✅ `/catalog/[productId]` - Страницы товаров (SSG для SEO)
-
-**Преимущества:** Максимальное SEO, быстрая загрузка, готовый HTML
-
-### CSR (Client-Side Rendering) - для интерактивных страниц:
-- ✅ `/catalog` - Каталог товаров (React-приложение)
-- ✅ `/admin` - Административная панель
-
-**Преимущества:** Интерактивность, фильтры, динамические обновления
-
-## 🚀 Быстрый старт
-
-### 1. Установка зависимостей:
+## Быстрый старт
 
 ```bash
 npm install
-```
-
-### 2. Запуск в режиме разработки:
-
-```bash
 npm run dev
 ```
 
-Откройте [http://localhost:3000](http://localhost:3000)
+Откройте [http://localhost:3000](http://localhost:3000).
 
-### 3. Сборка для продакшена:
+Сборка:
 
 ```bash
 npm run build
 npm start
 ```
 
-## 📁 Структура проекта
+Линт:
+
+```bash
+npm run lint
+```
+
+## Маршруты (`app/`)
+
+| Путь | Файл | Примечание |
+|------|------|------------|
+| `/` | `app/page.tsx` | Главная: hero, преимущества, сетка категорий, отзывы, блок «О нас» |
+| `/about` | `app/about/page.tsx` | О компании |
+| `/contact` | `app/contact/page.tsx` | Контакты |
+| `/services` | `app/services/page.tsx` | Услуги |
+| `/catalog` | `app/catalog/page.tsx` | **`'use client'`** — клиентская страница каталога |
+| `/catalog/[productId]` | `app/catalog/[productId]/page.tsx` | Карточка товара + табы, изображения, кнопка в корзину |
+| `/cart` | `app/cart/page.tsx` | Корзина |
+| `/admin` | `app/admin/page.tsx` | Админ-панель (контент/товары) |
+
+В шапке есть пункт «Доставка и оплата» (`/delivery-payment`) — отдельной страницы в `app/` сейчас нет; при необходимости добавьте `app/delivery-payment/page.tsx`.
+
+## API Routes
+
+- `GET` `app/api/products/route.ts` — список товаров  
+- `GET` `app/api/products/[productId]/route.ts` — товар по id  
+- `app/api/admin/products/route.ts` — админ: товары  
+- `app/api/admin/content/route.ts` — админ: контент  
+
+## Структура проекта
 
 ```
-├── app/                          # App Router (Next.js 14)
-│   ├── layout.tsx               # Корневой layout с Header/Footer
-│   ├── page.tsx                 # Главная (SSG)
-│   ├── about/
-│   │   └── page.tsx             # О компании (SSG)
-│   ├── contact/
-│   │   └── page.tsx             # Контакты (SSG)
-│   ├── catalog/                 # КАТАЛОГ (React-приложение)
-│   │   ├── page.tsx             # Список товаров (CSR)
-│   │   ├── [productId]/
-│   │   │   └── page.tsx         # Страница товара (SSG)
-│   │   └── components/          # Компоненты каталога
-│   │       ├── ProductList.tsx
-│   │       ├── ProductCard.tsx
-│   │       └── Filters.tsx
-│   ├── api/                     # API роуты
-│   │   └── products/
-│   │       ├── route.ts        # GET /api/products
-│   │       └── [productId]/
-│   │           └── route.ts     # GET /api/products/[id]
-│   └── globals.css              # Глобальные стили + Tailwind
-├── components/                  # ОБЩИЕ КОМПОНЕНТЫ
-│   ├── Header/
-│   │   ├── Header.tsx
-│   │   └── Navigation.tsx
-│   ├── Footer/
-│   │   └── Footer.tsx
-│   ├── ui/                     # UI компоненты
-│   │   ├── Button.tsx
-│   │   ├── Card.tsx
-│   │   └── Input.tsx
-│   └── Layout/
-│       └── Container.tsx
-├── lib/                        # УТИЛИТЫ
-│   ├── api/
-│   │   └── mockData.ts         # Моковые данные
-│   ├── utils.ts                # Общие утилиты
-│   └── constants.ts            # Константы
-├── types/                      # ТИПЫ TypeScript
+prod/
+├── app/
+│   ├── layout.tsx              # Inter, Header, CartProvider, main (без Footer)
+│   ├── page.tsx                # Главная
+│   ├── globals.css             # Tailwind + глобальные стили
+│   ├── about/page.tsx
+│   ├── contact/page.tsx
+│   ├── services/page.tsx
+│   ├── cart/page.tsx
+│   ├── admin/page.tsx
+│   ├── catalog/
+│   │   ├── page.tsx
+│   │   ├── components/         # ProductList, ProductCard, Filters
+│   │   └── [productId]/
+│   │       ├── page.tsx
+│   │       ├── ProductTabs.tsx
+│   │       ├── ProductImages.tsx
+│   │       └── AddToCartButton.tsx
+│   └── api/
+│       ├── products/
+│       └── admin/
+├── components/
+│   ├── Header/                 # Header, Navigation, MobileMenu
+│   ├── home/                   # AboutSection, ReviewsSection
+│   ├── ui/                     # Button, Input, Card
+│   ├── Layout/Container.tsx
+│   ├── ScrollToTop.tsx
+│   └── AddToCartButtonSimple.tsx
+├── contexts/
+│   └── CartContext.tsx         # Корзина + localStorage
+├── lib/
+│   ├── siteFlags.ts
+│   ├── constants.ts, utils.ts
+│   └── api/                    # mockData, productsApi, contentApi, productsData
+├── types/
 │   ├── product.ts
 │   └── global.d.ts
-├── public/                     # СТАТИЧЕСКИЕ ФАЙЛЫ
-├── tailwind.config.ts          # Конфиг Tailwind
-├── postcss.config.js           # Конфиг PostCSS
-├── next.config.js              # Конфиг Next.js
-└── tsconfig.json               # Конфиг TypeScript
+├── public/
+│   └── images/                 # logo, header, home-benefits, features, home/* и т.д.
+├── tailwind.config.ts
+├── postcss.config.js
+├── next.config.js
+└── tsconfig.json
 ```
 
-## 🛠 Технологии
+## Технологии
 
-- **Next.js 14** - React фреймворк с App Router
-- **React 18** - UI библиотека
-- **TypeScript** - Типизация
-- **Tailwind CSS** - Стилизация
-- **PostCSS** - Обработка CSS
+- Next.js **14** (App Router)  
+- React **18**  
+- TypeScript **5**  
+- Tailwind CSS **3.4**  
+- PostCSS, ESLint (`eslint-config-next`)
 
-## 📖 Документация
+## Особенности
 
-Подробная инструкция по установке и настройке: [SETUP.md](./SETUP.md)
+- **Главная**: статичная разметка + клиентские секции (`ReviewsSection` с `'use client'`).
+- **Каталог** (`/catalog`): клиентский рендеринг, поиск/фильтры в коде страницы.
+- **Корзина**: `CartProvider` в `layout`, синхронизация с `localStorage`.
+- **Шрифт**: Google **Inter** (латиница + кириллица).
+- Акцентный цвет бренда зелёный **`#3D8C13`** (красные акценты убраны в пользу зелёной палитры).
 
-## ✅ Особенности
+## Изображения
 
-- ✅ Гибридный рендеринг (SSG + CSR)
-- ✅ SEO-оптимизация для статичных страниц
-- ✅ Интерактивный каталог с фильтрами
-- ✅ TypeScript для типобезопасности
-- ✅ Tailwind CSS для стилизации
-- ✅ API Routes для работы с данными
-- ✅ Готово к подключению CMS (Strapi и др.)
+Частые пути (см. код страниц):
 
-## 🎨 Проверка работы
+- `public/images/home/` — hero, highlight-категории, about  
+- `public/images/home-benefits/` — иконки преимуществ  
+- `public/images/header/` — иконки шапки  
 
-После установки зависимостей:
-
-1. **SSG страницы** - откройте исходный код (View Page Source), должен быть готовый HTML
-2. **CSR каталог** - проверьте работу фильтров и поиска
-3. **API Routes** - откройте `/api/products` в браузере
-
-Подробнее в [SETUP.md](./SETUP.md)
-
+Подробности по ассетам — `public/images/README.md`, если файл есть.

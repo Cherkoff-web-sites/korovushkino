@@ -105,7 +105,7 @@ export default function ReviewsSection() {
   }, [clamped])
 
   return (
-    <section className="relative z-10 bg-[#fdfbf6] py-10 sm:py-12 lg:py-14">
+    <section id="reviews" className="relative z-10 bg-[#fdfbf6] py-10 sm:py-12 lg:py-14">
       <div className="container">
         <h2 className="mb-[40px] text-[36px] font-normal leading-tight text-black">Отзывы</h2>
 

@@ -199,19 +199,6 @@ export default function HomePage() {
       <ReviewsSection />
 
       <AboutSection />
-
-      <div
-        className="flex flex-col items-center justify-center gap-4 bg-[#fdfbf6] py-16 sm:py-20"
-        aria-hidden
-      >
-        <div
-          className="h-8 w-8 animate-spin rounded-full border-2 border-[#C88C39]/25 border-t-[#3D8C13]"
-          role="presentation"
-        />
-        <p className="text-base font-bold tracking-wide text-[#232326] sm:text-lg">
-          connecting....
-        </p>
-      </div>
     </div>
   )
 }

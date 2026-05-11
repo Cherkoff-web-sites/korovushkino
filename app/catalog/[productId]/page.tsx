@@ -1,61 +1,61 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
-import Button from '@/components/ui/Button'
 import ScrollToTop from '@/components/ScrollToTop'
-import ProductImages from './ProductImages'
 import ProductTabs from './ProductTabs'
 import AddToCartButton from './AddToCartButton'
 import { getProduct } from '@/lib/api/productsApi'
 import { productsData } from '@/lib/api/productsData'
 import { notFound } from 'next/navigation'
 
-export async function generateMetadata({ 
-  params 
-}: { 
-  params: { productId: string } 
+export async function generateMetadata({
+  params,
+}: {
+  params: { productId: string }
 }): Promise<Metadata> {
-  const product = await getProduct(params.productId) || productsData[params.productId]
-  
+  const product = (await getProduct(params.productId)) || productsData[params.productId]
+
   if (!product) {
     return {
-      title: 'Товар не найден | CAREL Professional Service',
+      title: 'Товар не найден | Коровушкино',
     }
   }
 
   return {
-    title: `${product.name} | ${product.series} — CAREL Professional Service`,
+    title: `${product.name} | Коровушкино`,
     description: product.description,
   }
 }
 
 export default async function ProductPage({ params }: { params: { productId: string } }) {
-  const product = await getProduct(params.productId) || productsData[params.productId]
-  
+  const product = (await getProduct(params.productId)) || productsData[params.productId]
+
   if (!product) {
     notFound()
   }
 
-  // Хлебные крошки
   const breadcrumbs = product.breadcrumbs.map((crumb, index, array) => ({
     ...crumb,
     active: index === array.length - 1,
   }))
 
+  const mainImage = product.images[0] ?? '/images/home/hero-bg.png'
+
   return (
-    <div className="min-h-screen">
-      {/* Хлебные крошки и заголовок */}
-      <section className="bg-[#2A2529] py-6 sm:py-8">
+    <div className="min-h-screen bg-[#fdfbf6]">
+      <div className="h-1 w-full bg-[#3D8C13]" aria-hidden />
+
+      <section className="border-b border-[#E5DECF] bg-white py-6 sm:py-8">
         <div className="container">
-          {/* Хлебные крошки */}
-          <nav className="mb-4">
-            <ol className="flex flex-wrap items-center gap-2 text-sm">
+          <nav className="mb-4 text-sm text-[#232326]/55" aria-label="Навигация">
+            <ol className="flex flex-wrap items-center gap-2">
               {breadcrumbs.map((crumb, index) => (
-                <li key={index} className="flex items-center gap-2">
-                  {index > 0 && <span className="text-white/50">/</span>}
+                <li key={`${crumb.label}-${index}`} className="flex items-center gap-2">
+                  {index > 0 ? <span className="text-[#232326]/35">•</span> : null}
                   {crumb.active ? (
-                    <span className="text-[#3D8C13] font-medium">{crumb.label}</span>
+                    <span className="text-[#232326]/70">{crumb.label}</span>
                   ) : (
-                    <Link href={crumb.href} className="text-white hover:text-[#3D8C13] transition-colors">
+                    <Link href={crumb.href} className="transition-colors hover:text-[#232326]">
                       {crumb.label}
                     </Link>
                   )}
@@ -64,87 +64,67 @@ export default async function ProductPage({ params }: { params: { productId: str
             </ol>
           </nav>
 
-          {/* Заголовок */}
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#3D8C13]">
-            {product.name}
-          </h1>
+          <h1 className="text-2xl font-bold leading-tight text-[#1F1F1F] sm:text-3xl lg:text-4xl">{product.name}</h1>
         </div>
       </section>
 
-      {/* Основной контент */}
-      <section className="bg-[#3B363C] py-8 sm:py-12">
+      <section className="py-8 sm:py-10 lg:py-12">
         <div className="container">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mb-8">
-            {/* Левая часть - Изображения */}
-            <ProductImages images={product.images} productName={product.name} />
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
+            <div className="relative aspect-square w-full max-w-xl overflow-hidden rounded-xl border border-[#E5DECF] bg-[#E8E4DC] lg:max-w-none">
+              <Image
+                src={mainImage}
+                alt={product.name}
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                priority
+              />
+            </div>
 
-            {/* Правая часть - Описание и кнопки */}
             <div>
-              {product.briefDescription && (
-                <div className="mb-6">
-                  <h3 className="text-[#3D8C13] font-semibold mb-3 text-lg">Краткое описание</h3>
-                  <p className="text-white/90 text-base sm:text-lg leading-relaxed">
-                    {product.briefDescription}
-                  </p>
-                </div>
-              )}
-              
-              <p className="text-white/90 text-base sm:text-lg mb-6 leading-relaxed">
-                {product.description}
-              </p>
+              {product.briefDescription ? (
+                <p className="mb-4 text-base leading-relaxed text-[#232326]/85 sm:text-lg">{product.briefDescription}</p>
+              ) : null}
 
-              {/* Цена */}
+              <p className="mb-6 text-base leading-relaxed text-[#232326] sm:text-lg">{product.description}</p>
+
               <div className="mb-6">
-                <p className="text-white/80 text-sm mb-2">Цена:</p>
-                {product.price > 0 ? (
-                  <p className="text-white text-3xl sm:text-4xl font-bold">
-                    {product.price.toLocaleString('ru-RU')} руб.
-                  </p>
-                ) : (
-                  <p className="text-white text-xl sm:text-2xl font-bold">
-                    По запросу
-                  </p>
-                )}
+                <p className="text-2xl font-bold text-[#1F1F1F] sm:text-3xl">
+                  {product.price > 0 ? (
+                    <>
+                      {product.price.toLocaleString('ru-RU')}₽
+                      <span className="text-lg font-normal text-[#232326]/60 sm:text-xl"> / {product.series}</span>
+                    </>
+                  ) : (
+                    'Цена по запросу'
+                  )}
+                </p>
               </div>
 
-              {/* Кнопки */}
-              <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                <AddToCartButton
-                  product={{
-                    id: product.id,
-                    name: product.name,
-                    model: product.series,
-                    price: product.price,
-                    image: product.images[0],
-                    href: `/catalog/${product.id}`,
-                  }}
-                  label="Заказать"
-                  variant="primary"
-                  allowZeroPrice
-                />
-                <AddToCartButton
-                  product={{
-                    id: product.id,
-                    name: product.name,
-                    model: product.series,
-                    price: product.price,
-                    image: product.images[0],
-                    href: `/catalog/${product.id}`,
-                  }}
-                  className="w-full sm:w-auto flex-1 border-white text-white hover:bg-white/10"
-                />
-              </div>
+              <AddToCartButton
+                product={{
+                  id: product.id,
+                  name: product.name,
+                  model: product.series,
+                  price: product.price,
+                  image: mainImage,
+                  href: `/catalog/${product.id}`,
+                }}
+                label="В корзину"
+                variant="primary"
+                className="w-full rounded-lg bg-[#3D8C13] px-8 py-3 text-base font-medium text-white hover:bg-[#347710] sm:w-auto sm:min-w-[220px]"
+                allowZeroPrice
+              />
             </div>
           </div>
 
-          {/* Вкладки с описанием */}
-          <ProductTabs product={product} />
+          <div className="mt-10 sm:mt-12">
+            <ProductTabs product={product} />
+          </div>
         </div>
       </section>
 
-      {/* Форма обратной связи */}
-
-      {/* Кнопка скролла наверх */}
       <ScrollToTop />
     </div>
   )

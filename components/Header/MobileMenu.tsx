@@ -45,15 +45,15 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
       {/* Мобильное меню */}
       <div
         className={`fixed top-0 right-0 h-full w-80 bg-[#3D8C13] z-50 transform transition-transform duration-300 ease-in-out md:hidden ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
+          isOpen ? 'translate-x-0 pointer-events-auto' : 'translate-x-full pointer-events-none'
         }`}
       >
         <div className="flex flex-col h-full">
-          <div className="flex items-center justify-between border-b border-white/20 p-4">
-            <span className="font-semibold text-white">Меню</span>
+          <div className="flex items-center justify-between border-b border-[#FFFFFF] p-4">
+            <span className="font-semibold text-[#FFFFFF]">Меню</span>
             <button
               onClick={onClose}
-              className="text-white transition-colors hover:text-white/80"
+              className="text-[#FFFFFF] hover:text-[#FFFFFF]"
               aria-label="Закрыть меню"
             >
               <svg
@@ -79,16 +79,16 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             <ul className="space-y-2">
               {NAVIGATION_ITEMS.map((item) => {
                 const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
-                const className = `block px-4 py-3 rounded-lg text-white transition-colors ${
+                const className = `block px-4 py-3 rounded-lg font-normal text-[#FFFFFF] ${
                   isActive
-                    ? 'bg-white/20 text-white font-semibold'
-                    : 'hover:bg-white/15'
+                    ? 'bg-[#FFFFFF] text-[#3D8C13]'
+                    : 'bg-transparent hover:bg-[#2f7510] hover:text-[#FFFFFF] focus-visible:bg-[#2f7510]'
                 }`
 
                 if (navLocked) {
                   return (
                     <li key={item.href}>
-                      <span className={`${className} cursor-default opacity-80`}>{item.label}</span>
+                      <span className={`${className} cursor-default`}>{item.label}</span>
                     </li>
                   )
                 }

@@ -282,7 +282,7 @@ export default function AdminPage() {
                   category: 'Категория',
                   price: 0,
                   description: 'Описание товара',
-                  images: ['/images/categories/converter.png'],
+                  images: ['/images/home/hero-bg.png'],
                   breadcrumbs: [
                     { label: 'Главная', href: '/' },
                     { label: 'Каталог', href: '/catalog' },

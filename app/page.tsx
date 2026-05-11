@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
-import Button from '@/components/ui/Button'
+import Link from 'next/link'
 import AboutSection from '@/components/home/AboutSection'
 import ReviewsSection from '@/components/home/ReviewsSection'
 
@@ -108,30 +108,32 @@ export default function HomePage() {
   return (
     <div className="min-h-screen">
       <section
-        className="relative bg-cover bg-center bg-no-repeat pb-16 pt-28 sm:pb-20 sm:pt-32 lg:pb-24 lg:pt-40"
+        className="relative bg-cover bg-center bg-no-repeat pb-16 pt-8 sm:pb-20 sm:pt-10 lg:flex lg:h-[calc(50vw-85px)] lg:flex-col lg:justify-center lg:py-0"
         style={{ backgroundImage: `url('${heroBgImage}')` }}
       >
         <div className="container relative z-10">
           <div className="max-w-[402px]">
-            <h1 className="mb-5 text-[30px] font-normal leading-[1.2] text-[#FFFFFF] lg:mb-6 lg:text-[36px]">
+            <h1 className="mb-5 text-[30px] font-normal leading-[1.2] text-[#FFFFFF] lg:mb-[40px] lg:text-[36px]">
               Собери свою корзину
             </h1>
-            <p className="mb-8 text-base font-normal leading-[1.45] text-[#FFFFFF] sm:text-lg lg:text-[20px]">
-              Мы подготовили для вас готовые <strong className="font-bold">продуктовые корзины</strong>,
-              чтобы вы могли познакомиться с нашим ассортиментом и попробовать самые популярные
-              продукты.
-            </p>
-            <p className="mb-8 text-base font-normal leading-[1.45] text-[#FFFFFF] sm:text-lg lg:text-[20px]">
-              Это простой и выгодный способ <strong className="font-bold">оценить вкус</strong> настоящей
-              фермерской продукции и найти свои любимые позиции.
-            </p>
+            <div className="flex flex-col gap-4 mb-8 lg:mb-[60px">
+              <p className="text-base font-normal leading-[1.45] text-[#FFFFFF] sm:text-lg lg:text-[20px]">
+                Мы подготовили для вас готовые <strong className="font-bold">продуктовые корзины</strong>,
+                чтобы вы могли познакомиться с нашим ассортиментом и попробовать самые популярные
+                продукты.
+              </p>
+              <p className="text-base font-normal leading-[1.45] text-[#FFFFFF] sm:text-lg lg:text-[20px]">
+                Это простой и выгодный способ <strong className="font-bold">оценить вкус</strong> настоящей
+                фермерской продукции и найти свои любимые позиции.
+              </p>
+            </div>
             <div className="flex">
-              <Button
-                size="md"
-                className="rounded-lg bg-[#3D8C13] px-8 py-3 text-base font-normal text-[#FFFFFF] hover:bg-[#367c11] sm:px-10 sm:text-lg lg:text-[20px]"
+              <Link
+                href="/baskets"
+                className="inline-flex items-center justify-center rounded-lg bg-[#3D8C13] px-8 py-3 text-base font-normal text-[#FFFFFF] transition-colors hover:bg-[#367c11] sm:px-10 sm:text-lg lg:text-[20px]"
               >
                 Перейти к корзинам
-              </Button>
+              </Link>
             </div>
           </div>
         </div>

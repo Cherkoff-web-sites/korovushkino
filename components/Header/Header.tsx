@@ -16,7 +16,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="absolute top-0 left-0 right-0 z-50 border-b border-black/10 bg-[#3D8C13]">
+      <header className="relative z-50 shrink-0 border-b border-[#2d6710] bg-[#3D8C13]">
         <div className="container">
           <div className="flex h-[76px] items-center justify-between gap-4 md:h-[84px] md:gap-6">
             <Link href="/" className="shrink-0 text-[30px] font-normal leading-none text-[#FFFFFF] md:text-[38px]">
@@ -52,7 +52,7 @@ export default function Header() {
 
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="flex h-10 w-10 items-center justify-center text-[#FFFFFF] transition-colors hover:text-white/80 lg:hidden"
+                className="flex h-10 w-10 items-center justify-center text-[#FFFFFF] hover:text-[#FFFFFF] lg:hidden"
                 aria-label="Открыть меню"
               >
                 <svg

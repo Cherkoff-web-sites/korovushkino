@@ -19,13 +19,13 @@ export default function Navigation() {
     <nav className="hidden lg:flex items-center gap-8">
       {NAVIGATION_ITEMS.map((item) => {
         const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
-        const className = `text-sm font-normal transition-colors ${
-          isActive ? 'text-[#FFFFFF]' : 'text-[#FFFFFF] hover:text-white/85'
+        const className = `text-sm font-normal text-[#FFFFFF] hover:text-[#FFFFFF] focus-visible:text-[#FFFFFF] ${
+          isActive ? 'underline underline-offset-[6px] decoration-[#FFFFFF]' : ''
         }`
 
         if (navLocked) {
           return (
-            <span key={item.href} className={`${className} cursor-default opacity-70`}>
+            <span key={item.href} className={`${className} cursor-default`}>
               {item.label}
             </span>
           )

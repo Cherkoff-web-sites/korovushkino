@@ -1,2 +1,2 @@
-/** Временно: на главной (/) отключены переходы на внутренние маршруты сайта. */
-export const lockInternalNavOnHome = true
+/** На главной навигация ведёт на разделы сайта (ссылки активны). */
+export const lockInternalNavOnHome = false

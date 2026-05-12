@@ -82,7 +82,6 @@ prod/
 ├── contexts/
 │   └── CartContext.tsx         # Корзина + localStorage
 ├── lib/
-│   ├── siteFlags.ts
 │   ├── constants.ts, utils.ts
 │   └── api/                    # mockData, productsApi, contentApi, productsData
 ├── types/

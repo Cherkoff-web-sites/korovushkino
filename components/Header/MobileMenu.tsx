@@ -1,9 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { lockInternalNavOnHome } from '@/lib/siteFlags'
 
 const NAVIGATION_ITEMS = [
   { href: '/catalog', label: 'Каталог' },
@@ -19,7 +18,6 @@ interface MobileMenuProps {
 
 export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
   const pathname = usePathname()
-  const navLocked = lockInternalNavOnHome && pathname === '/'
 
   useEffect(() => {
     if (isOpen) {
@@ -84,14 +82,6 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                     ? 'bg-[#FFFFFF] text-[#3D8C13]'
                     : 'bg-transparent hover:bg-[#2f7510] hover:text-[#FFFFFF] focus-visible:bg-[#2f7510]'
                 }`
-
-                if (navLocked) {
-                  return (
-                    <li key={item.href}>
-                      <span className={`${className} cursor-default`}>{item.label}</span>
-                    </li>
-                  )
-                }
 
                 return (
                   <li key={item.href}>

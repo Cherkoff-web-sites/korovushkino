@@ -12,141 +12,113 @@ export default function CartPage() {
   const totalItems = getTotalItems()
 
   return (
-    <div className="min-h-screen">
-      {/* Секция "ВАША КОРЗИНА" */}
-      <section className="py-8 sm:py-12 lg:py-16">
+    <div className="min-h-screen bg-[#fdfbf6]">
+      <section className="border-b border-[#E5DECF] bg-white py-8 sm:py-12 lg:py-14">
         <div className="container">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 sm:mb-8 text-[#3D8C13]">
-            ВАША КОРЗИНА
-          </h1>
+          <h1 className="text-3xl font-normal leading-tight text-[#1F1F1F] sm:text-4xl">Корзина</h1>
 
           {items.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-[#232326]/75 text-lg mb-6">Ваша корзина пуста</p>
+            <div className="mt-10 rounded-xl border border-[#E5DECF] bg-white px-6 py-12 text-center">
+              <p className="mb-6 text-lg text-[#232326]/75">В корзине пока ничего нет</p>
               <Link href="/catalog">
-                <Button>Перейти в каталог</Button>
+                <Button size="lg">Перейти в каталог</Button>
               </Link>
             </div>
           ) : (
             <>
-              {/* Сводка */}
-              <div className="mb-6 sm:mb-8">
-                <p className="text-[#232326] text-base sm:text-lg">
-                  В вашей корзине {totalItems} {totalItems === 1 ? 'товар' : totalItems < 5 ? 'товара' : 'товаров'} на сумму{' '}
-                  <span className="text-[#3D8C13] font-semibold">
-                    {totalPrice.toLocaleString('ru-RU')} руб.
-                  </span>
-                </p>
-              </div>
+              <p className="mt-4 text-base text-[#232326] sm:text-lg">
+                {totalItems}{' '}
+                {totalItems === 1 ? 'товар' : totalItems < 5 ? 'товара' : 'товаров'} на сумму{' '}
+                <span className="font-semibold text-[#3D8C13]">
+                  {totalPrice.toLocaleString('ru-RU')} ₽
+                </span>
+              </p>
 
-              {/* Список товаров */}
-              <div className="space-y-4 sm:space-y-6">
+              <ul className="mt-8 space-y-4 sm:space-y-5">
                 {items.map((item) => (
-                  <div
+                  <li
                     key={item.id}
-                    className="bg-[#2A2529] border-2 border-[#3D8C13] rounded-lg p-4 sm:p-6 flex flex-col sm:flex-row gap-4 sm:gap-6 items-start sm:items-center"
+                    className="flex flex-col gap-4 rounded-xl border border-[#E5DECF] bg-white p-4 sm:flex-row sm:items-center sm:gap-6 sm:p-5"
                   >
-                    {/* Изображение товара */}
-                    <Link href={item.href} className="flex-shrink-0">
-                      <div className="relative w-24 h-24 sm:w-32 sm:h-32 bg-[#3B363C] rounded-lg overflow-hidden">
+                    <Link href={item.href} className="shrink-0 self-start sm:self-center">
+                      <div className="relative h-24 w-24 overflow-hidden rounded-lg border border-[#E5DECF] bg-[#fdfbf6] sm:h-28 sm:w-28">
                         <Image
                           src={item.image}
                           alt={item.name}
                           fill
                           className="object-contain p-2"
-                          sizes="(max-width: 640px) 96px, 128px"
+                          sizes="(max-width: 640px) 96px, 112px"
                         />
                       </div>
                     </Link>
 
-                    {/* Информация о товаре */}
-                    <div className="flex-1 min-w-0">
+                    <div className="min-w-0 flex-1">
                       <Link href={item.href}>
-                        <h3 className="text-white font-semibold text-base sm:text-lg mb-2 hover:text-[#3D8C13] transition-colors">
-                          {item.name} {item.model}
-                        </h3>
+                        <h2 className="text-base font-semibold text-[#1F1F1F] transition-colors hover:text-[#3D8C13] sm:text-lg">
+                          {item.name}
+                          {item.model ? <span className="font-normal text-[#232326]/70"> · {item.model}</span> : null}
+                        </h2>
                       </Link>
 
-                      {/* Количество */}
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="text-white/80 text-sm sm:text-base">Количество:</span>
-                        <div className="flex items-center gap-2">
+                      <div className="mt-3 flex flex-wrap items-center gap-3">
+                        <span className="text-sm text-[#232326]/70">Количество</span>
+                        <div className="inline-flex items-center gap-2 rounded-lg border border-[#E5DECF] bg-[#fdfbf6] p-1">
                           <button
+                            type="button"
                             onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                            className="w-8 h-8 rounded-full bg-[#3D8C13] text-white flex items-center justify-center hover:bg-[#3D8C13]/90 transition-colors"
+                            className="flex h-8 w-8 items-center justify-center rounded-md text-[#232326] transition-colors hover:bg-white"
                             aria-label="Уменьшить количество"
                           >
-                            <svg
-                              width="16"
-                              height="16"
-                              viewBox="0 0 16 16"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                            >
-                              <path d="M4 8h8" />
-                            </svg>
+                            <span className="text-lg leading-none">−</span>
                           </button>
-                          <span className="text-white font-semibold w-8 text-center">
+                          <span className="min-w-[2rem] text-center text-sm font-semibold text-[#232326]">
                             {item.quantity}
                           </span>
                           <button
+                            type="button"
                             onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            className="w-8 h-8 rounded-full bg-[#3D8C13] text-white flex items-center justify-center hover:bg-[#3D8C13]/90 transition-colors"
+                            className="flex h-8 w-8 items-center justify-center rounded-md text-[#232326] transition-colors hover:bg-white"
                             aria-label="Увеличить количество"
                           >
-                            <svg
-                              width="16"
-                              height="16"
-                              viewBox="0 0 16 16"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                            >
-                              <path d="M8 4v8M4 8h8" />
-                            </svg>
+                            <span className="text-lg leading-none">+</span>
                           </button>
                         </div>
                       </div>
 
-                      {/* Сумма */}
-                      <div className="flex items-center gap-2">
-                        <span className="text-white/80 text-sm sm:text-base">Сумма:</span>
-                        <span className="text-white font-semibold text-base sm:text-lg">
-                          {(item.price * item.quantity).toLocaleString('ru-RU')} руб.
+                      <p className="mt-2 text-sm text-[#232326]/80">
+                        Сумма:{' '}
+                        <span className="font-semibold text-[#1F1F1F]">
+                          {(item.price * item.quantity).toLocaleString('ru-RU')} ₽
                         </span>
-                      </div>
+                      </p>
                     </div>
 
-                    {/* Кнопка удаления */}
                     <button
+                      type="button"
                       onClick={() => removeItem(item.id)}
-                      className="flex-shrink-0 text-white/70 hover:text-[#3D8C13] transition-colors p-2"
+                      className="shrink-0 self-end text-sm font-medium text-[#232326]/60 underline-offset-2 hover:text-[#3D8C13] hover:underline sm:self-center"
                       aria-label="Удалить товар"
                     >
-                      <svg
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                        <line x1="10" y1="11" x2="10" y2="17" />
-                        <line x1="14" y1="11" x2="14" y2="17" />
-                      </svg>
+                      Удалить
                     </button>
-                  </div>
+                  </li>
                 ))}
+              </ul>
+
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-lg font-semibold text-[#1F1F1F]">
+                  Итого: <span className="text-[#3D8C13]">{totalPrice.toLocaleString('ru-RU')} ₽</span>
+                </p>
+                <Link href="/catalog">
+                  <Button variant="outline" size="lg">
+                    Продолжить покупки
+                  </Button>
+                </Link>
               </div>
             </>
           )}
         </div>
       </section>
-
     </div>
   )
 }

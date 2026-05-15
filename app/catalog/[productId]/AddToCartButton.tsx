@@ -2,7 +2,7 @@
 
 import { useCart } from '@/contexts/CartContext'
 import Button from '@/components/ui/Button'
-import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 interface AddToCartButtonProps {
   product: {
@@ -16,7 +16,6 @@ interface AddToCartButtonProps {
   label?: string
   variant?: 'primary' | 'outline'
   className?: string
-  allowZeroPrice?: boolean
 }
 
 export default function AddToCartButton({
@@ -24,10 +23,8 @@ export default function AddToCartButton({
   label = 'Добавить в корзину',
   variant = 'outline',
   className = 'w-full sm:w-auto flex-1',
-  allowZeroPrice = false,
 }: AddToCartButtonProps) {
   const { addItem } = useCart()
-  const router = useRouter()
 
   const handleAddToCart = () => {
     addItem({
@@ -38,29 +35,21 @@ export default function AddToCartButton({
       image: product.image,
       href: product.href,
     })
-    // Можно добавить уведомление или редирект
-    // router.push('/cart')
   }
 
-  if (product.price === 0 && !allowZeroPrice) {
+  if (product.price === 0) {
     return (
-      <Button
-        variant="outline"
-        size="lg"
-        className={`border-white text-white hover:bg-white/10 ${className}`}
+      <Link
+        href="/contact"
+        className={`inline-flex min-h-[48px] items-center justify-center rounded-lg border-2 border-[#3D8C13] bg-white px-8 py-3 text-center text-base font-medium text-[#3D8C13] transition-colors hover:bg-[#3D8C13]/10 ${className}`}
       >
-        Получить прайс-лист
-      </Button>
+        Узнать цену
+      </Link>
     )
   }
 
   return (
-    <Button
-      variant={variant}
-      size="lg"
-      className={className}
-      onClick={handleAddToCart}
-    >
+    <Button variant={variant} size="lg" className={className} onClick={handleAddToCart}>
       {label}
     </Button>
   )

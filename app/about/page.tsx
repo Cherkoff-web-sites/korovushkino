@@ -1,66 +1,143 @@
 import type { Metadata } from 'next'
+import type { ReactNode } from 'react'
 import Image from 'next/image'
-import Button from '@/components/ui/Button'
-import { getContent } from '@/lib/api/contentApi'
 
-// SSG страница - генерируется статически для SEO
 export const metadata: Metadata = {
-  title: 'О компании | CAREL Professional Service',
-  description: 'Информация о компании CAREL Professional Service',
+  title: 'О нас | Коровушкино',
+  description:
+    'Ферма «Коровушкино» в Тульской области: как всё началось, наше хозяйство, производство и ценности семейной фермы.',
 }
 
-export default async function AboutPage() {
-  const content = await getContent()
-  const aboutContent = content.about || {
-    paragraphs: [
-      'Наша компания специализируется на разработке и реализации решения для электропривода. Обеспечиваем полный цикл ввода оборудования в эксплуатацию, а также его последующее обслуживание.',
-      'Мы ценим время наших клиентов, поэтому наши инженеры готовы оперативно решить любые вопросы и обеспечить бесперебойную работу вашего оборудования. Вся продукция сертифицирована и производится под строгим контролем на наших партнерских заводах. Мы используем только лучшие комплектующие мировых брендов, таких как FAG, SKF, ZWZ, TDK, Vishay и др. Каждый компонент проходит строгий контроль, что гарантирует надежность и долговечность поставляемого оборудования.',
-      'Выбирая CAREL Professional Service, вы выбираете надёжного партнёра по сервису увлажнителей CAREL — от подбора оборудования до монтажа и обслуживания.',
-    ],
-  }
+/**
+ * Три иллюстрации страницы «О нас» — положите в `public/images/`:
+ *   about-origin.webp  — пейзаж / «С чего все началось»
+ *   about-farm.webp    — хозяйство / коровы
+ *   about-cheese.webp  — производство / сыры
+ */
+const IMG_ORIGIN = '/images/about-origin.webp'
+const IMG_FARM = '/images/about-farm.webp'
+const IMG_CHEESE = '/images/about-cheese.webp'
+
+function AboutImage({ src, alt, sizes }: { src: string; alt: string; sizes?: string }) {
   return (
-    <div className="min-h-screen">
-      {/* Секция "О КОМПАНИИ" */}
-      <section className="py-8 sm:py-12 lg:py-16 relative overflow-hidden">
-        {/* Фоновый градиент */}
-        <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-gradient-to-l from-[#3D8C13]/20 to-transparent pointer-events-none"></div>
-        
-        <div className="container relative z-10">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-8 sm:mb-12 text-[#3D8C13]">
-            О КОМПАНИИ
+    <div className="relative min-h-[220px] w-full overflow-hidden rounded-xl sm:min-h-[280px] lg:min-h-[360px]">
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        className="object-cover"
+        sizes={sizes ?? '(max-width: 1024px) 100vw, 58vw'}
+      />
+    </div>
+  )
+}
+
+function BodyBlock({ children }: { children: ReactNode }) {
+  return <div className="space-y-4 text-[16px] font-normal leading-relaxed text-black">{children}</div>
+}
+
+export default function AboutPage() {
+  return (
+    <div className="min-h-screen bg-[#fdfbf6]">
+      <div className="h-1 w-full bg-[#3D8C13]" aria-hidden />
+
+      <section className="py-10 sm:py-12 lg:py-14">
+        <div className="container">
+          <h1 className="mb-10 text-[36px] font-normal leading-tight text-black sm:mb-[40px] lg:mb-[40px]">
+            О нас
           </h1>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
-            {/* Левая часть - Текст и кнопка */}
-            <div>
-              <div className="space-y-6 text-[#232326]/90 text-base sm:text-lg leading-relaxed mb-8">
-                {aboutContent.paragraphs.map((paragraph, index) => (
-                  <p key={index}>{paragraph}</p>
-                ))}
-              </div>
-
-              {/* Кнопка "Скачать презентацию" */}
-              <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                Скачать презентацию
-              </Button>
+          {/* С чего всё началось: картинка 7 | текст 5 */}
+          <div className="mb-10 grid grid-cols-1 gap-6 lg:mb-14 lg:grid-cols-12 lg:items-center lg:gap-8">
+            <div className="lg:col-span-7">
+              <AboutImage src={IMG_ORIGIN} alt="Пейзаж Тульской области — место фермы «Коровушкино»" />
             </div>
-
-            {/* Правая часть - Изображение */}
-            <div className="relative">
-              <div className="relative w-full aspect-[3/4] overflow-hidden">
-                <Image
-                  src="/images/about.webp"
-                  alt="О компании"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                />
-              </div>
+            <div className="lg:col-span-5">
+              <h2 className="mb-3 text-[20px] font-bold leading-snug text-black">С чего все началось</h2>
+              <BodyBlock>
+                <p>
+                  Ферма «Коровушкино» появилась из простой идеи — делать настоящие продукты, такие, какими они
+                  были раньше. Без сложных технологий, без искусственных добавок, только из натурального молока и
+                  мяса.
+                </p>
+                <p>
+                  Несколько лет назад наша семья решила вернуться к фермерскому хозяйству. Мы хотели не просто
+                  выращивать животных, а создать место, где продукты делают с уважением к природе и традициям.
+                </p>
+                <p>
+                  Так в экологически чистом районе Тульской области появилась небольшая ферма, которая со временем
+                  стала делом всей семьи.
+                </p>
+              </BodyBlock>
             </div>
+          </div>
+
+          {/* Наше хозяйство: текст 7 | картинка 5 */}
+          <div className="mb-10 grid grid-cols-1 gap-6 lg:mb-14 lg:grid-cols-12 lg:items-center lg:gap-8">
+            <div className="lg:col-span-7">
+              <h2 className="mb-3 text-[20px] font-bold leading-snug text-black">Наше хозяйство</h2>
+              <BodyBlock>
+                <p>
+                  Сегодня на ферме «Коровушкино» живут коровы, которые дают натуральное молоко для нашей продукции.
+                  Животные получают только натуральные корма и содержатся в спокойных и комфортных условиях.
+                </p>
+                <p>
+                  Мы внимательно следим за качеством каждого этапа: от ухода за животными до производства готовых
+                  продуктов.
+                </p>
+                <p>
+                  Именно поэтому наше молоко, йогурты, сыры и мясные продукты сохраняют настоящий деревенский вкус.
+                </p>
+              </BodyBlock>
+            </div>
+            <div className="lg:col-span-5">
+              <AboutImage
+                src={IMG_FARM}
+                alt="Коровы на ферме «Коровушкино»"
+                sizes="(max-width: 1024px) 100vw, 42vw"
+              />
+            </div>
+          </div>
+
+          {/* Как мы делаем продукты: картинка 7 | текст 5 */}
+          <div className="mb-10 grid grid-cols-1 gap-6 lg:mb-14 lg:grid-cols-12 lg:items-center lg:gap-8">
+            <div className="lg:col-span-7">
+              <AboutImage src={IMG_CHEESE} alt="Выдержка сыров на ферме" />
+            </div>
+            <div className="lg:col-span-5">
+              <h2 className="mb-3 text-[20px] font-bold leading-snug text-black">Как мы делаем продукты</h2>
+              <BodyBlock>
+                <p>
+                  Мы придерживаемся простого принципа — минимум обработки и максимум натуральности. Молочные продукты
+                  на ферме готовятся традиционными методами. Например, часть продукции мы делаем термостатным
+                  способом, который позволяет сохранить полезные бактерии и натуральную структуру продукта. Мы не
+                  используем искусственные добавки, усилители вкуса или консерванты. Всё, что попадает на ваш стол —
+                  это результат натурального производства и свежего фермерского сырья.
+                </p>
+              </BodyBlock>
+            </div>
+          </div>
+
+          {/* Почему мы это делаем: текст 7 | пусто 5 */}
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
+            <div className="lg:col-span-7">
+              <h2 className="mb-3 text-[20px] font-bold leading-snug text-black">Почему мы это делаем</h2>
+              <BodyBlock>
+                <p>Для нас ферма — это не просто бизнес. Это дело, которое мы создаём для людей, ценящих настоящую еду.</p>
+                <p>
+                  Мы хотим, чтобы каждый покупатель, открывая бутылку молока или баночку йогурта, чувствовал вкус
+                  натурального продукта, каким он должен быть.
+                </p>
+                <p>
+                  Ферма «Коровушкино» — это возвращение к простым и честным продуктам, сделанным с заботой о качестве и
+                  с уважением к традициям.
+                </p>
+              </BodyBlock>
+            </div>
+            <div className="hidden min-h-[1px] lg:col-span-5 lg:block" aria-hidden />
           </div>
         </div>
       </section>
     </div>
   )
 }
-

@@ -2,7 +2,7 @@
 
 Фермерские продукты и корзины. Стек: **Next.js 14** (App Router), **React 18**, **TypeScript**, **Tailwind CSS**.
 
-Пакет в `package.json` по-прежнему может называться `carel-professional-service` — это историческое имя; продукт и метаданные сайта — **Коровушкино**.
+Имя пакета в `package.json`: **`korovushkino`**.
 
 ## Быстрый старт
 
@@ -33,62 +33,46 @@ npm run lint
 | `/` | `app/page.tsx` | Главная: hero, преимущества, сетка категорий, отзывы, блок «О нас» |
 | `/about` | `app/about/page.tsx` | О компании |
 | `/contact` | `app/contact/page.tsx` | Контакты |
-| `/services` | `app/services/page.tsx` | Услуги |
 | `/catalog` | `app/catalog/page.tsx` | **`'use client'`** — клиентская страница каталога |
 | `/catalog/[productId]` | `app/catalog/[productId]/page.tsx` | Карточка товара + табы, изображения, кнопка в корзину |
 | `/cart` | `app/cart/page.tsx` | Корзина |
-| `/admin` | `app/admin/page.tsx` | Админ-панель (контент/товары) |
+| `/delivery-payment` | `app/delivery-payment/page.tsx` | Доставка и оплата |
+| `/baskets` | `app/baskets/page.tsx` | Готовые корзины |
 
-В шапке есть пункт «Доставка и оплата» (`/delivery-payment`) — отдельной страницы в `app/` сейчас нет; при необходимости добавьте `app/delivery-payment/page.tsx`.
-
-## API Routes
-
-- `GET` `app/api/products/route.ts` — список товаров  
-- `GET` `app/api/products/[productId]/route.ts` — товар по id  
-- `app/api/admin/products/route.ts` — админ: товары  
-- `app/api/admin/content/route.ts` — админ: контент  
+Публичных **API Routes** в проекте нет: каталог и карточка товара используют `lib/api/productsData.ts` и при необходимости `data/products.json` через `lib/api/productsApi.ts` (только чтение на сервере).
 
 ## Структура проекта
 
 ```
 prod/
 ├── app/
-│   ├── layout.tsx              # Inter, Header, CartProvider, main (без Footer)
+│   ├── layout.tsx              # Inter, Header, Footer, CartProvider, main
 │   ├── page.tsx                # Главная
 │   ├── globals.css             # Tailwind + глобальные стили
+│   ├── delivery-payment/page.tsx
+│   ├── baskets/
 │   ├── about/page.tsx
 │   ├── contact/page.tsx
-│   ├── services/page.tsx
 │   ├── cart/page.tsx
-│   ├── admin/page.tsx
 │   ├── catalog/
 │   │   ├── page.tsx
-│   │   ├── components/         # ProductList, ProductCard, Filters
+│   │   ├── components/         # CatalogGridCard
 │   │   └── [productId]/
 │   │       ├── page.tsx
 │   │       ├── ProductTabs.tsx
-│   │       ├── ProductImages.tsx
 │   │       └── AddToCartButton.tsx
-│   └── api/
-│       ├── products/
-│       └── admin/
 ├── components/
 │   ├── Header/                 # Header, Navigation, MobileMenu
 │   ├── home/                   # AboutSection, ReviewsSection
-│   ├── ui/                     # Button, Input, Card
-│   ├── Layout/Container.tsx
-│   ├── ScrollToTop.tsx
-│   └── AddToCartButtonSimple.tsx
+│   ├── Footer/
+│   ├── ui/                     # Button
+│   └── ScrollToTop.tsx
 ├── contexts/
 │   └── CartContext.tsx         # Корзина + localStorage
 ├── lib/
-│   ├── constants.ts, utils.ts
-│   └── api/                    # mockData, productsApi, contentApi, productsData
-├── types/
-│   ├── product.ts
-│   └── global.d.ts
+│   └── api/                    # productsApi, productsData (без REST-админки)
 ├── public/
-│   └── images/                 # logo, header, home-benefits, features, home/* и т.д.
+│   └── images/                 # home, home-benefits, header — см. public/images/README.md
 ├── tailwind.config.ts
 ├── postcss.config.js
 ├── next.config.js

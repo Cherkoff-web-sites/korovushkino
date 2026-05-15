@@ -41,11 +41,11 @@ export default function ProductTabs({ product }: ProductTabsProps) {
           <div className="space-y-4 text-sm leading-relaxed text-[#232326] sm:text-base">
             <p>{product.description}</p>
             {product.briefDescription ? <p className="text-[#232326]/80">{product.briefDescription}</p> : null}
-            {product.descriptionContent?.advantages?.length ? (
+            {product.advantages?.length ? (
               <div>
                 <h3 className="mb-2 font-semibold text-[#1F1F1F]">Преимущества</h3>
                 <ul className="list-inside list-disc space-y-1 text-[#232326]/90">
-                  {product.descriptionContent.advantages.map((item) => (
+                  {product.advantages.map((item) => (
                     <li key={item}>{item}</li>
                   ))}
                 </ul>

@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import ScrollToTop from '@/components/ScrollToTop'
 import ProductTabs from './ProductTabs'
 import AddToCartButton from './AddToCartButton'
 import { getProduct } from '@/lib/api/productsApi'
@@ -114,7 +113,6 @@ export default async function ProductPage({ params }: { params: { productId: str
                 label="В корзину"
                 variant="primary"
                 className="w-full rounded-lg bg-[#3D8C13] px-8 py-3 text-base font-medium text-white hover:bg-[#347710] sm:w-auto sm:min-w-[220px]"
-                allowZeroPrice
               />
             </div>
           </div>
@@ -124,8 +122,6 @@ export default async function ProductPage({ params }: { params: { productId: str
           </div>
         </div>
       </section>
-
-      <ScrollToTop />
     </div>
   )
 }

@@ -5,10 +5,7 @@ const nextConfig = {
   
   // Оптимизация для SEO
   compress: true,
-  
-  // Для SSG статических страниц
-  output: 'standalone',
-  
+
   // Оптимизация изображений
   images: {
     formats: ['image/avif', 'image/webp'],

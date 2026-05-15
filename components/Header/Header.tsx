@@ -27,13 +27,13 @@ export default function Header() {
 
             <div className="flex items-center gap-3">
               <div className="hidden lg:flex items-center gap-3">
-                <button
-                  type="button"
-                  className="flex h-10 w-10 items-center justify-center rounded-md bg-white text-[#1f1f1f]"
+                <Link
+                  href="/cart"
+                  className="flex h-10 w-10 items-center justify-center rounded-md bg-white text-[#1f1f1f] transition-opacity hover:opacity-90"
                   aria-label="Корзина"
                 >
                   <Image src={headerIcons.cart} alt="" width={22} height={22} />
-                </button>
+                </Link>
                 <button
                   type="button"
                   className="flex h-10 w-10 items-center justify-center rounded-md bg-white text-[#1f1f1f]"

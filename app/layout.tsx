@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import Header from '@/components/Header/Header'
 import Footer from '@/components/Footer/Footer'
+import ScrollToTop from '@/components/ScrollToTop'
 import { CartProvider } from '@/contexts/CartContext'
 import './globals.css'
 
@@ -30,6 +31,7 @@ export default function RootLayout({
             <Header />
             <main className="flex-grow">{children}</main>
             <Footer />
+            <ScrollToTop />
           </div>
         </CartProvider>
       </body>

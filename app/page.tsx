@@ -175,7 +175,6 @@ export default function HomePage() {
               <li key={item.id} className={`min-w-0 ${item.lgClass}`}>
                 <Link
                   href={`/catalog?category=${item.id}`}
-                  scroll={false}
                   className="group block h-full min-h-[200px] rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3D8C13] focus-visible:ring-offset-2 focus-visible:ring-offset-[#fdfbf6] lg:min-h-0"
                   aria-label={`${item.title} — перейти в каталог`}
                 >

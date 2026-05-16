@@ -1,56 +1,27 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import {
+  HOME_REVIEW_BODY,
+  HOME_REVIEW_VARIANTS,
+  buildReviewCards,
+} from '@/lib/reviewsData'
 
-type ReviewItem = {
-  id: string
-  productLabel: string
-  authorName: string
-  date: string
-  rating: number
-  text: string
-  reply: {
-    authorLabel: string
-    date: string
-    text: string
-  }
+type ReviewItem = ReturnType<typeof buildReviewCards>[number] & {
   tabLine: string
+  productLabel: string
 }
 
-const REVIEW_TEMPLATE = {
-  productLabel: 'Козье молоко',
-  rating: 5,
-  text: 'Очень вкусное, натуральное молоко. Без запаха, очень приятно пить его. Буду заказывать еще!',
-  replyAuthorLabel: 'Семейная ферма «Коровушкино»',
-} as const
-
-function replyTextForAuthor(name: string) {
-  return `Здравствуйте, ${name}! Большое спасибо за положительный отзыв)`
+function buildHomeReviews(): ReviewItem[] {
+  const cards = buildReviewCards([...HOME_REVIEW_VARIANTS], HOME_REVIEW_BODY)
+  return HOME_REVIEW_VARIANTS.map((v, i) => ({
+    ...cards[i]!,
+    tabLine: `${v.authorName} ${v.date}`,
+    productLabel: 'Козье молоко',
+  }))
 }
 
-const REVIEW_VARIANTS = [
-  { id: '1', authorName: 'Наталья', date: '15.03.2026', replyDate: '16.03.2026' },
-  { id: '2', authorName: 'Яна', date: '19.10.2025', replyDate: '20.10.2025' },
-  { id: '3', authorName: 'Елена', date: '08.11.2025', replyDate: '09.11.2025' },
-  { id: '4', authorName: 'Евгения', date: '10.01.2026', replyDate: '11.01.2026' },
-  { id: '5', authorName: 'Виктор', date: '19.02.2026', replyDate: '20.02.2026' },
-  { id: '6', authorName: 'Ольга', date: '25.02.2026', replyDate: '26.02.2026' },
-] as const
-
-const REVIEWS: ReviewItem[] = REVIEW_VARIANTS.map((v) => ({
-  id: v.id,
-  productLabel: REVIEW_TEMPLATE.productLabel,
-  authorName: v.authorName,
-  date: v.date,
-  rating: REVIEW_TEMPLATE.rating,
-  text: REVIEW_TEMPLATE.text,
-  reply: {
-    authorLabel: REVIEW_TEMPLATE.replyAuthorLabel,
-    date: v.replyDate,
-    text: replyTextForAuthor(v.authorName),
-  },
-  tabLine: `${v.authorName} ${v.date}`,
-}))
+const REVIEWS = buildHomeReviews()
 
 function StarRow({ count }: { count: number }) {
   return (

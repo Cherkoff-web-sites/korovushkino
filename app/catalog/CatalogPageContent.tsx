@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import {
   CATEGORY_LABELS,
@@ -10,10 +10,12 @@ import {
   type ProductData,
 } from '@/lib/api/productsData'
 import CatalogGridCard from './components/CatalogGridCard'
+import ProductQuickViewModal from './components/ProductQuickViewModal'
 
 const categoryEntries = Object.entries(CATEGORY_LABELS) as [CategorySlug, string][]
 
 export default function CatalogPageContent({ allProducts }: { allProducts: ProductData[] }) {
+  const [previewProduct, setPreviewProduct] = useState<ProductData | null>(null)
   const searchParams = useSearchParams()
   const raw = searchParams.get('category')?.trim() ?? ''
   const activeSlug: CategorySlug | null = raw && isCategorySlug(raw) ? raw : null
@@ -27,6 +29,7 @@ export default function CatalogPageContent({ allProducts }: { allProducts: Produ
 
   return (
     <section className="py-6 sm:py-8 lg:py-10">
+      <ProductQuickViewModal product={previewProduct} onClose={() => setPreviewProduct(null)} />
       <div className="container">
         <nav className="mb-4 text-sm text-[#232326]/55 sm:text-[15px]" aria-label="Навигация">
           <ol className="flex flex-wrap items-center gap-2">
@@ -61,7 +64,6 @@ export default function CatalogPageContent({ allProducts }: { allProducts: Produ
         <div className="mb-8 flex flex-wrap gap-2">
           <Link
             href="/catalog"
-            scroll={false}
             className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
               !activeSlug
                 ? 'border-[#3D8C13] bg-[#3D8C13] text-white'
@@ -74,7 +76,6 @@ export default function CatalogPageContent({ allProducts }: { allProducts: Produ
             <Link
               key={slug}
               href={`/catalog?category=${slug}`}
-              scroll={false}
               className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
                 activeSlug === slug
                   ? 'border-[#3D8C13] bg-[#3D8C13] text-white'
@@ -91,7 +92,7 @@ export default function CatalogPageContent({ allProducts }: { allProducts: Produ
         ) : (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {products.map((product) => (
-              <CatalogGridCard key={product.id} product={product} />
+              <CatalogGridCard key={product.id} product={product} onOpen={setPreviewProduct} />
             ))}
           </div>
         )}

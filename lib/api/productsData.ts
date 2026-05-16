@@ -30,6 +30,11 @@ export interface ProductData {
   briefDescription?: string
   /** Текст на карточке в каталоге (2 строки с обрезкой); если нет — показывается `description`. */
   catalogCardTeaser?: string
+  /** КБЖУ на 100 г и ккал — блок «Пищевая ценность» в поп-апе товара */
+  modalNutrition?: {
+    macrosPer100g: string
+    kcal: string
+  }
   images: string[]
   breadcrumbs: {
     label: string
@@ -66,6 +71,7 @@ function p(
   briefDescription: string,
   catalogImage?: string,
   catalogCardTeaser?: string,
+  modalNutrition?: ProductData['modalNutrition'],
 ): ProductData {
   return {
     id,
@@ -77,6 +83,7 @@ function p(
     description,
     briefDescription,
     catalogCardTeaser,
+    modalNutrition,
     images: [catalogImage ?? PLACEHOLDER_IMG],
     breadcrumbs: productBreadcrumbs(name, categorySlug),
   }
@@ -101,10 +108,14 @@ export const productsData: Record<string, ProductData> = {
     '0,5л',
     'dairy',
     140,
-    'Нежное козье молоко с мягким вкусом. Удобный объём для первого знакомства с продуктом или небольшой семьи.',
+    'Свежее козье молоко с нашей фермы в Тульской области: нежный вкус и бережная пастеризация. Без растительных жиров — натуральный продукт для всей семьи.',
     'Козье молоко 0,5 л.',
     '/images/product_2.webp',
     'Свежее козье молоко с нашей фермы — идеальный выбор для тех, кто ценит нежный натуральный вкус.',
+    {
+      macrosPer100g: 'Белки — 3,6 г. Жиры — 3–5 г. Углеводы — 4,5 г.',
+      kcal: '69',
+    },
   ),
   'toplenoe-moloko': p(
     'toplenoe-moloko',

@@ -1,12 +1,12 @@
 'use client'
 
 import Image from 'next/image'
-import Link from 'next/link'
 import { useCart } from '@/contexts/CartContext'
 import type { ProductData } from '@/lib/api/productsData'
 
 const favoritesIcon = '/images/header/icon-favorites.svg'
 const cartIcon = '/images/header/icon-cart.svg'
+const CATALOG_HREF = '/catalog'
 
 function GoldStars() {
   return (
@@ -20,10 +20,21 @@ function GoldStars() {
   )
 }
 
-export default function CatalogGridCard({ product }: { product: ProductData }) {
+export default function CatalogGridCard({
+  product,
+  onOpen,
+}: {
+  product: ProductData
+  onOpen: (product: ProductData) => void
+}) {
   const { addItem } = useCart()
-  const href = `/catalog/${product.id}`
   const cardText = product.catalogCardTeaser ?? product.description
+
+  const handleOpen = (e: React.MouseEvent) => {
+    const t = e.target as HTMLElement
+    if (t.closest('button')) return
+    onOpen(product)
+  }
 
   const handleCart = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -34,7 +45,7 @@ export default function CatalogGridCard({ product }: { product: ProductData }) {
       model: product.series,
       price: product.price,
       image: product.images[0] ?? '/images/home/hero-bg.png',
-      href,
+      href: CATALOG_HREF,
     })
   }
 
@@ -44,17 +55,28 @@ export default function CatalogGridCard({ product }: { product: ProductData }) {
   }
 
   return (
-    <article className="flex h-full flex-col overflow-hidden rounded-xl border border-[#D1C4B2] bg-[#FFF9F0] shadow-sm transition-shadow hover:shadow-md">
+    <article
+      tabIndex={0}
+      onClick={handleOpen}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onOpen(product)
+        }
+      }}
+      className="flex h-full cursor-pointer flex-col overflow-hidden rounded-xl border border-[#D1C4B2] bg-[#FFF9F0] shadow-sm transition-shadow hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3D8C13] focus-visible:ring-offset-2"
+      aria-label={`${product.name} — открыть карточку`}
+    >
       <div className="relative aspect-[4/3] w-full shrink-0 bg-[#F5F0E8]">
-        <Link href={href} className="absolute inset-0 z-0 block">
+        <div className="absolute inset-0 z-0">
           <Image
             src={product.images[0] ?? '/images/home/hero-bg.png'}
-            alt={product.name}
+            alt=""
             fill
             className="object-cover"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
-        </Link>
+        </div>
         <button
           type="button"
           onClick={handleFavorite}
@@ -66,14 +88,14 @@ export default function CatalogGridCard({ product }: { product: ProductData }) {
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col bg-[#FFF9F0] px-[15px] pb-4 pt-[15px]">
-        <Link href={href} className="block min-h-0 flex-1">
+        <div className="block min-h-0 flex-1">
           <h2 className="line-clamp-2 text-base font-bold leading-snug text-black sm:text-[17px]">{product.name}</h2>
           <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-[#707070]">{cardText}</p>
           <p className="mt-3 text-lg font-bold leading-none text-black sm:text-xl">
             {product.price}₽
             <span className="text-sm font-normal text-[#707070] sm:text-[15px]">/{product.series}</span>
           </p>
-        </Link>
+        </div>
         <div className="mt-auto flex items-end justify-between gap-3 pt-4">
           <GoldStars />
           <button

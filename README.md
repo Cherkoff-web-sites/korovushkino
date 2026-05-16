@@ -33,13 +33,13 @@ npm run lint
 | `/` | `app/page.tsx` | Главная: hero, преимущества, сетка категорий, отзывы, блок «О нас» |
 | `/about` | `app/about/page.tsx` | О компании |
 | `/contact` | `app/contact/page.tsx` | Контакты |
-| `/catalog` | `app/catalog/page.tsx` | **`'use client'`** — клиентская страница каталога |
-| `/catalog/[productId]` | `app/catalog/[productId]/page.tsx` | Карточка товара + табы, изображения, кнопка в корзину |
+| `/catalog` | `app/catalog/page.tsx` | Каталог: сетка товаров, фильтр по категории, поп-ап карточки |
+| `/catalog/[productId]/reviews` | `app/catalog/[productId]/reviews/page.tsx` | Отзывы к выбранному товару |
 | `/cart` | `app/cart/page.tsx` | Корзина |
 | `/delivery-payment` | `app/delivery-payment/page.tsx` | Доставка и оплата |
 | `/baskets` | `app/baskets/page.tsx` | Готовые корзины |
 
-Публичных **API Routes** в проекте нет: каталог и карточка товара используют `lib/api/productsData.ts` и при необходимости `data/products.json` через `lib/api/productsApi.ts` (только чтение на сервере).
+Публичных **API Routes** в проекте нет: каталог и поп-ап товара берут данные из `lib/api/productsData.ts`; опционально `data/products.json` через `lib/api/productsApi.ts` (только чтение на сервере при расширении).
 
 ## Структура проекта
 
@@ -56,11 +56,9 @@ prod/
 │   ├── cart/page.tsx
 │   ├── catalog/
 │   │   ├── page.tsx
-│   │   ├── components/         # CatalogGridCard
-│   │   └── [productId]/
-│   │       ├── page.tsx
-│   │       ├── ProductTabs.tsx
-│   │       └── AddToCartButton.tsx
+│   │   ├── CatalogPageContent.tsx   # фильтр, поп-ап
+│   │   ├── [productId]/reviews/page.tsx   # отзывы по товару
+│   │   └── components/              # CatalogGridCard, ProductQuickViewModal
 ├── components/
 │   ├── Header/                 # Header, Navigation, MobileMenu
 │   ├── home/                   # AboutSection, ReviewsSection

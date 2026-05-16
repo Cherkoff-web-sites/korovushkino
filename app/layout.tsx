@@ -4,6 +4,7 @@ import Header from '@/components/Header/Header'
 import Footer from '@/components/Footer/Footer'
 import ScrollToTop from '@/components/ScrollToTop'
 import { CartProvider } from '@/contexts/CartContext'
+import { FavoritesProvider } from '@/contexts/FavoritesContext'
 import './globals.css'
 
 const inter = Inter({
@@ -27,12 +28,14 @@ export default function RootLayout({
     <html lang="ru" className={inter.variable}>
       <body className={inter.className}>
         <CartProvider>
-          <div className="flex flex-col min-h-screen">
+          <FavoritesProvider>
+            <div className="flex min-h-screen flex-col">
             <Header />
             <main className="flex-grow">{children}</main>
             <Footer />
             <ScrollToTop />
-          </div>
+            </div>
+          </FavoritesProvider>
         </CartProvider>
       </body>
     </html>

@@ -1,10 +1,10 @@
 'use client'
 
 import Image from 'next/image'
+import FavoriteHeartButton from '@/components/FavoriteHeartButton'
 import { useCart } from '@/contexts/CartContext'
 import type { ProductData } from '@/lib/api/productsData'
 
-const favoritesIcon = '/images/header/icon-favorites.svg'
 const cartIcon = '/images/header/icon-cart.svg'
 const CATALOG_HREF = '/catalog'
 
@@ -49,11 +49,6 @@ export default function CatalogGridCard({
     })
   }
 
-  const handleFavorite = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-  }
-
   return (
     <article
       tabIndex={0}
@@ -77,14 +72,11 @@ export default function CatalogGridCard({
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
         </div>
-        <button
-          type="button"
-          onClick={handleFavorite}
-          className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-[#E8E0D4] bg-white shadow-sm transition-colors hover:border-[#D1C4B2]"
-          aria-label="В избранное"
-        >
-          <Image src={favoritesIcon} alt="" width={18} height={18} />
-        </button>
+        <FavoriteHeartButton
+          productId={product.id}
+          iconSize={18}
+          className="absolute right-3 top-3 z-10 h-9 w-9 shadow-sm"
+        />
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col bg-[#FFF9F0] px-[15px] pb-4 pt-[15px]">

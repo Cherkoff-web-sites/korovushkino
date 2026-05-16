@@ -74,6 +74,34 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
 
           {/* Навигация */}
           <nav className="flex-1 overflow-y-auto p-4">
+            <ul className="mb-6 space-y-2 border-b border-white/25 pb-6">
+              <li>
+                <Link
+                  href="/favorites"
+                  onClick={onClose}
+                  className={`block rounded-lg px-4 py-3 font-normal text-[#FFFFFF] ${
+                    pathname === '/favorites'
+                      ? 'bg-[#FFFFFF] text-[#3D8C13]'
+                      : 'bg-transparent hover:bg-[#2f7510]'
+                  }`}
+                >
+                  Избранное
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/cart"
+                  onClick={onClose}
+                  className={`block rounded-lg px-4 py-3 font-normal text-[#FFFFFF] ${
+                    pathname === '/cart'
+                      ? 'bg-[#FFFFFF] text-[#3D8C13]'
+                      : 'bg-transparent hover:bg-[#2f7510]'
+                  }`}
+                >
+                  Корзина
+                </Link>
+              </li>
+            </ul>
             <ul className="space-y-2">
               {NAVIGATION_ITEMS.map((item) => {
                 const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)

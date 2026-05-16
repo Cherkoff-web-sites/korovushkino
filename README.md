@@ -36,6 +36,7 @@ npm run lint
 | `/catalog` | `app/catalog/page.tsx` | Каталог: сетка товаров, фильтр по категории, поп-ап карточки |
 | `/catalog/[productId]/reviews` | `app/catalog/[productId]/reviews/page.tsx` | Отзывы к выбранному товару |
 | `/cart` | `app/cart/page.tsx` | Корзина |
+| `/favorites` | `app/favorites/page.tsx` | Избранное (localStorage) |
 | `/delivery-payment` | `app/delivery-payment/page.tsx` | Доставка и оплата |
 | `/baskets` | `app/baskets/page.tsx` | Готовые корзины |
 
@@ -46,10 +47,11 @@ npm run lint
 ```
 prod/
 ├── app/
-│   ├── layout.tsx              # Inter, Header, Footer, CartProvider, main
+│   ├── layout.tsx              # Inter, Header, Footer, CartProvider, FavoritesProvider
 │   ├── page.tsx                # Главная
 │   ├── globals.css             # Tailwind + глобальные стили
 │   ├── delivery-payment/page.tsx
+│   ├── favorites/              # layout (metadata) + page
 │   ├── baskets/
 │   ├── about/page.tsx
 │   ├── contact/page.tsx
@@ -64,9 +66,11 @@ prod/
 │   ├── home/                   # AboutSection, ReviewsSection
 │   ├── Footer/
 │   ├── ui/                     # Button
+│   ├── FavoriteHeartButton.tsx
 │   └── ScrollToTop.tsx
 ├── contexts/
-│   └── CartContext.tsx         # Корзина + localStorage
+│   ├── CartContext.tsx         # Корзина + localStorage
+│   └── FavoritesContext.tsx   # id товаров в избранном + localStorage
 ├── lib/
 │   └── api/                    # productsApi, productsData (без REST-админки)
 ├── public/

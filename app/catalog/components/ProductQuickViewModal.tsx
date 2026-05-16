@@ -3,10 +3,10 @@
 import { useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import FavoriteHeartButton from '@/components/FavoriteHeartButton'
 import { useCart } from '@/contexts/CartContext'
 import type { ProductData } from '@/lib/api/productsData'
 
-const favoritesIcon = '/images/header/icon-favorites.svg'
 const cartIcon = '/images/header/icon-cart.svg'
 const PLACEHOLDER = '/images/home/hero-bg.png'
 const CATALOG_HREF = '/catalog'
@@ -135,13 +135,11 @@ export default function ProductQuickViewModal({
                 />
                 В корзину
               </button>
-              <button
-                type="button"
-                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-[#B8B8B8] bg-white transition-colors hover:border-[#D1C4B2]"
-                aria-label="В избранное"
-              >
-                <Image src={favoritesIcon} alt="" width={22} height={22} />
-              </button>
+              <FavoriteHeartButton
+                productId={product.id}
+                iconSize={22}
+                className="h-12 w-12 shrink-0"
+              />
             </div>
           </div>
 

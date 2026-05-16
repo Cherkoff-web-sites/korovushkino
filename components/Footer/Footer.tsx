@@ -51,6 +51,11 @@ export default function Footer() {
                 <h3 className="mb-3 text-base font-bold text-[#1F1F1F]">Для клиентов</h3>
                 <ul className="space-y-2 text-sm text-[#232326]/75">
                   <li>
+                    <Link href="/favorites" className="transition-colors hover:text-[#232326]">
+                      Избранное
+                    </Link>
+                  </li>
+                  <li>
                     <Link href="/delivery-payment" className="transition-colors hover:text-[#232326]">
                       Доставка и оплата
                     </Link>

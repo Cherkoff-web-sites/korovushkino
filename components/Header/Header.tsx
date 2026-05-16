@@ -56,13 +56,13 @@ export default function Header() {
                     </span>
                   ) : null}
                 </Link>
-                <button
-                  type="button"
-                  className="flex h-10 w-10 items-center justify-center rounded-md bg-white text-[#1f1f1f]"
-                  aria-label="Профиль"
+                <Link
+                  href="/account"
+                  className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-white text-[#1f1f1f] transition-opacity hover:opacity-90"
+                  aria-label="Личный кабинет"
                 >
                   <Image src={headerIcons.account} alt="" width={22} height={22} />
-                </button>
+                </Link>
               </div>
 
               <button

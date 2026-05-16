@@ -77,6 +77,19 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             <ul className="mb-6 space-y-2 border-b border-white/25 pb-6">
               <li>
                 <Link
+                  href="/account"
+                  onClick={onClose}
+                  className={`block rounded-lg px-4 py-3 font-normal text-[#FFFFFF] ${
+                    pathname === '/account' || pathname.startsWith('/account/')
+                      ? 'bg-[#FFFFFF] text-[#3D8C13]'
+                      : 'bg-transparent hover:bg-[#2f7510]'
+                  }`}
+                >
+                  Личный кабинет
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/favorites"
                   onClick={onClose}
                   className={`block rounded-lg px-4 py-3 font-normal text-[#FFFFFF] ${

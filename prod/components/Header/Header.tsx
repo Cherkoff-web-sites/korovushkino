@@ -7,6 +7,7 @@ import { useCart } from '@/contexts/CartContext'
 import { useFavorites } from '@/contexts/FavoritesContext'
 import Navigation from './Navigation'
 import MobileMenu from './MobileMenu'
+import AccountEntryButton from '@/components/auth/AccountEntryButton'
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -16,7 +17,6 @@ export default function Header() {
   const headerIcons = {
     cart: '/images/header/icon-cart.svg',
     favorites: '/images/header/icon-favorites.svg',
-    account: '/images/header/icon-account.svg',
   }
 
   return (
@@ -56,13 +56,7 @@ export default function Header() {
                     </span>
                   ) : null}
                 </Link>
-                <Link
-                  href="/account"
-                  className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-white text-[#1f1f1f] transition-opacity hover:opacity-90"
-                  aria-label="Личный кабинет"
-                >
-                  <Image src={headerIcons.account} alt="" width={22} height={22} />
-                </Link>
+                <AccountEntryButton className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-white text-[#1f1f1f] transition-opacity hover:opacity-90" />
               </div>
 
               <button

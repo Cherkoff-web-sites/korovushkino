@@ -4,7 +4,7 @@ export default function AccountPasswordPage() {
   return (
     <AccountPlaceholder
       title="Пароль"
-      description="Смена пароля будет доступна после подключения регистрации и входа на сайте."
+      description="Вход на сайте выполняется по коду на email. Отдельный пароль не используется."
     />
   )
 }

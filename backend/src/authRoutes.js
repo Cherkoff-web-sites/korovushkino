@@ -1,7 +1,5 @@
 import express from "express";
-import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import crypto from "crypto";
 import { query } from "./db.js";
 import { sendCodeEmail } from "./mailer.js";
 
@@ -39,6 +37,38 @@ export function signToken(user) {
 
 function generateCode() {
   return String(Math.floor(100000 + Math.random() * 900000));
+}
+
+function isEmailCodeDisabled() {
+  return (process.env.AUTH_EMAIL_CODE_DISABLED || "").toLowerCase() === "true";
+}
+
+async function findUserByEmail(rawEmail) {
+  const result = await query(
+    `SELECT ${USER_SELECT_FIELDS}
+     FROM users
+     WHERE LOWER(email) = LOWER($1) OR LOWER(login) = LOWER($1)
+     LIMIT 1`,
+    [rawEmail]
+  );
+
+  return result.rowCount > 0 ? result.rows[0] : null;
+}
+
+async function findOrCreateUserByEmail(rawEmail) {
+  const existing = await findUserByEmail(rawEmail);
+  if (existing) {
+    return { user: existing, isNewUser: false };
+  }
+
+  const created = await query(
+    `INSERT INTO users (login, email)
+     VALUES ($1, $2)
+     RETURNING ${USER_SELECT_FIELDS}`,
+    [rawEmail, rawEmail]
+  );
+
+  return { user: created.rows[0], isNewUser: true };
 }
 
 function normalizeUserRow(row) {
@@ -94,6 +124,10 @@ export async function authMiddleware(req, res, next) {
   }
 }
 
+router.get("/config", (_req, res) => {
+  return res.json({ emailCodeRequired: !isEmailCodeDisabled() });
+});
+
 router.post("/login/request-code", async (req, res) => {
   const rawEmail = String(req.body?.email || "").trim().toLowerCase();
 
@@ -102,25 +136,28 @@ router.post("/login/request-code", async (req, res) => {
   }
 
   try {
-    const userResult = await query(
-      `SELECT id FROM users
-       WHERE LOWER(email) = LOWER($1) OR LOWER(login) = LOWER($1)
-       LIMIT 1`,
-      [rawEmail]
-    );
+    if (isEmailCodeDisabled()) {
+      const { user: userRow } = await findOrCreateUserByEmail(rawEmail);
+      return res.json({
+        ok: true,
+        emailCodeRequired: false,
+        user: normalizeUserRow(userRow),
+        accessToken: signToken(userRow),
+      });
+    }
 
-    const userId = userResult.rowCount > 0 ? userResult.rows[0].id : null;
+    const existingUser = await findUserByEmail(rawEmail);
     const code = generateCode();
 
     await query(
       `INSERT INTO auth_codes (email, code, purpose, user_id, expires_at)
        VALUES ($1, $2, 'login', $3, NOW() + ($4 || ' minutes')::INTERVAL)`,
-      [rawEmail, code, userId, CODE_TTL_MINUTES]
+      [rawEmail, code, existingUser?.id ?? null, CODE_TTL_MINUTES]
     );
 
     await sendCodeEmail(rawEmail, "Код входа в личный кабинет Коровушкино", code);
 
-    return res.json({ ok: true });
+    return res.json({ ok: true, emailCodeRequired: true });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Ошибка сервера" });
@@ -137,7 +174,7 @@ router.post("/login/confirm-code", async (req, res) => {
 
   try {
     const codeResult = await query(
-      `SELECT id, user_id FROM auth_codes
+      `SELECT id FROM auth_codes
        WHERE email = $1 AND code = $2 AND purpose = 'login'
          AND expires_at > NOW() AND used_at IS NULL
        ORDER BY created_at DESC
@@ -149,26 +186,7 @@ router.post("/login/confirm-code", async (req, res) => {
       return res.status(400).json({ error: "Неверный или просроченный код" });
     }
 
-    let userRow = null;
-
-    if (codeResult.rows[0].user_id) {
-      const userResult = await query(
-        `SELECT ${USER_SELECT_FIELDS} FROM users WHERE id = $1 LIMIT 1`,
-        [codeResult.rows[0].user_id]
-      );
-      userRow = userResult.rows[0] || null;
-    }
-
-    if (!userRow) {
-      const passwordHash = await bcrypt.hash(crypto.randomBytes(24).toString("hex"), 10);
-      const created = await query(
-        `INSERT INTO users (login, email, password_hash)
-         VALUES ($1, $2, $3)
-         RETURNING ${USER_SELECT_FIELDS}`,
-        [rawEmail, rawEmail, passwordHash]
-      );
-      userRow = created.rows[0];
-    }
+    const { user: userRow } = await findOrCreateUserByEmail(rawEmail);
 
     await query("UPDATE auth_codes SET used_at = NOW() WHERE id = $1", [codeResult.rows[0].id]);
 

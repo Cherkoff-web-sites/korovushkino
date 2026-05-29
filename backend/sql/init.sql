@@ -2,7 +2,6 @@ CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
   login VARCHAR(255) NOT NULL UNIQUE,
   email VARCHAR(255) UNIQUE,
-  password_hash VARCHAR(255) NOT NULL,
   role VARCHAR(32) NOT NULL DEFAULT 'user',
   surname VARCHAR(128),
   first_name VARCHAR(128),
@@ -18,6 +17,9 @@ ALTER TABLE users
 ALTER TABLE users
   ADD COLUMN IF NOT EXISTS session_version INTEGER NOT NULL DEFAULT 1;
 
+ALTER TABLE users
+  DROP COLUMN IF EXISTS password_hash;
+
 CREATE TABLE IF NOT EXISTS auth_codes (
   id SERIAL PRIMARY KEY,
   email VARCHAR(255) NOT NULL,
@@ -31,5 +33,11 @@ CREATE TABLE IF NOT EXISTS auth_codes (
 
 ALTER TABLE auth_codes
   ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id);
+
+ALTER TABLE auth_codes
+  DROP COLUMN IF EXISTS login;
+
+ALTER TABLE auth_codes
+  DROP COLUMN IF EXISTS password_hash;
 
 CREATE INDEX IF NOT EXISTS idx_auth_codes_email_purpose ON auth_codes(email, purpose);

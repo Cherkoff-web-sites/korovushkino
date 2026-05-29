@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from 'react'
 import {
+  apiGetAuthConfig,
   apiGetMe,
   apiLoginConfirmCode,
   apiLoginRequestCode,
@@ -20,7 +21,12 @@ import {
 type AuthContextValue = {
   user: AuthUser | null
   loading: boolean
-  requestLoginCode: (email: string) => Promise<void>
+  emailCodeRequired: boolean
+  loginModalOpen: boolean
+  openLoginModal: () => void
+  closeLoginModal: () => void
+  /** Returns true if email code step is needed */
+  loginWithEmail: (email: string) => Promise<boolean>
   confirmLoginCode: (email: string, code: string) => Promise<AuthUser>
   logout: () => void
   refreshUser: () => Promise<AuthUser | null>
@@ -31,6 +37,8 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [loading, setLoading] = useState(true)
+  const [emailCodeRequired, setEmailCodeRequired] = useState(true)
+  const [loginModalOpen, setLoginModalOpen] = useState(false)
 
   const refreshUser = useCallback(async () => {
     try {
@@ -48,10 +56,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     async function bootstrap() {
       try {
-        const nextUser = await apiGetMe()
-        if (!cancelled) setUser(nextUser)
-      } catch {
-        if (!cancelled) setUser(null)
+        const [config, nextUser] = await Promise.all([
+          apiGetAuthConfig().catch(() => ({ emailCodeRequired: true })),
+          apiGetMe().catch(() => null),
+        ])
+        if (!cancelled) {
+          setEmailCodeRequired(config.emailCodeRequired)
+          setUser(nextUser)
+        }
       } finally {
         if (!cancelled) setLoading(false)
       }
@@ -63,8 +75,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const requestLoginCode = useCallback(async (email: string) => {
-    await apiLoginRequestCode(email)
+  const openLoginModal = useCallback(() => setLoginModalOpen(true), [])
+  const closeLoginModal = useCallback(() => setLoginModalOpen(false), [])
+
+  const loginWithEmail = useCallback(async (email: string) => {
+    const result = await apiLoginRequestCode(email)
+    if (result.user && result.accessToken) {
+      setUser(result.user)
+      return false
+    }
+    return result.emailCodeRequired !== false
   }, [])
 
   const confirmLoginCode = useCallback(async (email: string, code: string) => {
@@ -82,12 +102,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => ({
       user,
       loading,
-      requestLoginCode,
+      emailCodeRequired,
+      loginModalOpen,
+      openLoginModal,
+      closeLoginModal,
+      loginWithEmail,
       confirmLoginCode,
       logout,
       refreshUser,
     }),
-    [user, loading, requestLoginCode, confirmLoginCode, logout, refreshUser]
+    [
+      user,
+      loading,
+      emailCodeRequired,
+      loginModalOpen,
+      openLoginModal,
+      closeLoginModal,
+      loginWithEmail,
+      confirmLoginCode,
+      logout,
+      refreshUser,
+    ]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

@@ -65,11 +65,28 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   return data as T
 }
 
+export async function apiGetAuthConfig() {
+  return request<{ emailCodeRequired: boolean }>('/api/auth/config')
+}
+
+type LoginRequestResult = {
+  ok: true
+  emailCodeRequired?: boolean
+  user?: AuthUser
+  accessToken?: string
+}
+
 export async function apiLoginRequestCode(email: string) {
-  return request<{ ok: true }>('/api/auth/login/request-code', {
+  const data = await request<LoginRequestResult>('/api/auth/login/request-code', {
     method: 'POST',
     body: JSON.stringify({ email }),
   })
+
+  if (data.accessToken) {
+    setToken(data.accessToken)
+  }
+
+  return data
 }
 
 export async function apiLoginConfirmCode(email: string, code: string) {

@@ -1,11 +1,16 @@
 'use client'
 
+import { useEffect } from 'react'
 import type { ReactNode } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import AccountLoginForm from './AccountLoginForm'
 
 export default function AccountAuthGate({ children }: { children: ReactNode }) {
-  const { user, loading } = useAuth()
+  const { user, loading, openLoginModal, loginModalOpen } = useAuth()
+
+  useEffect(() => {
+    if (loading || user || loginModalOpen) return
+    openLoginModal()
+  }, [loading, user, loginModalOpen, openLoginModal])
 
   if (loading) {
     return (
@@ -16,7 +21,7 @@ export default function AccountAuthGate({ children }: { children: ReactNode }) {
   }
 
   if (!user) {
-    return <AccountLoginForm />
+    return null
   }
 
   return <>{children}</>

@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import Header from '@/components/Header/Header'
 import Footer from '@/components/Footer/Footer'
 import ScrollToTop from '@/components/ScrollToTop'
+import AuthModal from '@/components/auth/AuthModal'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { CartProvider } from '@/contexts/CartContext'
 import { FavoritesProvider } from '@/contexts/FavoritesContext'
@@ -34,9 +35,10 @@ export default function RootLayout({
               <div className="flex min-h-screen flex-col">
                 <Header />
                 <main className="flex-grow">{children}</main>
-                <Footer />
-                <ScrollToTop />
-              </div>
+            <Footer />
+            <ScrollToTop />
+            <AuthModal />
+            </div>
             </FavoritesProvider>
           </CartProvider>
         </AuthProvider>

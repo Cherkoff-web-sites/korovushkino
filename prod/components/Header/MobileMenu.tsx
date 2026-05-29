@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useAuth } from '@/contexts/AuthContext'
 
 const NAVIGATION_ITEMS = [
   { href: '/catalog', label: 'Каталог' },
@@ -18,6 +19,7 @@ interface MobileMenuProps {
 
 export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
   const pathname = usePathname()
+  const { user, openLoginModal } = useAuth()
 
   useEffect(() => {
     if (isOpen) {
@@ -76,17 +78,30 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
           <nav className="flex-1 overflow-y-auto p-4">
             <ul className="mb-6 space-y-2 border-b border-white/25 pb-6">
               <li>
-                <Link
-                  href="/account"
-                  onClick={onClose}
-                  className={`block rounded-lg px-4 py-3 font-normal text-[#FFFFFF] ${
-                    pathname === '/account' || pathname.startsWith('/account/')
-                      ? 'bg-[#FFFFFF] text-[#3D8C13]'
-                      : 'bg-transparent hover:bg-[#2f7510]'
-                  }`}
-                >
-                  Личный кабинет
-                </Link>
+                {user ? (
+                  <Link
+                    href="/account"
+                    onClick={onClose}
+                    className={`block rounded-lg px-4 py-3 font-normal text-[#FFFFFF] ${
+                      pathname === '/account' || pathname.startsWith('/account/')
+                        ? 'bg-[#FFFFFF] text-[#3D8C13]'
+                        : 'bg-transparent hover:bg-[#2f7510]'
+                    }`}
+                  >
+                    Личный кабинет
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      openLoginModal()
+                      onClose()
+                    }}
+                    className="block w-full rounded-lg px-4 py-3 text-left font-normal text-[#FFFFFF] bg-transparent hover:bg-[#2f7510]"
+                  >
+                    Личный кабинет
+                  </button>
+                )}
               </li>
               <li>
                 <Link

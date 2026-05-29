@@ -8,6 +8,10 @@ import { buildReviewCards, HOME_REVIEW_BODY, PRODUCT_PAGE_REVIEW_VARIANTS } from
 
 const PLACEHOLDER = '/images/home/hero-bg.png'
 
+export function generateStaticParams() {
+  return Object.keys(productsData).map((productId) => ({ productId }))
+}
+
 function StarsFilled({ count, suffix }: { count: number; suffix: string }) {
   return (
     <div className="flex gap-0.5 text-[#C88C39]" aria-hidden>

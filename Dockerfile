@@ -1,36 +1,25 @@
-# Сборка Next.js без режима standalone (см. next.config.js)
-FROM node:20-alpine AS builder
+# Backend+Frontend in one container (build from repo root)
+FROM node:20-alpine AS frontend-build
 
 WORKDIR /app
-
-COPY package.json package-lock.json* ./
+COPY prod/package*.json ./
 RUN npm ci
-
-COPY . .
+COPY prod/ ./
+ENV NODE_ENV=production
 RUN npm run build
 
-FROM node:20-alpine AS runner
+FROM node:20-alpine
 
 WORKDIR /app
-
-ENV NODE_ENV=production
-ENV PORT=8080
-ENV HOSTNAME=0.0.0.0
-
-RUN addgroup --system --gid 1001 nodejs \
-  && adduser --system --uid 1001 nextjs
-
-COPY package.json package-lock.json* ./
+RUN apk add --no-cache curl
+COPY backend/package*.json ./
 RUN npm ci --omit=dev
+COPY backend/ ./
 
-COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+# Serve Next.js static export from backend/public
+COPY --from=frontend-build /app/out /app/public
 
-# Опционально: переопределение товаров через products.json (см. data/README.md)
-RUN mkdir -p ./data && chown -R nextjs:nodejs ./data
-
-USER nextjs
-
-EXPOSE 8080
-
-CMD ["npm", "run", "start"]
+EXPOSE 4000
+HEALTHCHECK --interval=10s --timeout=5s --start-period=60s --retries=5 \
+  CMD curl -fsS http://127.0.0.1:4000/api/health || exit 1
+CMD ["node", "src/server.js"]

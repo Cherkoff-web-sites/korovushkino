@@ -1,27 +1,11 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
-import { getCatalogProducts, isCategorySlug, CATEGORY_LABELS } from '@/lib/api/productsData'
+import { getCatalogProducts } from '@/lib/api/productsData'
 import CatalogPageContent from './CatalogPageContent'
 
-export const dynamic = 'force-dynamic'
-
-type Props = {
-  searchParams: { category?: string }
-}
-
-export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  const raw = searchParams?.category?.trim() ?? ''
-  const base = 'Каталог | Коровушкино'
-  if (raw && isCategorySlug(raw)) {
-    return {
-      title: `${CATEGORY_LABELS[raw]} | ${base}`,
-      description: `Категория «${CATEGORY_LABELS[raw]}» — натуральные товары фермы Коровушкино.`,
-    }
-  }
-  return {
-    title: base,
-    description: 'Натуральные товары с фермы Коровушкино: молоко, мясо, сыры и другое.',
-  }
+export const metadata: Metadata = {
+  title: 'Каталог | Коровушкино',
+  description: 'Натуральные товары с фермы Коровушкино: молоко, мясо, сыры и другое.',
 }
 
 function CatalogFallback() {

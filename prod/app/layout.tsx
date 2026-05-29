@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import Header from '@/components/Header/Header'
 import Footer from '@/components/Footer/Footer'
 import ScrollToTop from '@/components/ScrollToTop'
+import { AuthProvider } from '@/contexts/AuthContext'
 import { CartProvider } from '@/contexts/CartContext'
 import { FavoritesProvider } from '@/contexts/FavoritesContext'
 import './globals.css'
@@ -27,16 +28,18 @@ export default function RootLayout({
   return (
     <html lang="ru" className={inter.variable}>
       <body className={inter.className}>
-        <CartProvider>
-          <FavoritesProvider>
-            <div className="flex min-h-screen flex-col">
-            <Header />
-            <main className="flex-grow">{children}</main>
-            <Footer />
-            <ScrollToTop />
-            </div>
-          </FavoritesProvider>
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            <FavoritesProvider>
+              <div className="flex min-h-screen flex-col">
+                <Header />
+                <main className="flex-grow">{children}</main>
+                <Footer />
+                <ScrollToTop />
+              </div>
+            </FavoritesProvider>
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   )

@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useRef, useState, type KeyboardEvent as ReactKeyb
 import { usePathname, useRouter } from 'next/navigation'
 import Button from '@/components/ui/Button'
 import { useAuth } from '@/contexts/AuthContext'
+import { useScrollLock } from '@/lib/useScrollLock'
 
 type ModalView = 'email' | 'code'
 
@@ -23,6 +24,8 @@ export default function AuthModal() {
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
+  useScrollLock(loginModalOpen)
+
   useEffect(() => {
     if (!loginModalOpen) return
 
@@ -30,12 +33,8 @@ export default function AuthModal() {
       if (event.key === 'Escape') closeLoginModal()
     }
 
-    document.body.style.overflow = 'hidden'
     window.addEventListener('keydown', onKeyDown)
-    return () => {
-      document.body.style.overflow = 'unset'
-      window.removeEventListener('keydown', onKeyDown)
-    }
+    return () => window.removeEventListener('keydown', onKeyDown)
   }, [loginModalOpen, closeLoginModal])
 
   useEffect(() => {

@@ -9,6 +9,8 @@ import {
   useState,
   type ReactNode,
 } from 'react'
+import { productsData } from '@/lib/api/productsData'
+import { useToast } from '@/contexts/ToastContext'
 
 const STORAGE_KEY = 'korovushkino-favorites'
 
@@ -25,6 +27,7 @@ const FavoritesContext = createContext<FavoritesContextType | undefined>(undefin
 export function FavoritesProvider({ children }: { children: ReactNode }) {
   const [favoriteIds, setFavoriteIds] = useState<string[]>([])
   const [hydrated, setHydrated] = useState(false)
+  const { showToast } = useToast()
 
   useEffect(() => {
     try {
@@ -46,11 +49,23 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(favoriteIds))
   }, [favoriteIds, hydrated])
 
-  const toggleFavorite = useCallback((productId: string) => {
-    setFavoriteIds((prev) =>
-      prev.includes(productId) ? prev.filter((id) => id !== productId) : [...prev, productId],
-    )
-  }, [])
+  const toggleFavorite = useCallback(
+    (productId: string) => {
+      const adding = !favoriteIds.includes(productId)
+
+      setFavoriteIds((prev) =>
+        prev.includes(productId) ? prev.filter((id) => id !== productId) : [...prev, productId],
+      )
+
+      if (adding) {
+        const productName = productsData[productId]?.name
+        showToast(
+          productName ? `${productName} добавлен в избранное` : 'Товар добавлен в избранное',
+        )
+      }
+    },
+    [favoriteIds, showToast],
+  )
 
   const removeFavorite = useCallback((productId: string) => {
     setFavoriteIds((prev) => prev.filter((id) => id !== productId))

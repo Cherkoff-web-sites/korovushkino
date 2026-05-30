@@ -4,9 +4,7 @@ import Header from '@/components/Header/Header'
 import Footer from '@/components/Footer/Footer'
 import ScrollToTop from '@/components/ScrollToTop'
 import AuthModal from '@/components/auth/AuthModal'
-import { AuthProvider } from '@/contexts/AuthContext'
-import { CartProvider } from '@/contexts/CartContext'
-import { FavoritesProvider } from '@/contexts/FavoritesContext'
+import AppProviders from '@/components/providers/AppProviders'
 import './globals.css'
 
 const inter = Inter({
@@ -29,19 +27,15 @@ export default function RootLayout({
   return (
     <html lang="ru" className={inter.variable}>
       <body className={inter.className}>
-        <AuthProvider>
-          <CartProvider>
-            <FavoritesProvider>
-              <div className="flex min-h-screen flex-col">
-                <Header />
-                <main className="flex-grow">{children}</main>
+        <AppProviders>
+          <div className="flex min-h-screen flex-col">
+            <Header />
+            <main className="flex-grow">{children}</main>
             <Footer />
             <ScrollToTop />
             <AuthModal />
-            </div>
-            </FavoritesProvider>
-          </CartProvider>
-        </AuthProvider>
+          </div>
+        </AppProviders>
       </body>
     </html>
   )

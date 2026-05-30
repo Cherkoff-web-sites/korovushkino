@@ -21,7 +21,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="relative z-50 shrink-0 border-b border-[#2d6710] bg-[#3D8C13]">
+      <header className="relative z-50 shrink-0 bg-[#3D8C13]">
         <div className="container">
           <div className="flex h-[76px] items-center justify-between gap-4 md:h-[84px] md:gap-6">
             <Link href="/" className="shrink-0 text-[30px] font-normal leading-none text-[#FFFFFF] md:text-[38px]">

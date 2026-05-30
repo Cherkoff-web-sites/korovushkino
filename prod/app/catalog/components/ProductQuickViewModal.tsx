@@ -6,6 +6,7 @@ import Link from 'next/link'
 import FavoriteHeartButton from '@/components/FavoriteHeartButton'
 import { useCart } from '@/contexts/CartContext'
 import type { ProductData } from '@/lib/api/productsData'
+import { useScrollLock } from '@/lib/useScrollLock'
 
 const cartIcon = '/images/header/icon-cart.svg'
 const PLACEHOLDER = '/images/home/hero-bg.png'
@@ -20,14 +21,7 @@ export default function ProductQuickViewModal({
 }) {
   const { addItem } = useCart()
 
-  useEffect(() => {
-    if (!product) return
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = prev
-    }
-  }, [product])
+  useScrollLock(Boolean(product))
 
   useEffect(() => {
     if (!product) return

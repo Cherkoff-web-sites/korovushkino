@@ -1,6 +1,8 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useState } from 'react'
+import LeaveReviewModal from '@/components/reviews/LeaveReviewModal'
+import { useAuth } from '@/contexts/AuthContext'
 import {
   HOME_REVIEW_BODY,
   HOME_REVIEW_VARIANTS,
@@ -36,9 +38,9 @@ function StarRow({ count }: { count: number }) {
 }
 
 export default function ReviewsSection() {
+  const { user, loading, openLoginModal } = useAuth()
   const [index, setIndex] = useState(0)
-  const tabRefs = useRef<(HTMLButtonElement | null)[]>([])
-  const prevClampedRef = useRef<number | null>(null)
+  const [reviewModalOpen, setReviewModalOpen] = useState(false)
 
   const total = REVIEWS.length
   const clamped = ((index % total) + total) % total
@@ -56,24 +58,14 @@ export default function ReviewsSection() {
     setIndex(i)
   }, [])
 
-  useEffect(() => {
-    if (prevClampedRef.current === null) {
-      prevClampedRef.current = clamped
+  const handleLeaveReview = useCallback(() => {
+    if (loading) return
+    if (!user) {
+      openLoginModal()
       return
     }
-    if (prevClampedRef.current === clamped) return
-    prevClampedRef.current = clamped
-    const el = tabRefs.current[clamped]
-    if (!el) return
-    const t = window.setTimeout(() => {
-      try {
-        el.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
-      } catch {
-        el.scrollIntoView({ block: 'nearest' })
-      }
-    }, 0)
-    return () => window.clearTimeout(t)
-  }, [clamped])
+    setReviewModalOpen(true)
+  }, [loading, user, openLoginModal])
 
   return (
     <section id="reviews" className="relative z-10 bg-[#fdfbf6] py-10 sm:py-12 lg:py-14">
@@ -163,9 +155,6 @@ export default function ReviewsSection() {
                   <button
                     key={r.id}
                     type="button"
-                    ref={(el) => {
-                      tabRefs.current[i] = el
-                    }}
                     onClick={() => selectTab(i)}
                     aria-pressed={isActive}
                     className={`pointer-events-auto w-full rounded-lg border-2 px-4 py-3 text-center font-normal outline-none transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-[#3D8C13] focus-visible:ring-offset-2 active:scale-[0.98] ${
@@ -181,6 +170,7 @@ export default function ReviewsSection() {
             </nav>
             <button
               type="button"
+              onClick={handleLeaveReview}
               className="pointer-events-auto mt-1 w-full rounded-lg bg-[#3D8C13] py-3 text-center text-[20px] font-normal text-white shadow-sm transition-all duration-200 hover:bg-[#367c11] hover:shadow-md active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C88C39] focus-visible:ring-offset-2"
             >
               Оставить отзыв
@@ -188,6 +178,12 @@ export default function ReviewsSection() {
           </aside>
         </div>
       </div>
+
+      <LeaveReviewModal
+        open={reviewModalOpen}
+        onClose={() => setReviewModalOpen(false)}
+        productName={active.productLabel}
+      />
     </section>
   )
 }

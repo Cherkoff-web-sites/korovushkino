@@ -1,6 +1,7 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useState, ReactNode } from 'react'
+import { useToast } from '@/contexts/ToastContext'
 
 export interface CartItem {
   id: string
@@ -26,6 +27,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined)
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([])
+  const { showToast } = useToast()
 
   // Загружаем корзину из localStorage при монтировании
   useEffect(() => {
@@ -44,17 +46,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('cart', JSON.stringify(items))
   }, [items])
 
-  const addItem = (item: Omit<CartItem, 'quantity'>) => {
-    setItems((prevItems) => {
-      const existingItem = prevItems.find((i) => i.id === item.id)
-      if (existingItem) {
-        return prevItems.map((i) =>
-          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
-        )
-      }
-      return [...prevItems, { ...item, quantity: 1 }]
-    })
-  }
+  const addItem = useCallback(
+    (item: Omit<CartItem, 'quantity'>) => {
+      setItems((prevItems) => {
+        const existingItem = prevItems.find((i) => i.id === item.id)
+        if (existingItem) {
+          return prevItems.map((i) =>
+            i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i,
+          )
+        }
+        return [...prevItems, { ...item, quantity: 1 }]
+      })
+      showToast(`${item.name} добавлен в корзину`)
+    },
+    [showToast],
+  )
 
   const removeItem = (id: string) => {
     setItems((prevItems) => prevItems.filter((item) => item.id !== id))

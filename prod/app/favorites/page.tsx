@@ -71,57 +71,65 @@ export default function FavoritesPage() {
                 return (
                   <li
                     key={product.id}
-                    className="flex flex-col gap-4 rounded-xl border border-[#D1C4B2] bg-[#FFF9F0] p-4 shadow-sm sm:flex-row sm:items-center sm:gap-6 sm:p-5"
+                    className="overflow-hidden rounded-xl border border-[#D1C4B2] bg-[#FFF9F0] shadow-sm sm:flex sm:flex-row sm:items-center sm:gap-6 sm:p-5"
                   >
                     <Link
                       href={CATALOG_HREF}
-                      className="relative mx-auto aspect-[4/3] w-full max-w-[200px] shrink-0 overflow-hidden rounded-lg bg-[#F5F0E8] sm:mx-0 sm:h-[120px] sm:w-[140px] sm:max-w-none"
+                      className="relative block aspect-[4/3] w-full shrink-0 overflow-hidden bg-[#F5F0E8] sm:aspect-auto sm:h-[120px] sm:w-[140px] sm:rounded-lg"
                     >
-                      <Image src={img} alt={product.name} fill className="object-cover" sizes="200px" />
+                      <Image
+                        src={img}
+                        alt={product.name}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 640px) 100vw, 140px"
+                      />
                     </Link>
 
-                    <div className="min-w-0 flex-1 text-center sm:text-left">
-                      <Link
-                        href={CATALOG_HREF}
-                        className="text-lg font-bold text-[#1F1F1F] transition-colors hover:text-[#3D8C13] sm:text-xl"
-                      >
-                        {product.name}
-                      </Link>
-                      <p className="mt-1 text-sm text-[#707070]">
-                        {product.price.toLocaleString('ru-RU')}₽{' '}
-                        <span className="text-[#232326]/60">· {product.series}</span>
-                      </p>
-                    </div>
+                    <div className="flex flex-col gap-4 p-4 sm:min-w-0 sm:flex-1 sm:flex-row sm:items-center sm:gap-6 sm:p-0">
+                      <div className="min-w-0 flex-1 text-center sm:text-left">
+                        <Link
+                          href={CATALOG_HREF}
+                          className="text-lg font-bold text-[#1F1F1F] transition-colors hover:text-[#3D8C13] sm:text-xl"
+                        >
+                          {product.name}
+                        </Link>
+                        <p className="mt-1 text-sm text-[#707070]">
+                          {product.price.toLocaleString('ru-RU')}₽{' '}
+                          <span className="text-[#232326]/60">· {product.series}</span>
+                        </p>
+                      </div>
 
-                    <div className="flex shrink-0 flex-wrap items-center justify-center gap-3 sm:flex-col sm:justify-center md:flex-row">
-                      <FavoriteHeartButton
-                        productId={product.id}
-                        iconSize={22}
-                        className="h-11 w-11 shadow-sm"
-                      />
-                      <button
-                        type="button"
-                        className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-lg bg-[#3D8C13] px-5 text-sm font-medium text-white transition-colors hover:bg-[#347710]"
-                        onClick={() =>
-                          addItem({
-                            id: product.id,
-                            name: product.name,
-                            model: product.series,
-                            price: product.price,
-                            image: img,
-                            href: CATALOG_HREF,
-                          })
-                        }
-                      >
-                        <Image
-                          src="/images/header/icon-cart.svg"
-                          alt=""
-                          width={20}
-                          height={20}
-                          className="brightness-0 invert"
+                      <div className="flex shrink-0 flex-wrap items-center justify-center gap-3 sm:flex-col sm:justify-center md:flex-row">
+                        <FavoriteHeartButton
+                          productId={product.id}
+                          iconSize={22}
+                          className="h-11 w-11 shadow-sm"
                         />
-                        В корзину
-                      </button>
+                        <button
+                          type="button"
+                          className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-lg bg-[#3D8C13] px-5 text-sm font-medium text-white transition-colors hover:bg-[#347710]"
+                          onClick={() =>
+                            addItem({
+                              id: product.id,
+                              name: product.name,
+                              model: product.series,
+                              price: product.price,
+                              image: img,
+                              href: CATALOG_HREF,
+                            })
+                          }
+                        >
+                          <Image
+                            src="/images/header/icon-cart.svg"
+                            alt=""
+                            width={20}
+                            height={20}
+                            className="brightness-0 invert"
+                          />
+                          В корзину
+                        </button>
+                      </div>
                     </div>
                   </li>
                 )

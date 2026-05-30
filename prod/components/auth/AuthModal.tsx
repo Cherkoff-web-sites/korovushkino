@@ -1,6 +1,6 @@
 'use client'
 
-import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from 'react'
+import { FormEvent, useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Button from '@/components/ui/Button'
 import { useAuth } from '@/contexts/AuthContext'
@@ -26,7 +26,7 @@ export default function AuthModal() {
   useEffect(() => {
     if (!loginModalOpen) return
 
-    function onKeyDown(event: KeyboardEvent) {
+    function onKeyDown(event: globalThis.KeyboardEvent) {
       if (event.key === 'Escape') closeLoginModal()
     }
 
@@ -80,7 +80,7 @@ export default function AuthModal() {
     }
   }
 
-  function handleCodeKeyDown(index: number, event: KeyboardEvent<HTMLInputElement>) {
+  function handleCodeKeyDown(index: number, event: ReactKeyboardEvent<HTMLInputElement>) {
     if (event.key === 'Backspace' && !codeDigits[index] && index > 0) {
       codeInputsRef.current[index - 1]?.focus()
     }

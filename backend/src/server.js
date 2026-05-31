@@ -5,6 +5,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import authRoutes from "./authRoutes.js";
+import productRoutes, { adminRouter as adminProductRoutes } from "./productRoutes.js";
 import { query } from "./db.js";
 
 dotenv.config();
@@ -48,6 +49,9 @@ if (dbDisabled) {
 } else {
   app.use("/api/auth", authRoutes);
 }
+
+app.use("/api", productRoutes);
+app.use("/api/admin", adminProductRoutes);
 
 if (hasStaticFrontend) {
   app.get("*", (req, res, next) => {

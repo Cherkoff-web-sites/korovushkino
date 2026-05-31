@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import {
   CATEGORY_LABELS,
@@ -9,6 +9,7 @@ import {
   type CategorySlug,
   type ProductData,
 } from '@/lib/api/productsData'
+import { fetchCatalogProducts } from '@/lib/api/productsClient'
 import CatalogGridCard from './components/CatalogGridCard'
 import ProductQuickViewModal from './components/ProductQuickViewModal'
 
@@ -16,14 +17,33 @@ const categoryEntries = Object.entries(CATEGORY_LABELS) as [CategorySlug, string
 
 export default function CatalogPageContent({ allProducts }: { allProducts: ProductData[] }) {
   const [previewProduct, setPreviewProduct] = useState<ProductData | null>(null)
+  const [products, setProducts] = useState<ProductData[]>(allProducts)
   const searchParams = useSearchParams()
   const raw = searchParams.get('category')?.trim() ?? ''
   const activeSlug: CategorySlug | null = raw && isCategorySlug(raw) ? raw : null
 
-  const products = useMemo(() => {
-    if (!activeSlug) return allProducts
-    return allProducts.filter((p) => p.categorySlug === activeSlug)
-  }, [allProducts, activeSlug])
+  useEffect(() => {
+    let cancelled = false
+
+    fetchCatalogProducts()
+      .then((nextProducts) => {
+        if (!cancelled && nextProducts.length > 0) {
+          setProducts(nextProducts)
+        }
+      })
+      .catch(() => {
+        // Оставляем статический fallback из сборки
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const filteredProducts = useMemo(() => {
+    if (!activeSlug) return products
+    return products.filter((p) => p.categorySlug === activeSlug)
+  }, [products, activeSlug])
 
   const categoryTitle = activeSlug ? CATEGORY_LABELS[activeSlug] : 'Все категории'
 
@@ -87,11 +107,11 @@ export default function CatalogPageContent({ allProducts }: { allProducts: Produ
           ))}
         </div>
 
-        {products.length === 0 ? (
+        {filteredProducts.length === 0 ? (
           <p className="text-sm text-[#232326]/75 sm:text-[15px]">В этой категории пока нет позиций.</p>
         ) : (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {products.map((product) => (
+            {filteredProducts.map((product) => (
               <CatalogGridCard key={product.id} product={product} onOpen={setPreviewProduct} />
             ))}
           </div>

@@ -86,6 +86,13 @@ function normalizeUserRow(row) {
   };
 }
 
+export function adminMiddleware(req, res, next) {
+  if (req.user?.role !== "admin") {
+    return res.status(403).json({ error: "Доступ только для администратора" });
+  }
+  return next();
+}
+
 export async function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {

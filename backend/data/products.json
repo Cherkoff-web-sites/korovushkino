@@ -1,0 +1,1068 @@
+{
+  "molochnoe-korovje": {
+    "id": "molochnoe-korovje",
+    "name": "Молоко коровье",
+    "series": "2л",
+    "category": "Молочная продукция",
+    "categorySlug": "dairy",
+    "price": 220,
+    "description": "Цельное пастеризованное молоко с собственной фермы. Натуральный вкус без растительных жиров — подходит для всей семьи.",
+    "briefDescription": "Пастеризованное молоко 2 л.",
+    "catalogCardTeaser": "Молоко от «Коровушкино» — продукт высшего качества прямо с нашей фермы, без лишних добавок.",
+    "images": [
+      "/images/product_1.webp"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Молочная продукция",
+        "href": "/catalog?category=dairy"
+      },
+      {
+        "label": "Молоко коровье",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "molochnoe-kozje": {
+    "id": "molochnoe-kozje",
+    "name": "Молоко козье",
+    "series": "0,5л",
+    "category": "Молочная продукция",
+    "categorySlug": "dairy",
+    "price": 140,
+    "description": "Свежее козье молоко с нашей фермы в Тульской области: нежный вкус и бережная пастеризация. Без растительных жиров — натуральный продукт для всей семьи.",
+    "briefDescription": "Козье молоко 0,5 л.",
+    "catalogCardTeaser": "Свежее козье молоко с нашей фермы — идеальный выбор для тех, кто ценит нежный натуральный вкус.",
+    "modalNutrition": {
+      "macrosPer100g": "Белки — 3,6 г. Жиры — 3–5 г. Углеводы — 4,5 г.",
+      "kcal": "69"
+    },
+    "images": [
+      "/images/product_2.webp"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Молочная продукция",
+        "href": "/catalog?category=dairy"
+      },
+      {
+        "label": "Молоко козье",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "toplenoe-moloko": {
+    "id": "toplenoe-moloko",
+    "name": "Топлёное молоко",
+    "series": "1л",
+    "category": "Молочная продукция",
+    "categorySlug": "dairy",
+    "price": 145,
+    "description": "Молоко длительной термической обработки — насыщенный карамельный аромат. Отлично для каши и напитков.",
+    "briefDescription": "Топлёное молоко 1 л.",
+    "catalogCardTeaser": "После стакана такого топлёного молока хочется добавки — насыщенный карамельный аромат и мягкость.",
+    "images": [
+      "/images/product_3.webp"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Молочная продукция",
+        "href": "/catalog?category=dairy"
+      },
+      {
+        "label": "Топлёное молоко",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "kefir-3-2": {
+    "id": "kefir-3-2",
+    "name": "Кефир 3,2%",
+    "series": "1л",
+    "category": "Молочная продукция",
+    "categorySlug": "dairy",
+    "price": 145,
+    "description": "Густой кефир с живой закваской. Помогает разнообразить рацион и подходит к завтраку или перекусу.",
+    "briefDescription": "Кефир 3,2%, 1 л.",
+    "catalogCardTeaser": "Кефир от «Коровушкино»! Кефир — это ферментированный молочный продукт с живой закваской.",
+    "images": [
+      "/images/product_4.webp"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Молочная продукция",
+        "href": "/catalog?category=dairy"
+      },
+      {
+        "label": "Кефир 3,2%",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "ryazhenka-4": {
+    "id": "ryazhenka-4",
+    "name": "Ряженка 4%",
+    "series": "1л",
+    "category": "Молочная продукция",
+    "categorySlug": "dairy",
+    "price": 155,
+    "description": "Традиционная ряженка с выдержкой — кремовая текстура и сбалансированная кислинка.",
+    "briefDescription": "Ряженка 4%, 1 л.",
+    "catalogCardTeaser": "Ряженка от «Коровушкино», изготовленная из самого свежего молока с выдержкой и кремовой текстурой.",
+    "images": [
+      "/images/product_5.webp"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Молочная продукция",
+        "href": "/catalog?category=dairy"
+      },
+      {
+        "label": "Ряженка 4%",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "yogurt-klubnika": {
+    "id": "yogurt-klubnika",
+    "name": "Йогурт питьевой (клубника)",
+    "series": "0,5л",
+    "category": "Молочная продукция",
+    "categorySlug": "dairy",
+    "price": 100,
+    "description": "Питьевой йогурт с натуральным клубничным наполнителем. Освежает и удобен в дороге.",
+    "briefDescription": "Питьевой йогурт, клубника, 0,5 л.",
+    "catalogCardTeaser": "Питьевой йогурт с натуральным клубничным наполнителем — освежает и удобен в дороге.",
+    "images": [
+      "/images/product_6.webp"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Молочная продукция",
+        "href": "/catalog?category=dairy"
+      },
+      {
+        "label": "Йогурт питьевой (клубника)",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "smetana-20": {
+    "id": "smetana-20",
+    "name": "Сметана 20%",
+    "series": "300 г",
+    "category": "Молочная продукция",
+    "categorySlug": "dairy",
+    "price": 95,
+    "description": "Густая сметана для заправки борща, соусов и выпечки.",
+    "briefDescription": "Сметана 20%, 300 г.",
+    "images": [
+      "/images/home/hero-bg.png"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Молочная продукция",
+        "href": "/catalog?category=dairy"
+      },
+      {
+        "label": "Сметана 20%",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "tvorog-mjagkij": {
+    "id": "tvorog-mjagkij",
+    "name": "Творог мягкий 5%",
+    "series": "200 г",
+    "category": "Молочная продукция",
+    "categorySlug": "dairy",
+    "price": 110,
+    "description": "Нежный зернистый творог — завтрак или основа для запеканок.",
+    "briefDescription": "Творог 5%, 200 г.",
+    "images": [
+      "/images/home/hero-bg.png"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Молочная продукция",
+        "href": "/catalog?category=dairy"
+      },
+      {
+        "label": "Творог мягкий 5%",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "govjadina-farsh": {
+    "id": "govjadina-farsh",
+    "name": "Фарш говяжий",
+    "series": "500 г",
+    "category": "Мясо",
+    "categorySlug": "meat",
+    "price": 320,
+    "description": "Свежий охлаждённый фарш для котлет и фрикаделек.",
+    "briefDescription": "Говяжий фарш, 500 г.",
+    "images": [
+      "/images/home/hero-bg.png"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Мясо",
+        "href": "/catalog?category=meat"
+      },
+      {
+        "label": "Фарш говяжий",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "svinina-korejka": {
+    "id": "svinina-korejka",
+    "name": "Корейка свиная",
+    "series": "≈ 1 кг",
+    "category": "Мясо",
+    "categorySlug": "meat",
+    "price": 480,
+    "description": "Мраморная корейка для запекания и стейков на сковороде.",
+    "briefDescription": "Свиная корейка.",
+    "images": [
+      "/images/home/hero-bg.png"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Мясо",
+        "href": "/catalog?category=meat"
+      },
+      {
+        "label": "Корейка свиная",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "baranina-rebra": {
+    "id": "baranina-rebra",
+    "name": "Рёбра бараньи",
+    "series": "≈ 1 кг",
+    "category": "Мясо",
+    "categorySlug": "meat",
+    "price": 620,
+    "description": "Для томления и шашлыка — насыщенный вкус.",
+    "briefDescription": "Бараньи рёбра.",
+    "images": [
+      "/images/home/hero-bg.png"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Мясо",
+        "href": "/catalog?category=meat"
+      },
+      {
+        "label": "Рёбра бараньи",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "tushenina-gov": {
+    "id": "tushenina-gov",
+    "name": "Тушенина говяжья",
+    "series": "≈ 1,2 кг",
+    "category": "Мясо",
+    "categorySlug": "meat",
+    "price": 540,
+    "description": "Универсальный кусок для жаркого и тушения.",
+    "briefDescription": "Говяжья тушенина.",
+    "images": [
+      "/images/home/hero-bg.png"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Мясо",
+        "href": "/catalog?category=meat"
+      },
+      {
+        "label": "Тушенина говяжья",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "syr-domashnij": {
+    "id": "syr-domashnij",
+    "name": "Сыр домашний",
+    "series": "≈ 350 г",
+    "category": "Сыры",
+    "categorySlug": "cheese",
+    "price": 420,
+    "description": "Мягкий сыр с деликатной кислинкой — к хлебу и вино.",
+    "briefDescription": "Домашний сыр.",
+    "images": [
+      "/images/home/hero-bg.png"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Сыры",
+        "href": "/catalog?category=cheese"
+      },
+      {
+        "label": "Сыр домашний",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "syr-kopchjonij": {
+    "id": "syr-kopchjonij",
+    "name": "Сыр копчёный",
+    "series": "≈ 250 г",
+    "category": "Сыры",
+    "categorySlug": "cheese",
+    "price": 380,
+    "description": "Аромат дымка и плотная текстура.",
+    "briefDescription": "Копчёный сыр.",
+    "images": [
+      "/images/home/hero-bg.png"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Сыры",
+        "href": "/catalog?category=cheese"
+      },
+      {
+        "label": "Сыр копчёный",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "brynza-kozja": {
+    "id": "brynza-kozja",
+    "name": "Брынза козья",
+    "series": "200 г",
+    "category": "Сыры",
+    "categorySlug": "cheese",
+    "price": 290,
+    "description": "Рассыпчатая солоноватая брынза для салатов и лепёшек.",
+    "briefDescription": "Козья брынза.",
+    "images": [
+      "/images/home/hero-bg.png"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Сыры",
+        "href": "/catalog?category=cheese"
+      },
+      {
+        "label": "Брынза козья",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "suluguni": {
+    "id": "suluguni",
+    "name": "Сулугуни",
+    "series": "250 г",
+    "category": "Сыры",
+    "categorySlug": "cheese",
+    "price": 310,
+    "description": "Плетёнка для жарки и закусок.",
+    "briefDescription": "Сыр сулугуни.",
+    "images": [
+      "/images/home/hero-bg.png"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Сыры",
+        "href": "/catalog?category=cheese"
+      },
+      {
+        "label": "Сулугуни",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "kurinoe-file": {
+    "id": "kurinoe-file",
+    "name": "Филе куриное",
+    "series": "≈ 1 кг",
+    "category": "Птица",
+    "categorySlug": "poultry",
+    "price": 350,
+    "description": "Нежное филе грудки — запекание, гриль, суп.",
+    "briefDescription": "Куриное филе.",
+    "images": [
+      "/images/home/hero-bg.png"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Птица",
+        "href": "/catalog?category=poultry"
+      },
+      {
+        "label": "Филе куриное",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "kurinye-krylja": {
+    "id": "kurinye-krylja",
+    "name": "Крылья куриные",
+    "series": "≈ 1 кг",
+    "category": "Птица",
+    "categorySlug": "poultry",
+    "price": 260,
+    "description": "Для запекания и маринада.",
+    "briefDescription": "Куриные крылья.",
+    "images": [
+      "/images/home/hero-bg.png"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Птица",
+        "href": "/catalog?category=poultry"
+      },
+      {
+        "label": "Крылья куриные",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "indjajka-grudka": {
+    "id": "indjajka-grudka",
+    "name": "Грудка индейки",
+    "series": "≈ 0,8 кг",
+    "category": "Птица",
+    "categorySlug": "poultry",
+    "price": 410,
+    "description": "Постное мясо с мягким вкусом.",
+    "briefDescription": "Индейка.",
+    "images": [
+      "/images/home/hero-bg.png"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Птица",
+        "href": "/catalog?category=poultry"
+      },
+      {
+        "label": "Грудка индейки",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "utka-tushon": {
+    "id": "utka-tushon",
+    "name": "Утка тушёная (тушка)",
+    "series": "≈ 2 кг",
+    "category": "Птица",
+    "categorySlug": "poultry",
+    "price": 680,
+    "description": "Для утиного жаркого и супов.",
+    "briefDescription": "Тушка утки.",
+    "images": [
+      "/images/home/hero-bg.png"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Птица",
+        "href": "/catalog?category=poultry"
+      },
+      {
+        "label": "Утка тушёная (тушка)",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "kolbasa-doktorskaja": {
+    "id": "kolbasa-doktorskaja",
+    "name": "Колбаса «Докторская»",
+    "series": "500 г",
+    "category": "Мясная продукция",
+    "categorySlug": "meat-products",
+    "price": 385,
+    "description": "Варёная колбаса по домашнему рецепту.",
+    "briefDescription": "Докторская, 500 г.",
+    "images": [
+      "/images/home/hero-bg.png"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Мясная продукция",
+        "href": "/catalog?category=meat-products"
+      },
+      {
+        "label": "Колбаса «Докторская»",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "sosiski-molochnye": {
+    "id": "sosiski-molochnye",
+    "name": "Сосиски молочные",
+    "series": "400 г",
+    "category": "Мясная продукция",
+    "categorySlug": "meat-products",
+    "price": 220,
+    "description": "Детям и к завтраку — мягкая текстура.",
+    "briefDescription": "Молочные сосиски.",
+    "images": [
+      "/images/home/hero-bg.png"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Мясная продукция",
+        "href": "/catalog?category=meat-products"
+      },
+      {
+        "label": "Сосиски молочные",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "pechenochnaja-pashtet": {
+    "id": "pechenochnaja-pashtet",
+    "name": "Паштет печёночный",
+    "series": "150 г",
+    "category": "Мясная продукция",
+    "categorySlug": "meat-products",
+    "price": 165,
+    "description": "Намазка к хлебу и крекерам.",
+    "briefDescription": "Печёночный паштет.",
+    "images": [
+      "/images/home/hero-bg.png"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Мясная продукция",
+        "href": "/catalog?category=meat-products"
+      },
+      {
+        "label": "Паштет печёночный",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "rulet-kurinyj": {
+    "id": "rulet-kurinyj",
+    "name": "Рулет куриный",
+    "series": "400 г",
+    "category": "Мясная продукция",
+    "categorySlug": "meat-products",
+    "price": 275,
+    "description": "Нарезка к столу и в ланч-бокс.",
+    "briefDescription": "Куриный рулет.",
+    "images": [
+      "/images/home/hero-bg.png"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Мясная продукция",
+        "href": "/catalog?category=meat-products"
+      },
+      {
+        "label": "Рулет куриный",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "med-lipovij": {
+    "id": "med-lipovij",
+    "name": "Мёд липовый",
+    "series": "500 г",
+    "category": "Мед",
+    "categorySlug": "honey",
+    "price": 450,
+    "description": "Цветочный аромат, мягкое послевкусие.",
+    "briefDescription": "Липовый мёд.",
+    "images": [
+      "/images/home/hero-bg.png"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Мед",
+        "href": "/catalog?category=honey"
+      },
+      {
+        "label": "Мёд липовый",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "med-grechishnyj": {
+    "id": "med-grechishnyj",
+    "name": "Мёд гречишный",
+    "series": "500 г",
+    "category": "Мед",
+    "categorySlug": "honey",
+    "price": 470,
+    "description": "Насыщенный тёмный мёд.",
+    "briefDescription": "Гречишный мёд.",
+    "images": [
+      "/images/home/hero-bg.png"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Мед",
+        "href": "/catalog?category=honey"
+      },
+      {
+        "label": "Мёд гречишный",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "med-sotovij": {
+    "id": "med-sotovij",
+    "name": "Мёд в сотах",
+    "series": "300 г",
+    "category": "Мед",
+    "categorySlug": "honey",
+    "price": 520,
+    "description": "Срез с пасеки — как есть и к чаю.",
+    "briefDescription": "Мёд в сотах.",
+    "images": [
+      "/images/home/hero-bg.png"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Мед",
+        "href": "/catalog?category=honey"
+      },
+      {
+        "label": "Мёд в сотах",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "forel-ohl": {
+    "id": "forel-ohl",
+    "name": "Форель охлаждённая",
+    "series": "≈ 1,5 кг",
+    "category": "Рыба",
+    "categorySlug": "fish",
+    "price": 890,
+    "description": "Свежая форель для запекания целиком.",
+    "briefDescription": "Форель.",
+    "images": [
+      "/images/home/hero-bg.png"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Рыба",
+        "href": "/catalog?category=fish"
+      },
+      {
+        "label": "Форель охлаждённая",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "semga-holod": {
+    "id": "semga-holod",
+    "name": "Сёмга слабосолёная",
+    "series": "200 г",
+    "category": "Рыба",
+    "categorySlug": "fish",
+    "price": 520,
+    "description": "Нарезка к завтраку и бутербродам.",
+    "briefDescription": "Сёмга.",
+    "images": [
+      "/images/home/hero-bg.png"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Рыба",
+        "href": "/catalog?category=fish"
+      },
+      {
+        "label": "Сёмга слабосолёная",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "sibass-morskoj": {
+    "id": "sibass-morskoj",
+    "name": "Сибас потрошёный",
+    "series": "≈ 400 г",
+    "category": "Рыба",
+    "categorySlug": "fish",
+    "price": 340,
+    "description": "Для жарки и гриля.",
+    "briefDescription": "Сибас.",
+    "images": [
+      "/images/home/hero-bg.png"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Рыба",
+        "href": "/catalog?category=fish"
+      },
+      {
+        "label": "Сибас потрошёный",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "pelmeni-domashnie": {
+    "id": "pelmeni-domashnie",
+    "name": "Пельмени домашние",
+    "series": "800 г",
+    "category": "Полуфабрикаты",
+    "categorySlug": "semi-finished",
+    "price": 320,
+    "description": "Сочная начинка из говядины и свинины.",
+    "briefDescription": "Пельмени.",
+    "images": [
+      "/images/home/hero-bg.png"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Полуфабрикаты",
+        "href": "/catalog?category=semi-finished"
+      },
+      {
+        "label": "Пельмени домашние",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "vareniki-kartoshka": {
+    "id": "vareniki-kartoshka",
+    "name": "Вареники с картофелем",
+    "series": "500 г",
+    "category": "Полуфабрикаты",
+    "categorySlug": "semi-finished",
+    "price": 210,
+    "description": "Классика с луком и маслом.",
+    "briefDescription": "Вареники.",
+    "images": [
+      "/images/home/hero-bg.png"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Полуфабрикаты",
+        "href": "/catalog?category=semi-finished"
+      },
+      {
+        "label": "Вареники с картофелем",
+        "href": "#",
+        "active": true
+      }
+    ]
+  },
+  "kotlety-kurinye": {
+    "id": "kotlety-kurinye",
+    "name": "Котлеты куриные",
+    "series": "400 г",
+    "category": "Полуфабрикаты",
+    "categorySlug": "semi-finished",
+    "price": 240,
+    "description": "Готовые к жарке — удобный ужин.",
+    "briefDescription": "Куриные котлеты.",
+    "images": [
+      "/images/home/hero-bg.png"
+    ],
+    "breadcrumbs": [
+      {
+        "label": "Главная",
+        "href": "/"
+      },
+      {
+        "label": "Каталог",
+        "href": "/catalog"
+      },
+      {
+        "label": "Полуфабрикаты",
+        "href": "/catalog?category=semi-finished"
+      },
+      {
+        "label": "Котлеты куриные",
+        "href": "#",
+        "active": true
+      }
+    ]
+  }
+}

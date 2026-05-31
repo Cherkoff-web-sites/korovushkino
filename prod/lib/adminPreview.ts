@@ -1,0 +1,70 @@
+import {
+  getCatalogProducts,
+  productsData,
+  type CategorySlug,
+  type ProductData,
+  CATEGORY_LABELS,
+  productBreadcrumbs,
+} from '@/lib/api/productsData'
+
+/** Временно: админка без backend и auth. Перед продом — false. */
+export const ADMIN_PREVIEW = true
+
+export function getPreviewProducts(): ProductData[] {
+  return getCatalogProducts()
+}
+
+export function getPreviewProduct(id: string): ProductData | null {
+  return productsData[id] ?? null
+}
+
+function slugifyId(value: string) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+}
+
+export function buildPreviewProduct(payload: Record<string, unknown>, existingId?: string): ProductData {
+  const id = existingId || slugifyId(String(payload.id || payload.name || ''))
+  const categorySlug = String(payload.categorySlug || 'dairy') as CategorySlug
+  const name = String(payload.name || '').trim()
+  const images = Array.isArray(payload.images)
+    ? payload.images.map((item) => String(item).trim()).filter(Boolean)
+    : String(payload.images || '')
+        .split('\n')
+        .map((item) => item.trim())
+        .filter(Boolean)
+
+  return {
+    id,
+    name,
+    series: String(payload.series || '').trim(),
+    category: CATEGORY_LABELS[categorySlug] ?? CATEGORY_LABELS.dairy,
+    categorySlug,
+    price: Number(payload.price) || 0,
+    description: String(payload.description || '').trim(),
+    briefDescription: String(payload.briefDescription || '').trim(),
+    catalogCardTeaser: String(payload.catalogCardTeaser || '').trim() || undefined,
+    modalNutrition:
+      payload.modalNutrition &&
+      typeof payload.modalNutrition === 'object' &&
+      (payload.modalNutrition as { macrosPer100g?: string }).macrosPer100g
+        ? {
+            macrosPer100g: String(
+              (payload.modalNutrition as { macrosPer100g?: string }).macrosPer100g || '',
+            ),
+            kcal: String((payload.modalNutrition as { kcal?: string }).kcal || ''),
+          }
+        : undefined,
+    images: images.length > 0 ? images : ['/images/home/hero-bg.png'],
+    breadcrumbs: productBreadcrumbs(name, categorySlug),
+  }
+}
+
+export function suggestPreviewProductId(name: string) {
+  return slugifyId(name)
+}

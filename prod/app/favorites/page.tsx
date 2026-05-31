@@ -8,6 +8,7 @@ import Button from '@/components/ui/Button'
 import { useCart } from '@/contexts/CartContext'
 import { useFavorites } from '@/contexts/FavoritesContext'
 import { productsData, type ProductData } from '@/lib/api/productsData'
+import { productPageHref } from '@/lib/catalogPaths'
 
 const CATALOG_HREF = '/catalog'
 const placeholderImg = '/images/home/hero-bg.png'
@@ -74,7 +75,7 @@ export default function FavoritesPage() {
                     className="overflow-hidden rounded-xl border border-[#D1C4B2] bg-[#FFF9F0] shadow-sm sm:flex sm:flex-row sm:items-center sm:gap-6 sm:p-5"
                   >
                     <Link
-                      href={CATALOG_HREF}
+                      href={productPageHref(product.id)}
                       className="relative block aspect-[4/3] w-full shrink-0 overflow-hidden bg-[#F5F0E8] sm:aspect-auto sm:h-[120px] sm:w-[140px] sm:rounded-lg"
                     >
                       <Image
@@ -89,7 +90,7 @@ export default function FavoritesPage() {
                     <div className="flex flex-col gap-4 p-4 sm:min-w-0 sm:flex-1 sm:flex-row sm:items-center sm:gap-6 sm:p-0">
                       <div className="min-w-0 flex-1 text-center sm:text-left">
                         <Link
-                          href={CATALOG_HREF}
+                          href={productPageHref(product.id)}
                           className="text-lg font-bold text-[#1F1F1F] transition-colors hover:text-[#3D8C13] sm:text-xl"
                         >
                           {product.name}
@@ -116,7 +117,7 @@ export default function FavoritesPage() {
                               model: product.series,
                               price: product.price,
                               image: img,
-                              href: CATALOG_HREF,
+                              href: productPageHref(product.id),
                             })
                           }
                         >

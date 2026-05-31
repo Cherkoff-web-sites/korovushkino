@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getProduct } from '@/lib/api/productsApi'
 import { productsData, CATEGORY_LABELS } from '@/lib/api/productsData'
+import { productPageHref } from '@/lib/catalogPaths'
 import { buildReviewCards, HOME_REVIEW_BODY, PRODUCT_PAGE_REVIEW_VARIANTS } from '@/lib/reviewsData'
 
 const PLACEHOLDER = '/images/home/hero-bg.png'
@@ -83,7 +84,11 @@ export default async function ProductReviewsPage({ params }: { params: { product
               <li className="text-[#232326]/35" aria-hidden>
                 •
               </li>
-              <li className="text-[#232326]/70">{product.name}</li>
+              <li>
+                <Link href={productPageHref(product.id)} className="transition-colors hover:text-[#232326]">
+                  {product.name}
+                </Link>
+              </li>
               <li className="text-[#232326]/35" aria-hidden>
                 •
               </li>
@@ -163,10 +168,10 @@ export default async function ProductReviewsPage({ params }: { params: { product
                     </span>
                   </div>
                   <Link
-                    href="/catalog"
+                    href={productPageHref(product.id)}
                     className="mt-6 inline-block text-sm font-medium text-[#3D8C13] underline-offset-2 hover:underline"
                   >
-                    ← В каталог
+                    ← К товару
                   </Link>
                 </div>
               </div>

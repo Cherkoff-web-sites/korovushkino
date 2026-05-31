@@ -5,12 +5,12 @@ import Image from 'next/image'
 import Link from 'next/link'
 import FavoriteHeartButton from '@/components/FavoriteHeartButton'
 import { useCart } from '@/contexts/CartContext'
+import { productPageHref, productReviewsHref } from '@/lib/catalogPaths'
 import type { ProductData } from '@/lib/api/productsData'
 import { useScrollLock } from '@/lib/useScrollLock'
 
 const cartIcon = '/images/header/icon-cart.svg'
 const PLACEHOLDER = '/images/home/hero-bg.png'
-const CATALOG_HREF = '/catalog'
 
 export default function ProductQuickViewModal({
   product,
@@ -43,7 +43,7 @@ export default function ProductQuickViewModal({
       model: product.series,
       price: product.price,
       image: mainImage,
-      href: CATALOG_HREF,
+      href: productPageHref(product.id),
     })
   }
 
@@ -79,9 +79,9 @@ export default function ProductQuickViewModal({
               {product.name}
             </h2>
 
-            <div className="mt-3 flex flex-wrap items-center gap-2">
+            <div className="mt-3 flex flex-wrap items-center gap-3">
               <Link
-                href={`/catalog/${product.id}/reviews`}
+                href={productReviewsHref(product.id)}
                 onClick={onClose}
                 aria-label={`Отзывы о товаре «${product.name}»`}
                 className="group inline-flex items-center gap-2 text-sm text-[#9A9A9A] transition-colors hover:text-[#3D8C13]"
@@ -92,6 +92,13 @@ export default function ProductQuickViewModal({
                     <span key={`os-${i}`}>☆</span>
                   ))}
                 </span>
+              </Link>
+              <Link
+                href={productPageHref(product.id)}
+                onClick={onClose}
+                className="text-sm font-medium text-[#3D8C13] underline-offset-2 hover:underline"
+              >
+                Страница товара
               </Link>
             </div>
 

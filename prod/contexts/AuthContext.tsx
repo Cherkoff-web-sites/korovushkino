@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react'
@@ -29,6 +30,7 @@ type AuthContextValue = {
   loginWithEmail: (email: string) => Promise<boolean>
   confirmLoginCode: (email: string, code: string) => Promise<AuthUser>
   logout: () => void
+  consumeLogoutRedirect: () => boolean
   refreshUser: () => Promise<AuthUser | null>
 }
 
@@ -39,6 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
   const [emailCodeRequired, setEmailCodeRequired] = useState(true)
   const [loginModalOpen, setLoginModalOpen] = useState(false)
+  const skipLoginPromptRef = useRef(false)
 
   const refreshUser = useCallback(async () => {
     try {
@@ -94,8 +97,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const logout = useCallback(() => {
+    skipLoginPromptRef.current = true
     apiLogout()
     setUser(null)
+    setLoginModalOpen(false)
+  }, [])
+
+  const consumeLogoutRedirect = useCallback(() => {
+    if (!skipLoginPromptRef.current) return false
+    skipLoginPromptRef.current = false
+    return true
   }, [])
 
   const value = useMemo(
@@ -109,6 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loginWithEmail,
       confirmLoginCode,
       logout,
+      consumeLogoutRedirect,
       refreshUser,
     }),
     [
@@ -121,6 +133,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loginWithEmail,
       confirmLoginCode,
       logout,
+      consumeLogoutRedirect,
       refreshUser,
     ]
   )

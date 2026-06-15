@@ -1,10 +1,12 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useCart } from '@/contexts/CartContext'
 import { useAuth } from '@/contexts/AuthContext'
 import AccountSectionCard from './components/AccountSectionCard'
 
 export default function AccountPersonalPage() {
+  const router = useRouter()
   const { getTotalPrice } = useCart()
   const { user, logout } = useAuth()
   const ordersTotal = getTotalPrice()
@@ -39,7 +41,10 @@ export default function AccountPersonalPage() {
       <div className="mt-8 border-t border-[#D2B48C]/40 pt-8 sm:mt-10">
         <button
           type="button"
-          onClick={logout}
+          onClick={() => {
+            logout()
+            router.push('/')
+          }}
           className="text-sm text-[#707070] transition-colors hover:text-black"
         >
           Выйти из аккаунта

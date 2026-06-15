@@ -2,15 +2,24 @@
 
 import { useEffect } from 'react'
 import type { ReactNode } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function AccountAuthGate({ children }: { children: ReactNode }) {
-  const { user, loading, openLoginModal, loginModalOpen } = useAuth()
+  const router = useRouter()
+  const { user, loading, openLoginModal, consumeLogoutRedirect } = useAuth()
 
   useEffect(() => {
-    if (loading || user || loginModalOpen) return
+    if (loading || user) return
+
+    if (consumeLogoutRedirect()) {
+      router.replace('/')
+      return
+    }
+
     openLoginModal()
-  }, [loading, user, loginModalOpen, openLoginModal])
+    router.replace('/')
+  }, [loading, user, openLoginModal, consumeLogoutRedirect, router])
 
   if (loading) {
     return (

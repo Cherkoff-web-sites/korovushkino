@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import { getProduct } from '@/lib/api/productsApi'
 import { productsData, CATEGORY_LABELS } from '@/lib/api/productsData'
 import { productPageHref } from '@/lib/catalogPaths'
+import ReviewAccountAvatar from '@/components/reviews/ReviewAccountAvatar'
 import { buildReviewCards, HOME_REVIEW_BODY, PRODUCT_PAGE_REVIEW_VARIANTS } from '@/lib/reviewsData'
 
 const PLACEHOLDER = '/images/home/hero-bg.png'
@@ -112,11 +113,7 @@ export default async function ProductReviewsPage({ params }: { params: { product
                   className="rounded-xl border border-[#D2B48C] bg-[#FFF8E7] p-5 sm:p-6"
                 >
                   <div className="flex flex-wrap items-start gap-3">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#D9D9D9]">
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="#888" aria-hidden className="opacity-90">
-                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                      </svg>
-                    </div>
+                    <ReviewAccountAvatar size="md" />
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-baseline justify-between gap-2">
                         <span className="text-base font-medium text-black">{review.authorName}</span>
@@ -132,13 +129,9 @@ export default async function ProductReviewsPage({ params }: { params: { product
 
                   <p className="mt-4 text-sm leading-relaxed text-black sm:text-[15px]">{review.text}</p>
 
-                  <div className="mt-5 rounded-lg border border-[#D2B48C]/80 bg-[#FFF6E7] p-4 sm:p-5">
+                  <div className="ml-8 mt-5 rounded-lg border border-[#D2B48C]/80 bg-[#FFF6E7] p-4 sm:ml-12 sm:p-5 lg:ml-14">
                     <div className="flex flex-wrap items-start gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#D9D9D9]">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="#888" aria-hidden>
-                          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                        </svg>
-                      </div>
+                      <ReviewAccountAvatar size="sm" />
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-baseline justify-between gap-2">
                           <span className="text-sm font-medium text-black">{review.reply.authorLabel}</span>

@@ -16,7 +16,7 @@ body {
 }
 
 html {
-  background-color: #fdfbf6;
+  background-color: #fff;
 }
 
 img,
@@ -29,7 +29,7 @@ canvas {
 body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #fdfbf6;
+  background-color: #fff;
   color: #232326;
 }
 

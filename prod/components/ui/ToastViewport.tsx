@@ -29,6 +29,7 @@ export default function ToastViewport({ toasts }: { toasts: ToastItem[] }) {
           className="toast-enter w-full max-w-md rounded-xl border border-[#E5DECF] bg-[#FFF8ED] px-4 py-3 text-center text-sm font-normal text-[#1F1F1F] shadow-xl sm:text-[15px]"
           role="status"
         >
+          
           {toast.message}
         </div>
       ))}

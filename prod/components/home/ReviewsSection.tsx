@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from 'react'
 import LeaveReviewModal from '@/components/reviews/LeaveReviewModal'
+import ReviewAccountAvatar from '@/components/reviews/ReviewAccountAvatar'
 import { useAuth } from '@/contexts/AuthContext'
 import {
   HOME_REVIEW_BODY,
@@ -110,10 +111,7 @@ export default function ReviewsSection() {
                     className="review-content-animate space-y-4"
                   >
                     <div className="flex flex-wrap items-start gap-3">
-                      <div
-                        className="h-14 w-14 shrink-0 rounded bg-[#c4c4c4]"
-                        aria-hidden
-                      />
+                      <ReviewAccountAvatar size="lg" />
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-baseline justify-between gap-2">
                           <span className="font-normal">{active.authorName}</span>
@@ -126,12 +124,9 @@ export default function ReviewsSection() {
                     </div>
                     <p>{active.text}</p>
 
-                    <div className="border-t border-[#C88C39]/40 pt-4">
+                    <div className="ml-10 border-t border-[#C88C39]/40 pt-4 sm:ml-14 lg:ml-16">
                       <div className="flex flex-wrap items-start gap-3">
-                        <div
-                          className="h-10 w-10 shrink-0 rounded bg-[#c4c4c4]"
-                          aria-hidden
-                        />
+                        <ReviewAccountAvatar size="sm" />
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-baseline justify-between gap-2">
                             <span className="font-normal">{active.reply.authorLabel}</span>

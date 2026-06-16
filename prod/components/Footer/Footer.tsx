@@ -26,8 +26,6 @@ export default function Footer() {
   return (
     <>
       <footer className="overflow-x-hidden bg-white">
-        <div className="border-t border-[#E5DECF]" />
-
         <div className="relative">
           <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-10 px-4 pb-14 pt-12 sm:pb-16 sm:pt-14 lg:flex-row lg:items-stretch lg:gap-8 lg:pb-20 lg:pt-14">
             {/* Левая колонка ~60%: рассылка + навигация */}
@@ -134,8 +132,11 @@ export default function Footer() {
               <div className="flex h-full min-h-[240px] flex-col justify-center rounded-2xl border border-[#E5DECF] bg-[#FFF8ED] p-6 sm:min-h-[280px] sm:p-8 lg:py-10">
                 <h3 className="text-2xl font-bold leading-tight text-[#1F1F1F] sm:text-3xl">Коровушкино</h3>
                 <p className="mt-4 text-sm font-normal leading-relaxed text-[#232326] sm:text-base">
-                  <strong>«Коровушкино»</strong> — это вкус настоящей фермерской продукции из небольших
-                  хозяйств: натуральность, свежесть и забота о том, что вы покупаете для своего стола.
+                  <strong>«Коровушкино»</strong> — это вкус настоящих фермерских продуктов с малых хозяйств.
+                  Мы сотрудничаем с проверенными фермерами, которые производят натуральные продукты из
+                  качественного сырья. Наша задача — сохранить этот вкус и доставить его прямо к вашему
+                  столу, чтобы в каждом продукте чувствовалась настоящая деревенская свежесть и
+                  натуральность.
                 </p>
               </div>
             </aside>

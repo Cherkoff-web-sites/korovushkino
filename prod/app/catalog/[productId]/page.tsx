@@ -40,10 +40,10 @@ export default async function ProductPage({ params }: { params: { productId: str
   const categoryLabel = CATEGORY_LABELS[product.categorySlug]
 
   return (
-    <div className="min-h-screen bg-[#fdfbf6]">
+    <div>
       <div className="h-1 w-full bg-[#3D8C13]" aria-hidden />
 
-      <section className="border-b border-[#E5DECF] bg-white py-6 sm:py-8">
+      <section className="py-6 sm:py-8">
         <div className="container">
           <nav className="mb-4 text-sm text-[#232326]/55 sm:text-[15px]" aria-label="Навигация">
             <ol className="flex flex-wrap items-center gap-2">
@@ -81,7 +81,7 @@ export default async function ProductPage({ params }: { params: { productId: str
         </div>
       </section>
 
-      <section className="py-8 sm:py-10 lg:py-12">
+      <section className="pb-8 sm:pb-10 lg:pb-12">
         <div className="container">
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10">
             <div className="relative aspect-[4/3] min-h-[240px] w-full overflow-hidden rounded-xl bg-[#F5F0E8] lg:col-span-5 lg:aspect-auto lg:min-h-[420px]">

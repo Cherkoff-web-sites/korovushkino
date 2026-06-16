@@ -105,15 +105,22 @@ export default function CartPage() {
                 ))}
               </ul>
 
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-lg font-semibold text-[#1F1F1F]">
                   Итого: <span className="text-[#3D8C13]">{totalPrice.toLocaleString('ru-RU')} ₽</span>
                 </p>
-                <Link href="/catalog">
-                  <Button variant="outline" size="lg">
-                    Продолжить покупки
-                  </Button>
-                </Link>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <Link href="/catalog">
+                    <Button variant="outline" size="lg" className="w-full sm:w-auto">
+                      Продолжить покупки
+                    </Button>
+                  </Link>
+                  <Link href="/checkout">
+                    <Button size="lg" className="w-full sm:w-auto">
+                      Оформить заказ
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </>
           )}

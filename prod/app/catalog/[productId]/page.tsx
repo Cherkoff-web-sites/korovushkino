@@ -5,12 +5,15 @@ import { notFound } from 'next/navigation'
 import { getProduct } from '@/lib/api/productsApi'
 import { productsData, CATEGORY_LABELS } from '@/lib/api/productsData'
 import { productPageHref, productReviewsHref } from '@/lib/catalogPaths'
+import { productMetaDescription, productMetaKeywords, productMetaTitle, productUrlSlug } from '@/lib/productSeo'
 import ProductPageActions from '../components/ProductPageActions'
 
 const PLACEHOLDER = '/images/home/hero-bg.png'
 
 export function generateStaticParams() {
-  return Object.keys(productsData).map((productId) => ({ productId }))
+  return Object.values(productsData).map((product) => ({
+    productId: productUrlSlug(product),
+  }))
 }
 
 export async function generateMetadata({
@@ -23,8 +26,9 @@ export async function generateMetadata({
     return { title: 'Товар | Коровушкино' }
   }
   return {
-    title: `${product.name} | Коровушкино`,
-    description: product.briefDescription || product.description,
+    title: productMetaTitle(product),
+    description: productMetaDescription(product),
+    keywords: productMetaKeywords(product),
   }
 }
 

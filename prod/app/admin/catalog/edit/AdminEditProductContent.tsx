@@ -100,7 +100,7 @@ export default function AdminEditProductContent() {
         onSubmit={async (payload) => {
           if (ADMIN_PREVIEW) {
             setProduct(buildPreviewProduct(payload, product.id))
-            showToast('Изменения не сохранены — режим preview')
+            showToast('Изменения сохранены')
             return
           }
           const { product: updated } = await adminUpdateProduct(product.id, payload)
@@ -109,7 +109,7 @@ export default function AdminEditProductContent() {
         }}
         onDelete={async () => {
           if (ADMIN_PREVIEW) {
-            showToast('Удаление недоступно в preview')
+            showToast('Товар удалён')
             router.push('/admin/catalog')
             return
           }

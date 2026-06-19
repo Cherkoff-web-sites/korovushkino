@@ -7,7 +7,7 @@ import {
   productBreadcrumbs,
 } from '@/lib/api/productsData'
 
-/** Временно: админка без backend и auth. Перед продом — false. */
+/** Локальный режим админки без backend (перед продом — false). */
 export const ADMIN_PREVIEW = true
 
 export function getPreviewProducts(): ProductData[] {
@@ -62,6 +62,16 @@ export function buildPreviewProduct(payload: Record<string, unknown>, existingId
         : undefined,
     images: images.length > 0 ? images : ['/images/home/hero-bg.png'],
     breadcrumbs: productBreadcrumbs(name, categorySlug),
+    urlSlug: slugifyId(String(payload.urlSlug || id)) || id,
+    seo: {
+      title: String((payload.seo as { title?: string } | undefined)?.title || '').trim() || undefined,
+      description:
+        String((payload.seo as { description?: string } | undefined)?.description || '').trim() ||
+        undefined,
+      keywords:
+        String((payload.seo as { keywords?: string } | undefined)?.keywords || '').trim() ||
+        undefined,
+    },
   }
 }
 

@@ -4,7 +4,8 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getProduct } from '@/lib/api/productsApi'
 import { productsData, CATEGORY_LABELS } from '@/lib/api/productsData'
-import { productPageHref } from '@/lib/catalogPaths'
+import { productReviewsHref } from '@/lib/catalogPaths'
+import { productPublicPath } from '@/lib/productSeo'
 import ReviewAccountAvatar from '@/components/reviews/ReviewAccountAvatar'
 import { buildReviewCards, HOME_REVIEW_BODY, PRODUCT_PAGE_REVIEW_VARIANTS } from '@/lib/reviewsData'
 
@@ -86,7 +87,7 @@ export default async function ProductReviewsPage({ params }: { params: { product
                 •
               </li>
               <li>
-                <Link href={productPageHref(product.id)} className="transition-colors hover:text-[#232326]">
+                <Link href={productPublicPath(product)} className="transition-colors hover:text-[#232326]">
                   {product.name}
                 </Link>
               </li>
@@ -161,7 +162,7 @@ export default async function ProductReviewsPage({ params }: { params: { product
                     </span>
                   </div>
                   <Link
-                    href={productPageHref(product.id)}
+                    href={productPublicPath(product)}
                     className="mt-6 inline-block text-sm font-medium text-[#3D8C13] underline-offset-2 hover:underline"
                   >
                     ← К товару

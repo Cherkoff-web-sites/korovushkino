@@ -71,6 +71,18 @@ export function normalizeProduct(body, existingId) {
         }
       : undefined;
 
+  const seoTitle = String(body.seo?.title || "").trim();
+  const seoDescription = String(body.seo?.description || "").trim();
+  const seoKeywords = String(body.seo?.keywords || "").trim();
+  const seo =
+    seoTitle || seoDescription || seoKeywords
+      ? {
+          title: seoTitle || undefined,
+          description: seoDescription || undefined,
+          keywords: seoKeywords || undefined,
+        }
+      : undefined;
+
   return {
     id,
     name,
@@ -84,6 +96,8 @@ export function normalizeProduct(body, existingId) {
     modalNutrition,
     images: images.length > 0 ? images : ["/images/home/hero-bg.png"],
     breadcrumbs: productBreadcrumbs(name, categorySlug),
+    urlSlug: slugifyId(body.urlSlug || body.id || id) || id,
+    seo,
     advantages: Array.isArray(body.advantages)
       ? body.advantages.map((item) => String(item).trim()).filter(Boolean)
       : undefined,

@@ -41,6 +41,14 @@ export interface ProductData {
     href: string
     active?: boolean
   }[]
+  /** Сегмент URL: /catalog/{urlSlug}/ — если не задан, используется id */
+  urlSlug?: string
+  /** SEO-метаданные страницы товара */
+  seo?: {
+    title?: string
+    description?: string
+    keywords?: string
+  }
   advantages?: string[]
   parametersTable?: {
     title: string

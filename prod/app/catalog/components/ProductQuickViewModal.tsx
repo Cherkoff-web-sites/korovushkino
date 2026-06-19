@@ -5,7 +5,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import FavoriteHeartButton from '@/components/FavoriteHeartButton'
 import { useCart } from '@/contexts/CartContext'
-import { productPageHref, productReviewsHref } from '@/lib/catalogPaths'
+import { productReviewsHref } from '@/lib/catalogPaths'
+import { productPublicPath } from '@/lib/productSeo'
 import type { ProductData } from '@/lib/api/productsData'
 import { useScrollLock } from '@/lib/useScrollLock'
 
@@ -43,7 +44,7 @@ export default function ProductQuickViewModal({
       model: product.series,
       price: product.price,
       image: mainImage,
-      href: productPageHref(product.id),
+      href: productPublicPath(product),
     })
   }
 
@@ -94,7 +95,7 @@ export default function ProductQuickViewModal({
                 </span>
               </Link>
               <Link
-                href={productPageHref(product.id)}
+                href={productPublicPath(product)}
                 onClick={onClose}
                 className="text-sm font-medium text-[#3D8C13] underline-offset-2 hover:underline"
               >

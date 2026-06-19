@@ -1,8 +1,19 @@
 import { readFile } from 'fs/promises'
 import { join } from 'path'
 import { productsData, type ProductData } from './productsData'
+import { productUrlSlug } from '@/lib/productSeo'
 
 const PRODUCTS_FILE = join(process.cwd(), 'data', 'products.json')
+
+function findProduct(
+  products: Record<string, ProductData>,
+  idOrSlug: string,
+): ProductData | null {
+  if (products[idOrSlug]) return products[idOrSlug]
+  return (
+    Object.values(products).find((product) => productUrlSlug(product) === idOrSlug) ?? null
+  )
+}
 
 export async function getProducts(): Promise<Record<string, ProductData>> {
   try {
@@ -14,7 +25,7 @@ export async function getProducts(): Promise<Record<string, ProductData>> {
   }
 }
 
-export async function getProduct(id: string): Promise<ProductData | null> {
+export async function getProduct(idOrSlug: string): Promise<ProductData | null> {
   const products = await getProducts()
-  return products[id] || null
+  return findProduct(products, idOrSlug)
 }

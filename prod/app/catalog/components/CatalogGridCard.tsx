@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import FavoriteHeartButton from '@/components/FavoriteHeartButton'
 import { useCart } from '@/contexts/CartContext'
-import { productPageHref } from '@/lib/catalogPaths'
+import { productPublicPath } from '@/lib/productSeo'
 import type { ProductData } from '@/lib/api/productsData'
 
 const cartIcon = '/images/header/icon-cart.svg'
@@ -30,7 +30,7 @@ export default function CatalogGridCard({
 }) {
   const { addItem } = useCart()
   const cardText = product.catalogCardTeaser ?? product.description
-  const productHref = productPageHref(product.id)
+  const productHref = productPublicPath(product)
 
   const handleCart = (e: React.MouseEvent) => {
     e.preventDefault()

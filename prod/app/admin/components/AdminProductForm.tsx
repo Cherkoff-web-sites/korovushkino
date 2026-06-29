@@ -42,7 +42,7 @@ function toFormValues(product?: ProductData | null): AdminProductFormValues {
     description: product?.description ?? '',
     briefDescription: product?.briefDescription ?? '',
     catalogCardTeaser: product?.catalogCardTeaser ?? '',
-    images: product?.images?.join('\n') ?? '',
+    images: product?.images?.slice(1).join('\n') ?? '',
     macrosPer100g: product?.modalNutrition?.macrosPer100g ?? '',
     kcal: product?.modalNutrition?.kcal ?? '',
     seoTitle: product?.seo?.title ?? '',
@@ -54,11 +54,14 @@ function toFormValues(product?: ProductData | null): AdminProductFormValues {
 export default function AdminProductForm({
   initialProduct,
   isEdit = false,
+  mainImage,
   onSubmit,
   onDelete,
 }: {
   initialProduct?: ProductData | null
   isEdit?: boolean
+  mainImage?: string
+  onMainImageChange?: (url: string) => void
   onSubmit: (payload: Record<string, unknown>) => Promise<void>
   onDelete?: () => Promise<void>
 }) {
@@ -91,7 +94,7 @@ export default function AdminProductForm({
         description: values.description,
         briefDescription: values.briefDescription,
         catalogCardTeaser: values.catalogCardTeaser,
-        images: values.images.split('\n').map((item) => item.trim()).filter(Boolean),
+        images: buildImagesList(mainImage, values.images),
         modalNutrition:
           values.macrosPer100g || values.kcal
             ? { macrosPer100g: values.macrosPer100g, kcal: values.kcal }
@@ -201,7 +204,9 @@ export default function AdminProductForm({
           </label>
 
           <label className="block sm:col-span-2">
-            <span className="mb-1.5 block text-xs text-[#707070]">Изображения (по одному URL на строку)</span>
+            <span className="mb-1.5 block text-xs text-[#707070]">
+              Дополнительные изображения (по одному URL на строку)
+            </span>
             <textarea
               rows={3}
               value={values.images}
@@ -335,4 +340,13 @@ export default function AdminProductForm({
       </div>
     </form>
   )
+}
+
+function buildImagesList(mainImage: string | undefined, imagesField: string) {
+  const extra = imagesField
+    .split('\n')
+    .map((item) => item.trim())
+    .filter(Boolean)
+  const primary = mainImage?.trim() || extra[0] || '/images/home/hero-bg.png'
+  return [primary, ...extra.filter((item) => item !== primary)]
 }

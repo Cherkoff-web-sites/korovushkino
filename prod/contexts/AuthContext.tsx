@@ -29,6 +29,8 @@ type AuthContextValue = {
   /** Returns true if email code step is needed */
   loginWithEmail: (email: string) => Promise<boolean>
   confirmLoginCode: (email: string, code: string) => Promise<AuthUser>
+  /** Демо-вход без SMS/API */
+  loginWithDemo: (payload: { phone?: string; email?: string }) => void
   logout: () => void
   consumeLogoutRedirect: () => boolean
   refreshUser: () => Promise<AuthUser | null>
@@ -96,6 +98,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return nextUser
   }, [])
 
+  const loginWithDemo = useCallback((payload: { phone?: string; email?: string }) => {
+    const phone = payload.phone?.trim() ?? ''
+    const email = payload.email?.trim().toLowerCase() ?? ''
+    const demoUser: AuthUser = {
+      id: 0,
+      login: email || phone || 'demo-user',
+      email: email || null,
+      role: 'user',
+      surname: '',
+      firstName: '',
+      phone,
+      createdAt: null,
+      updatedAt: null,
+    }
+    setUser(demoUser)
+  }, [])
+
   const logout = useCallback(() => {
     skipLoginPromptRef.current = true
     apiLogout()
@@ -119,6 +138,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       closeLoginModal,
       loginWithEmail,
       confirmLoginCode,
+      loginWithDemo,
       logout,
       consumeLogoutRedirect,
       refreshUser,
@@ -132,6 +152,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       closeLoginModal,
       loginWithEmail,
       confirmLoginCode,
+      loginWithDemo,
       logout,
       consumeLogoutRedirect,
       refreshUser,

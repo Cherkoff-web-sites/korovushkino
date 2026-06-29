@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react'
 import LeaveReviewModal from '@/components/reviews/LeaveReviewModal'
 import ReviewAccountAvatar from '@/components/reviews/ReviewAccountAvatar'
 import { useAuth } from '@/contexts/AuthContext'
+import { useHomeContent } from '@/hooks/useHomeContent'
 import {
   HOME_REVIEW_BODY,
   HOME_REVIEW_VARIANTS,
@@ -40,6 +41,7 @@ function StarRow({ count }: { count: number }) {
 
 export default function ReviewsSection() {
   const { user, loading, openLoginModal } = useAuth()
+  const { content } = useHomeContent()
   const [index, setIndex] = useState(0)
   const [reviewModalOpen, setReviewModalOpen] = useState(false)
 
@@ -71,7 +73,9 @@ export default function ReviewsSection() {
   return (
     <section id="reviews" className="relative z-10 bg-[#fdfbf6] py-10 sm:py-12 lg:py-14">
       <div className="container">
-        <h2 className="mb-[40px] text-[36px] font-normal leading-tight text-black">Отзывы</h2>
+        <h2 className="mb-[40px] text-[36px] font-normal leading-tight text-black">
+          {content.reviews.sectionTitle}
+        </h2>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
           <div className="min-w-0 lg:col-span-8">
@@ -168,7 +172,7 @@ export default function ReviewsSection() {
               onClick={handleLeaveReview}
               className="pointer-events-auto mt-1 w-full rounded-lg bg-[#3D8C13] py-3 text-center text-[20px] font-normal text-white shadow-sm transition-all duration-200 hover:bg-[#367c11] hover:shadow-md active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C88C39] focus-visible:ring-offset-2"
             >
-              Оставить отзыв
+              {content.reviews.leaveReviewButton}
             </button>
           </aside>
         </div>

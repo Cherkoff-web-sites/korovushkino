@@ -14,6 +14,14 @@ export default function AdminNavIcon({ type, active = false }: { type: AdminNavI
     )
   }
 
+  if (type === 'home') {
+    return (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.6" aria-hidden>
+        <path d="M4 10.5L12 4l8 6.5V19a1 1 0 01-1 1h-5v-6H10v6H5a1 1 0 01-1-1v-8.5z" strokeLinejoin="round" />
+      </svg>
+    )
+  }
+
   if (type === 'contact') {
     return (
       <svg className={className} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.6" aria-hidden>

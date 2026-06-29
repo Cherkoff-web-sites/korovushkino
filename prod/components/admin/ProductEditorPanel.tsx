@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import type { ProductData } from '@/lib/api/productsData'
 import AdminProductForm from '@/app/admin/components/AdminProductForm'
 import { productPublicPath } from '@/lib/productSeo'
@@ -23,7 +24,15 @@ export default function ProductEditorPanel({
   onDelete,
 }: ProductEditorPanelProps) {
   const title = isNew ? 'Новый товар' : product?.name ?? 'Редактор'
-  const image = product?.images?.[0] ?? '/images/home/hero-bg.png'
+  const [mainImage, setMainImage] = useState(product?.images?.[0] ?? '/images/home/hero-bg.png')
+
+  useEffect(() => {
+    setMainImage(product?.images?.[0] ?? '/images/home/hero-bg.png')
+  }, [product])
+
+  const formProduct: ProductData | null = product
+    ? { ...product, images: mergeMainImage(product.images, mainImage) }
+    : null
 
   return (
     <div className="fixed inset-0 z-[230] flex flex-col bg-[#f0f1f4] 2xl:static 2xl:z-auto 2xl:max-h-[calc(100vh-3rem)] 2xl:overflow-y-auto">
@@ -50,16 +59,22 @@ export default function ProductEditorPanel({
       </div>
 
       <div className="flex-1 space-y-4 overflow-y-auto p-4">
-        <ProductImagePreview src={image} alt={product?.name ?? 'Товар'} />
+        <ProductImagePreview
+          src={mainImage}
+          alt={product?.name ?? 'Товар'}
+          onChange={setMainImage}
+        />
         <div className={adminPanelClass}>
           <div className="border-b border-[#e8eaef] px-4 py-3">
             <h3 className="text-sm font-semibold text-[#1F1F1F]">Карточка товара</h3>
           </div>
           <div className="p-4">
             <AdminProductForm
-              key={product?.id ?? 'new'}
-              initialProduct={product}
+              key={`${product?.id ?? 'new'}-${mainImage}`}
+              initialProduct={formProduct}
               isEdit={!isNew && Boolean(product)}
+              mainImage={mainImage}
+              onMainImageChange={setMainImage}
               onSubmit={onSubmit}
               onDelete={onDelete}
             />
@@ -68,4 +83,10 @@ export default function ProductEditorPanel({
       </div>
     </div>
   )
+}
+
+function mergeMainImage(images: string[] | undefined, mainImage: string) {
+  const rest = (images ?? []).filter((item, index) => index > 0 && item.trim() !== '')
+  const primary = mainImage.trim() || '/images/home/hero-bg.png'
+  return [primary, ...rest]
 }

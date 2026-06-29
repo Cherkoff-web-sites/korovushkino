@@ -2,10 +2,12 @@
 
 import { FormEvent, useEffect, useState } from 'react'
 import AdminPageHeader from '@/components/admin/AdminPageHeader'
+import AdminImageField from '@/components/admin/AdminImageField'
 import { adminInputClass, adminPanelClass } from '@/components/admin/adminStyles'
 import Button from '@/components/ui/Button'
 import { useHomeContent } from '@/hooks/useHomeContent'
 import type { HomeContent } from '@/lib/homeContent'
+import { DEFAULT_HOME_CONTENT } from '@/lib/homeContent'
 import { useToast } from '@/contexts/ToastContext'
 
 function Field({
@@ -58,7 +60,7 @@ export default function HomeContentEditor() {
             type="button"
             onClick={() => {
               reset()
-              setDraft(content)
+              setDraft(DEFAULT_HOME_CONTENT)
               setDirty(false)
               showToast('Сброшено к значениям по умолчанию')
             }}
@@ -75,15 +77,16 @@ export default function HomeContentEditor() {
             <h2 className="text-sm font-semibold text-[#1F1F1F]">Hero-блок</h2>
           </div>
           <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2">
-            <Field label="Фоновое изображение (URL)">
-              <input
-                className={adminInputClass}
+            <div className="sm:col-span-2">
+              <AdminImageField
+                label="Фоновое изображение hero"
                 value={draft.hero.backgroundImage}
-                onChange={(e) =>
-                  update((p) => ({ ...p, hero: { ...p.hero, backgroundImage: e.target.value } }))
+                onChange={(value) =>
+                  update((p) => ({ ...p, hero: { ...p.hero, backgroundImage: value } }))
                 }
+                previewAspect="wide"
               />
-            </Field>
+            </div>
             <Field label="Заголовок">
               <input
                 className={adminInputClass}
@@ -138,20 +141,19 @@ export default function HomeContentEditor() {
           </div>
           <div className="space-y-4 p-4">
             {draft.benefits.map((item, index) => (
-              <div key={index} className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <Field label={`Иконка ${index + 1}`}>
-                  <input
-                    className={adminInputClass}
-                    value={item.icon}
-                    onChange={(e) =>
-                      update((p) => {
-                        const benefits = [...p.benefits]
-                        benefits[index] = { ...benefits[index]!, icon: e.target.value }
-                        return { ...p, benefits }
-                      })
-                    }
-                  />
-                </Field>
+              <div key={index} className="grid grid-cols-1 gap-4 border-b border-[#e8eaef] pb-4 last:border-b-0 last:pb-0 sm:grid-cols-2">
+                <AdminImageField
+                  label={`Иконка ${index + 1}`}
+                  value={item.icon}
+                  onChange={(value) =>
+                    update((p) => {
+                      const benefits = [...p.benefits]
+                      benefits[index] = { ...benefits[index]!, icon: value }
+                      return { ...p, benefits }
+                    })
+                  }
+                  previewAspect="square"
+                />
                 <Field label={`Текст ${index + 1}`}>
                   <input
                     className={adminInputClass}
@@ -176,7 +178,7 @@ export default function HomeContentEditor() {
           </div>
           <div className="space-y-4 p-4">
             {draft.highlights.map((item, index) => (
-              <div key={item.id} className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div key={item.id} className="grid grid-cols-1 gap-4 border-b border-[#e8eaef] pb-4 last:border-b-0 sm:grid-cols-2">
                 <Field label={`Название: ${item.id}`}>
                   <input
                     className={adminInputClass}
@@ -190,19 +192,18 @@ export default function HomeContentEditor() {
                     }
                   />
                 </Field>
-                <Field label="Изображение (URL)">
-                  <input
-                    className={adminInputClass}
-                    value={item.backgroundImage}
-                    onChange={(e) =>
-                      update((p) => {
-                        const highlights = [...p.highlights]
-                        highlights[index] = { ...highlights[index]!, backgroundImage: e.target.value }
-                        return { ...p, highlights }
-                      })
-                    }
-                  />
-                </Field>
+                <AdminImageField
+                  label={`Изображение: ${item.id}`}
+                  value={item.backgroundImage}
+                  onChange={(value) =>
+                    update((p) => {
+                      const highlights = [...p.highlights]
+                      highlights[index] = { ...highlights[index]!, backgroundImage: value }
+                      return { ...p, highlights }
+                    })
+                  }
+                  previewAspect="video"
+                />
               </div>
             ))}
           </div>
@@ -222,24 +223,22 @@ export default function HomeContentEditor() {
                 }
               />
             </Field>
-            <Field label="Фото справа (верх)">
-              <input
-                className={adminInputClass}
-                value={draft.about.row1RightImage}
-                onChange={(e) =>
-                  update((p) => ({ ...p, about: { ...p.about, row1RightImage: e.target.value } }))
-                }
-              />
-            </Field>
-            <Field label="Фото слева (низ)">
-              <input
-                className={adminInputClass}
-                value={draft.about.row2LeftImage}
-                onChange={(e) =>
-                  update((p) => ({ ...p, about: { ...p.about, row2LeftImage: e.target.value } }))
-                }
-              />
-            </Field>
+            <AdminImageField
+              label="Фото справа (верх)"
+              value={draft.about.row1RightImage}
+              onChange={(value) =>
+                update((p) => ({ ...p, about: { ...p.about, row1RightImage: value } }))
+              }
+              previewAspect="video"
+            />
+            <AdminImageField
+              label="Фото слева (низ)"
+              value={draft.about.row2LeftImage}
+              onChange={(value) =>
+                update((p) => ({ ...p, about: { ...p.about, row2LeftImage: value } }))
+              }
+              previewAspect="video"
+            />
             {draft.about.blocks.map((block, index) => (
               <div key={index} className="sm:col-span-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <Field label={`Подзаголовок ${index + 1}`}>

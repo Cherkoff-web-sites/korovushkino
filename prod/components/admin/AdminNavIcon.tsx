@@ -22,6 +22,14 @@ export default function AdminNavIcon({ type, active = false }: { type: AdminNavI
     )
   }
 
+  if (type === 'backup') {
+    return (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.6" aria-hidden>
+        <path d="M12 3v12m0 0l4-4m-4 4l-4-4M5 15v3a2 2 0 002 2h10a2 2 0 002-2v-3" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    )
+  }
+
   if (type === 'contact') {
     return (
       <svg className={className} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.6" aria-hidden>

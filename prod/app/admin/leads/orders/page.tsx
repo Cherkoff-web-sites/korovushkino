@@ -5,6 +5,7 @@ export default function AdminOrdersLeadsPage() {
     <LeadsTableView
       title="Заказы"
       description="Оформленные заказы с сайта и корзины."
+      dataSource="orders"
       columns={[
         { key: 'date', label: 'Дата' },
         { key: 'name', label: 'Имя' },

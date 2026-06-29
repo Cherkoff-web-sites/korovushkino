@@ -24,7 +24,12 @@ import {
   suggestPreviewProductId,
 } from '@/lib/adminPreview'
 import { CATEGORY_LABELS, type CategorySlug, type ProductData } from '@/lib/api/productsData'
+import { writePreviewProducts } from '@/lib/previewProductsStore'
 import { useToast } from '@/contexts/ToastContext'
+
+function persistPreviewProducts(products: ProductData[]) {
+  writePreviewProducts(products)
+}
 
 export default function AdminCatalogWorkspace() {
   const { showToast } = useToast()
@@ -61,6 +66,9 @@ export default function AdminCatalogWorkspace() {
 
   useEffect(() => {
     void loadProducts()
+    const onProductsUpdated = () => void loadProducts()
+    window.addEventListener('preview-products-updated', onProductsUpdated)
+    return () => window.removeEventListener('preview-products-updated', onProductsUpdated)
   }, [loadProducts])
 
   function openEditor(product: ProductData | null, createNew = false) {
@@ -134,7 +142,9 @@ export default function AdminCatalogWorkspace() {
       const product = buildPreviewProduct(body, isNew ? undefined : id)
       setProducts((prev) => {
         const next = prev.filter((item) => item.id !== product.id)
-        return [...next, product]
+        const list = [...next, product]
+        persistPreviewProducts(list)
+        return list
       })
       setSelectedProduct(product)
       setIsNew(false)
@@ -160,7 +170,11 @@ export default function AdminCatalogWorkspace() {
   async function handleDelete() {
     if (!selectedProduct) return
     if (ADMIN_PREVIEW) {
-      setProducts((prev) => prev.filter((item) => item.id !== selectedProduct.id))
+      setProducts((prev) => {
+        const list = prev.filter((item) => item.id !== selectedProduct.id)
+        persistPreviewProducts(list)
+        return list
+      })
       showToast('Товар удалён')
       closeEditor()
       return
@@ -174,7 +188,11 @@ export default function AdminCatalogWorkspace() {
   async function handleDeleteFromList(product: ProductData) {
     if (!window.confirm(`Удалить «${product.name}»?`)) return
     if (ADMIN_PREVIEW) {
-      setProducts((prev) => prev.filter((item) => item.id !== product.id))
+      setProducts((prev) => {
+        const list = prev.filter((item) => item.id !== product.id)
+        persistPreviewProducts(list)
+        return list
+      })
       if (selectedProduct?.id === product.id) closeEditor()
       showToast('Товар удалён')
       return

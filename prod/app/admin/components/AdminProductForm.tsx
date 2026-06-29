@@ -10,6 +10,7 @@ import {
 import { productPageHref } from '@/lib/catalogPaths'
 import { productUrlSlug } from '@/lib/productSeo'
 import { adminInputClass } from '@/components/admin/adminStyles'
+import AdminImageField from '@/components/admin/AdminImageField'
 
 const categoryEntries = Object.entries(CATEGORY_LABELS) as [CategorySlug, string][]
 
@@ -214,6 +215,24 @@ export default function AdminProductForm({
               className={`${adminInputClass} resize-y`}
               placeholder="/images/home/hero-bg.png"
             />
+            {values.images
+              .split('\n')
+              .map((item) => item.trim())
+              .filter(Boolean)
+              .map((url, index) => (
+                <div key={`${url}-${index}`} className="mt-3">
+                  <AdminImageField
+                    label={`Доп. фото ${index + 1}`}
+                    value={url}
+                    onChange={(next) => {
+                      const lines = values.images.split('\n').map((item) => item.trim())
+                      lines[index] = next
+                      updateField('images', lines.join('\n'))
+                    }}
+                    previewAspect="square"
+                  />
+                </div>
+              ))}
           </label>
 
           <label className="block">

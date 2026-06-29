@@ -1,5 +1,12 @@
 'use client'
 
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  readStoredContacts,
+  readStoredOrders,
+  type StoredContactLead,
+  type StoredOrder,
+} from '@/lib/adminDataStore'
 import { adminInputClass, adminPanelClass, adminTableHeadClass } from './adminStyles'
 
 type LeadsColumn = { key: string; label: string }
@@ -9,6 +16,33 @@ type LeadsTableViewProps = {
   description: string
   columns: LeadsColumn[]
   emptyLabel?: string
+  dataSource: 'orders' | 'contacts'
+}
+
+type LeadRow = Record<string, string | number>
+
+function toOrderRow(order: StoredOrder): LeadRow {
+  return {
+    date: order.date,
+    name: order.name,
+    phone: order.phone,
+    email: order.email,
+    items: order.itemsCount,
+    summary: order.summary,
+    status: order.status,
+  }
+}
+
+function toContactRow(contact: StoredContactLead): LeadRow {
+  return {
+    date: contact.date,
+    name: contact.name,
+    phone: contact.phone,
+    email: contact.email,
+    message: contact.message,
+    source: contact.source,
+    status: contact.status,
+  }
 }
 
 export default function LeadsTableView({
@@ -16,7 +50,38 @@ export default function LeadsTableView({
   description,
   columns,
   emptyLabel = 'Заявок пока нет',
+  dataSource,
 }: LeadsTableViewProps) {
+  const [rows, setRows] = useState<LeadRow[]>([])
+  const [query, setQuery] = useState('')
+
+  const reload = useCallback(() => {
+    if (dataSource === 'orders') {
+      setRows(readStoredOrders().map(toOrderRow))
+      return
+    }
+    setRows(readStoredContacts().map(toContactRow))
+  }, [dataSource])
+
+  useEffect(() => {
+    reload()
+    const eventName = dataSource === 'orders' ? 'admin-orders-updated' : 'admin-contacts-updated'
+    window.addEventListener(eventName, reload)
+    window.addEventListener('storage', reload)
+    return () => {
+      window.removeEventListener(eventName, reload)
+      window.removeEventListener('storage', reload)
+    }
+  }, [dataSource, reload])
+
+  const filtered = useMemo(() => {
+    const needle = query.trim().toLowerCase()
+    if (!needle) return rows
+    return rows.filter((row) =>
+      columns.some((column) => String(row[column.key] ?? '').toLowerCase().includes(needle))
+    )
+  }, [columns, query, rows])
+
   return (
     <div>
       <div className="mb-5">
@@ -27,7 +92,13 @@ export default function LeadsTableView({
       <div className={`${adminPanelClass} mb-4 flex flex-col gap-3 p-4 sm:flex-row sm:flex-wrap sm:items-end`}>
         <label className="min-w-[200px] flex-1">
           <span className="mb-1.5 block text-xs text-[#707070]">Поиск</span>
-          <input type="search" disabled className={adminInputClass} placeholder="Имя, телефон, email" />
+          <input
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            className={adminInputClass}
+            placeholder="Имя, телефон, email"
+          />
         </label>
         <label className="min-w-[140px]">
           <span className="mb-1.5 block text-xs text-[#707070]">Статус</span>
@@ -43,22 +114,6 @@ export default function LeadsTableView({
           <span className="mb-1.5 block text-xs text-[#707070]">Дата до</span>
           <input type="date" disabled className={adminInputClass} />
         </label>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            disabled
-            className="rounded-lg border border-[#e2e4ea] bg-[#f7f8fa] px-4 py-2.5 text-sm text-[#232326]/45"
-          >
-            CSV
-          </button>
-          <button
-            type="button"
-            disabled
-            className="rounded-lg border border-[#e2e4ea] bg-[#f7f8fa] px-4 py-2.5 text-sm text-[#232326]/45"
-          >
-            Excel
-          </button>
-        </div>
       </div>
 
       <div className={`${adminPanelClass} overflow-x-auto`}>
@@ -73,11 +128,23 @@ export default function LeadsTableView({
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td colSpan={columns.length} className="px-4 py-12 text-center text-[#707070]">
-                {emptyLabel}
-              </td>
-            </tr>
+            {filtered.length === 0 ? (
+              <tr>
+                <td colSpan={columns.length} className="px-4 py-12 text-center text-[#707070]">
+                  {emptyLabel}
+                </td>
+              </tr>
+            ) : (
+              filtered.map((row, index) => (
+                <tr key={index} className="border-t border-[#e8eaef]">
+                  {columns.map((column) => (
+                    <td key={column.key} className="px-4 py-3">
+                      {row[column.key] ?? '—'}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

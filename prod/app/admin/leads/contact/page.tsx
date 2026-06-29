@@ -5,6 +5,7 @@ export default function AdminContactLeadsPage() {
     <LeadsTableView
       title="Обратная связь"
       description="Сообщения с форм обратной связи на сайте."
+      dataSource="contacts"
       columns={[
         { key: 'date', label: 'Дата' },
         { key: 'name', label: 'Имя' },

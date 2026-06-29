@@ -6,15 +6,21 @@ import {
   CATEGORY_LABELS,
   productBreadcrumbs,
 } from '@/lib/api/productsData'
+import { readPreviewProducts } from '@/lib/previewProductsStore'
 
 /** Локальный режим админки без backend (перед продом — false). */
 export const ADMIN_PREVIEW = true
 
 export function getPreviewProducts(): ProductData[] {
+  if (typeof window !== 'undefined') {
+    return readPreviewProducts()
+  }
   return getCatalogProducts()
 }
 
 export function getPreviewProduct(id: string): ProductData | null {
+  const fromStore = getPreviewProducts().find((item) => item.id === id)
+  if (fromStore) return fromStore
   return productsData[id] ?? null
 }
 

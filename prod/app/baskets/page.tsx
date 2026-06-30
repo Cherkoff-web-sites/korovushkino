@@ -51,6 +51,7 @@ export default function BasketsPage() {
           {baskets.map((item, index) => (
             <BasketProductCard
               key={item.id}
+              id={item.id}
               title={item.title}
               description={item.description}
               nutritionPer100={item.nutritionPer100}

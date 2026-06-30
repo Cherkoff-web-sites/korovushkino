@@ -1,6 +1,13 @@
+'use client'
+
 import Image from 'next/image'
+import FavoriteHeartButton from '@/components/FavoriteHeartButton'
+import { useCart } from '@/contexts/CartContext'
+
+const cartIcon = '/images/header/icon-cart.svg'
 
 type BasketProductCardProps = {
+  id: string
   title: string
   description: string
   nutritionPer100: string
@@ -26,6 +33,7 @@ function StarRow() {
 }
 
 export default function BasketProductCard({
+  id,
   title,
   description,
   nutritionPer100,
@@ -34,6 +42,19 @@ export default function BasketProductCard({
   imageSrc,
   imagePriority = false,
 }: BasketProductCardProps) {
+  const { addItem } = useCart()
+
+  const handleCart = () => {
+    addItem({
+      id,
+      name: title,
+      model: '1 шт',
+      price,
+      image: imageSrc,
+      href: '/baskets',
+    })
+  }
+
   return (
     <article className="flex min-h-0 flex-col-reverse overflow-hidden rounded-xl border border-[#E5DECF] bg-white shadow-sm md:flex-row md:items-stretch">
       <div className="flex min-w-0 flex-1 flex-col p-6 md:p-7 lg:p-8">
@@ -50,35 +71,16 @@ export default function BasketProductCard({
           {price.toLocaleString('ru-RU')}₽{' '}
           <span className="text-base font-normal text-[#232326]/55 md:text-lg">/ 1 шт</span>
         </p>
-        <div className="mt-6 flex flex-wrap items-stretch gap-3">
+        <div className="mt-6 flex items-center gap-2">
           <button
             type="button"
-            className="flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-lg bg-[#3D8C13] px-5 text-base font-medium text-white transition-colors hover:bg-[#347710] md:min-w-[200px] md:flex-none md:px-8"
+            onClick={handleCart}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[#B8B8B8] bg-white text-[#1a3d0f] shadow-sm transition-colors hover:border-[#3D8C13] hover:bg-[#f6fff0]"
+            aria-label="В корзину"
           >
-            <Image
-              src="/images/header/icon-cart.svg"
-              alt=""
-              width={22}
-              height={22}
-              className="h-[22px] w-[22px] [filter:brightness(0)_invert(1)]"
-            />
-            В корзину
+            <Image src={cartIcon} alt="" width={22} height={22} />
           </button>
-          <button
-            type="button"
-            className="flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded-lg border border-[#D0D0D0] bg-white text-[#232326] transition-colors hover:border-[#3D8C13] hover:text-[#3D8C13]"
-            aria-label="В избранное"
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
-              <path
-                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinejoin="round"
-                fill="none"
-              />
-            </svg>
-          </button>
+          <FavoriteHeartButton productId={id} iconSize={22} className="h-10 w-10" />
         </div>
       </div>
 

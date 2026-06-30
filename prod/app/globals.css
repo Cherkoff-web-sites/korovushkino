@@ -56,15 +56,43 @@ a {
 @keyframes toast-in {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(14px) scale(0.98);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
 .toast-enter {
-  animation: toast-in 0.25s ease-out;
+  animation: toast-in 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modal-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-backdrop-enter {
+  animation: modal-backdrop-in 0.32s ease-out forwards;
+}
+
+.modal-panel-enter {
+  animation: modal-panel-in 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 

@@ -7,7 +7,6 @@ import { ACCOUNT_NAV_ITEMS } from './accountNav'
 import AccountNavIcon from './AccountNavIcon'
 
 function isNavActive(pathname: string, href: string) {
-  if (href === '/favorites') return pathname === '/favorites'
   if (href === '/account') return pathname === '/account'
   return pathname === href || pathname.startsWith(`${href}/`)
 }

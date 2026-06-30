@@ -29,8 +29,8 @@ type AuthContextValue = {
   /** Returns true if email code step is needed */
   loginWithEmail: (email: string) => Promise<boolean>
   confirmLoginCode: (email: string, code: string) => Promise<AuthUser>
-  /** Демо-вход без SMS/API */
-  loginWithDemo: (payload: { phone?: string; email?: string }) => void
+  /** Демо-вход без API (локальная вёрстка) */
+  loginWithDemo: (email: string) => void
   logout: () => void
   consumeLogoutRedirect: () => boolean
   refreshUser: () => Promise<AuthUser | null>
@@ -89,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(result.user)
       return false
     }
-    return result.emailCodeRequired !== false
+    return result.emailCodeRequired === true
   }, [])
 
   const confirmLoginCode = useCallback(async (email: string, code: string) => {
@@ -98,17 +98,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return nextUser
   }, [])
 
-  const loginWithDemo = useCallback((payload: { phone?: string; email?: string }) => {
-    const phone = payload.phone?.trim() ?? ''
-    const email = payload.email?.trim().toLowerCase() ?? ''
+  const loginWithDemo = useCallback((email: string) => {
+    const normalizedEmail = email.trim().toLowerCase()
     const demoUser: AuthUser = {
       id: 0,
-      login: email || phone || 'demo-user',
-      email: email || null,
+      login: normalizedEmail || 'demo-user',
+      email: normalizedEmail || null,
       role: 'user',
       surname: '',
       firstName: '',
-      phone,
+      phone: '',
       createdAt: null,
       updatedAt: null,
     }

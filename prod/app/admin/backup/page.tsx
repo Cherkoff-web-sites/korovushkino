@@ -62,9 +62,11 @@ export default function AdminBackupPage() {
           <div className="space-y-3 p-4 text-sm text-[#707070]">
             <p>В файл JSON сохраняется:</p>
             <ul className="list-inside list-disc space-y-1">
-              <li>главная страница — тексты и изображения</li>
+              <li>главная страница — тексты, изображения и отзывы</li>
+              <li>подвал, соцсети и попап возврата</li>
               <li>каталог товаров</li>
-              <li>клиенты, заказы, обратная связь</li>
+              <li>заказы и подписчики рассылки</li>
+              <li>тарифы доставки</li>
             </ul>
             <Button type="button" onClick={() => void handleExport()} disabled={exporting}>
               {exporting ? 'Готовим файл...' : 'Скачать резервную копию'}

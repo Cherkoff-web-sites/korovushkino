@@ -30,6 +30,25 @@ export default function AdminNavIcon({ type, active = false }: { type: AdminNavI
     )
   }
 
+  if (type === 'delivery') {
+    return (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.6" aria-hidden>
+        <path d="M3 7h11v8H3zM14 10h4l3 3v2h-7v-5z" strokeLinejoin="round" />
+        <circle cx="7.5" cy="17.5" r="1.5" fill={stroke} stroke="none" />
+        <circle cx="17.5" cy="17.5" r="1.5" fill={stroke} stroke="none" />
+      </svg>
+    )
+  }
+
+  if (type === 'newsletter') {
+    return (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.6" aria-hidden>
+        <path d="M4 6h16v12H4z" strokeLinejoin="round" />
+        <path d="M4 7l8 6 8-6" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    )
+  }
+
   if (type === 'contact') {
     return (
       <svg className={className} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.6" aria-hidden>

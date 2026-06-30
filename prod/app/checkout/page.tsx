@@ -12,7 +12,6 @@ import CheckoutPaymentSection from '@/components/checkout/CheckoutPaymentSection
 import CheckoutSuccess from '@/components/checkout/CheckoutSuccess'
 import {
   DEFAULT_DELIVERY_TIME,
-  DELIVERY_COST,
   EMPTY_ADDRESS,
   type CheckoutContact,
   type DeliveryAddress,
@@ -23,12 +22,16 @@ import Button from '@/components/ui/Button'
 import { useAuth } from '@/contexts/AuthContext'
 import { useCart } from '@/contexts/CartContext'
 import { useToast } from '@/contexts/ToastContext'
+import { useDeliverySettings } from '@/hooks/useDeliverySettings'
+import { calculateDeliveryQuote } from '@/lib/deliveryPricing'
+import { submitCheckoutOrder } from '@/lib/leadsService'
 
 export default function CheckoutPage() {
   const router = useRouter()
   const { user } = useAuth()
   const { showToast } = useToast()
   const { items, updateQuantity, removeItem, getTotalPrice, clearCart } = useCart()
+  const { settings: deliverySettings } = useDeliverySettings()
 
   const [hydrated, setHydrated] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
@@ -66,6 +69,13 @@ export default function CheckoutPage() {
 
   const productsTotal = useMemo(() => getTotalPrice(), [getTotalPrice, items])
 
+  const deliveryQuote = useMemo(() => {
+    if (!address) {
+      return { cost: null, zone: 'unknown' as const, label: 'Укажите адрес', requiresDistrict: false }
+    }
+    return calculateDeliveryQuote(address.city, address.district, deliverySettings)
+  }, [address, deliverySettings])
+
   const canSubmit =
     items.length > 0 &&
     contact.fullName.trim() !== '' &&
@@ -73,6 +83,7 @@ export default function CheckoutPage() {
     address !== null &&
     deliveryTime !== null &&
     paymentMethod !== null &&
+    deliveryQuote.cost !== null &&
     !addressEditing &&
     !deliveryTimeEditing &&
     !paymentEditing
@@ -110,17 +121,31 @@ export default function CheckoutPage() {
   }
 
   async function handleSubmit() {
-    if (!canSubmit) {
+    if (!canSubmit || !address || !deliveryTime || !paymentMethod || deliveryQuote.cost === null) {
       showToast('Заполните все поля оформления заказа')
       return
     }
 
     setSubmitting(true)
-    await new Promise((resolve) => setTimeout(resolve, 600))
-    clearCart()
-    setSubmitted(true)
-    setSubmitting(false)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    try {
+      await submitCheckoutOrder({
+        contact,
+        address,
+        deliveryTime,
+        paymentMethod,
+        items,
+        productsTotal,
+        deliveryCost: deliveryQuote.cost,
+      })
+      clearCart()
+      setSubmitted(true)
+      showToast('Заказ оформлен')
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } catch {
+      showToast('Не удалось оформить заказ')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   if (!hydrated) {
@@ -232,6 +257,8 @@ export default function CheckoutPage() {
             <div className="lg:col-span-5 xl:col-span-4">
               <CheckoutOrderSummary
                 productsTotal={productsTotal}
+                deliveryCost={deliveryQuote.cost}
+                deliveryLabel={deliveryQuote.label}
                 onSubmit={handleSubmit}
                 submitting={submitting}
                 disabled={!canSubmit}
@@ -244,7 +271,9 @@ export default function CheckoutPage() {
               <div className="min-w-0 flex-1">
                 <p className="text-xs text-[#232326]/70">К оплате</p>
                 <p className="text-base font-semibold text-[#1F1F1F]">
-                  {(productsTotal + DELIVERY_COST).toLocaleString('ru-RU')} ₽
+                  {deliveryQuote.cost === null
+                    ? '—'
+                    : `${(productsTotal + deliveryQuote.cost).toLocaleString('ru-RU')} ₽`}
                 </p>
               </div>
               <button

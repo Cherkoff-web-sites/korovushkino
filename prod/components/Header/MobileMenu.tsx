@@ -95,17 +95,30 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 )}
               </li>
               <li>
-                <Link
-                  href="/favorites"
-                  onClick={onClose}
-                  className={`block rounded-lg px-4 py-3 font-normal ${
-                    pathname === '/favorites'
-                      ? 'bg-[#FFFFFF] text-[#3D8C13]'
-                      : 'bg-transparent text-[#FFFFFF] hover:bg-[#2f7510]'
-                  }`}
-                >
-                  Избранное
-                </Link>
+                {user ? (
+                  <Link
+                    href="/account/favorites"
+                    onClick={onClose}
+                    className={`block rounded-lg px-4 py-3 font-normal ${
+                      pathname === '/account/favorites'
+                        ? 'bg-[#FFFFFF] text-[#3D8C13]'
+                        : 'bg-transparent text-[#FFFFFF] hover:bg-[#2f7510]'
+                    }`}
+                  >
+                    Избранное
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      openLoginModal()
+                      onClose()
+                    }}
+                    className="block w-full rounded-lg bg-transparent px-4 py-3 text-left font-normal text-[#FFFFFF] hover:bg-[#2f7510]"
+                  >
+                    Избранное
+                  </button>
+                )}
               </li>
               <li>
                 <Link

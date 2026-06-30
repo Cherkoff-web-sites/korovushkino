@@ -4,19 +4,17 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useCart } from '@/contexts/CartContext'
-import { useFavorites } from '@/contexts/FavoritesContext'
 import Navigation from './Navigation'
 import MobileMenu from './MobileMenu'
 import AccountEntryButton from '@/components/auth/AccountEntryButton'
+import FavoritesEntryButton from '@/components/auth/FavoritesEntryButton'
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const { favoriteCount } = useFavorites()
   const { getTotalItems } = useCart()
   const cartCount = getTotalItems()
   const headerIcons = {
     cart: '/images/header/icon-cart.svg',
-    favorites: '/images/header/icon-favorites.svg',
   }
 
   return (
@@ -44,18 +42,7 @@ export default function Header() {
                     </span>
                   ) : null}
                 </Link>
-                <Link
-                  href="/favorites"
-                  className="relative flex h-10 w-10 items-center justify-center rounded-md bg-white transition-opacity hover:opacity-90"
-                  aria-label={`Избранное${favoriteCount > 0 ? `, ${favoriteCount}` : ''}`}
-                >
-                  <Image src={headerIcons.favorites} alt="" width={22} height={22} />
-                  {favoriteCount > 0 ? (
-                    <span className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-600 px-0.5 text-[10px] font-bold leading-none text-white ring-2 ring-[#3D8C13]">
-                      {favoriteCount > 9 ? '9+' : favoriteCount}
-                    </span>
-                  ) : null}
-                </Link>
+                <FavoritesEntryButton className="relative flex h-10 w-10 items-center justify-center rounded-md bg-white transition-opacity hover:opacity-90" />
                 <AccountEntryButton className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-white text-[#1f1f1f] transition-opacity hover:opacity-90" />
               </div>
 

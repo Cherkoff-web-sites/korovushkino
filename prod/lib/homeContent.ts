@@ -1,3 +1,21 @@
+import {
+  HOME_REVIEW_BODY,
+  HOME_REVIEW_VARIANTS,
+  REPLY_AUTHOR_LABEL,
+  replyTextForAuthor,
+} from '@/lib/reviewsData'
+
+export type HomeReviewItem = {
+  id: string
+  authorName: string
+  date: string
+  replyDate: string
+  productLabel: string
+  rating: number
+  text: string
+  replyText: string
+}
+
 export type HomeBenefitItem = {
   icon: string
   text: string
@@ -35,7 +53,22 @@ export type HomeContent = {
     sectionTitle: string
     leaveReviewButton: string
     allReviewsButton: string
+    replyAuthorLabel: string
+    items: HomeReviewItem[]
   }
+}
+
+function buildDefaultReviewItems(): HomeReviewItem[] {
+  return HOME_REVIEW_VARIANTS.map((variant) => ({
+    id: variant.id,
+    authorName: variant.authorName,
+    date: variant.date,
+    replyDate: variant.replyDate,
+    productLabel: 'Козье молоко',
+    rating: 5,
+    text: HOME_REVIEW_BODY,
+    replyText: replyTextForAuthor(variant.authorName),
+  }))
 }
 
 export const DEFAULT_HOME_CONTENT: HomeContent = {
@@ -93,6 +126,8 @@ export const DEFAULT_HOME_CONTENT: HomeContent = {
     sectionTitle: 'Отзывы',
     leaveReviewButton: 'Оставить отзыв',
     allReviewsButton: 'Все отзывы',
+    replyAuthorLabel: REPLY_AUTHOR_LABEL,
+    items: buildDefaultReviewItems(),
   },
 }
 
@@ -112,12 +147,34 @@ export const HIGHLIGHT_LAYOUT: Record<
 
 const STORAGE_KEY = 'korovushkino_home_content'
 
+function mergeHomeContent(parsed: Partial<HomeContent>): HomeContent {
+  return {
+    ...DEFAULT_HOME_CONTENT,
+    ...parsed,
+    hero: { ...DEFAULT_HOME_CONTENT.hero, ...parsed.hero },
+    about: {
+      ...DEFAULT_HOME_CONTENT.about,
+      ...parsed.about,
+      blocks: parsed.about?.blocks ?? DEFAULT_HOME_CONTENT.about.blocks,
+    },
+    benefits: parsed.benefits ?? DEFAULT_HOME_CONTENT.benefits,
+    highlights: parsed.highlights ?? DEFAULT_HOME_CONTENT.highlights,
+    reviews: {
+      ...DEFAULT_HOME_CONTENT.reviews,
+      ...parsed.reviews,
+      items: parsed.reviews?.items?.length
+        ? parsed.reviews.items
+        : DEFAULT_HOME_CONTENT.reviews.items,
+    },
+  }
+}
+
 export function readHomeContent(): HomeContent {
   if (typeof window === 'undefined') return DEFAULT_HOME_CONTENT
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return DEFAULT_HOME_CONTENT
-    return { ...DEFAULT_HOME_CONTENT, ...JSON.parse(raw) } as HomeContent
+    return mergeHomeContent(JSON.parse(raw) as Partial<HomeContent>)
   } catch {
     return DEFAULT_HOME_CONTENT
   }

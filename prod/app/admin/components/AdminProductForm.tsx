@@ -24,7 +24,7 @@ export type AdminProductFormValues = {
   description: string
   briefDescription: string
   catalogCardTeaser: string
-  images: string
+  extraImages: string[]
   macrosPer100g: string
   kcal: string
   seoTitle: string
@@ -43,7 +43,7 @@ function toFormValues(product?: ProductData | null): AdminProductFormValues {
     description: product?.description ?? '',
     briefDescription: product?.briefDescription ?? '',
     catalogCardTeaser: product?.catalogCardTeaser ?? '',
-    images: product?.images?.slice(1).join('\n') ?? '',
+    extraImages: product?.images?.slice(1).filter(Boolean) ?? [],
     macrosPer100g: product?.modalNutrition?.macrosPer100g ?? '',
     kcal: product?.modalNutrition?.kcal ?? '',
     seoTitle: product?.seo?.title ?? '',
@@ -95,7 +95,7 @@ export default function AdminProductForm({
         description: values.description,
         briefDescription: values.briefDescription,
         catalogCardTeaser: values.catalogCardTeaser,
-        images: buildImagesList(mainImage, values.images),
+        images: buildImagesList(mainImage, values.extraImages),
         modalNutrition:
           values.macrosPer100g || values.kcal
             ? { macrosPer100g: values.macrosPer100g, kcal: values.kcal }
@@ -204,36 +204,37 @@ export default function AdminProductForm({
             />
           </label>
 
-          <label className="block sm:col-span-2">
-            <span className="mb-1.5 block text-xs text-[#707070]">
-              Дополнительные изображения (по одному URL на строку)
-            </span>
-            <textarea
-              rows={3}
-              value={values.images}
-              onChange={(event) => updateField('images', event.target.value)}
-              className={`${adminInputClass} resize-y`}
-              placeholder="/images/home/hero-bg.png"
-            />
-            {values.images
-              .split('\n')
-              .map((item) => item.trim())
-              .filter(Boolean)
-              .map((url, index) => (
-                <div key={`${url}-${index}`} className="mt-3">
-                  <AdminImageField
-                    label={`Доп. фото ${index + 1}`}
-                    value={url}
-                    onChange={(next) => {
-                      const lines = values.images.split('\n').map((item) => item.trim())
-                      lines[index] = next
-                      updateField('images', lines.join('\n'))
-                    }}
-                    previewAspect="square"
-                  />
-                </div>
+          <div className="block sm:col-span-2">
+            <span className="mb-1.5 block text-xs text-[#707070]">Дополнительные фото</span>
+            <div className="space-y-4">
+              {values.extraImages.map((url, index) => (
+                <AdminImageField
+                  key={`extra-${index}`}
+                  label={`Доп. фото ${index + 1}`}
+                  value={url}
+                  onChange={(next) => {
+                    const extraImages = [...values.extraImages]
+                    extraImages[index] = next
+                    updateField('extraImages', extraImages)
+                  }}
+                  onRemove={() => {
+                    updateField(
+                      'extraImages',
+                      values.extraImages.filter((_, i) => i !== index)
+                    )
+                  }}
+                  previewAspect="square"
+                />
               ))}
-          </label>
+              <button
+                type="button"
+                onClick={() => updateField('extraImages', [...values.extraImages, ''])}
+                className="rounded-lg border border-[#e2e4ea] px-4 py-2 text-sm text-[#707070] hover:bg-[#f7f8fa]"
+              >
+                Добавить фото
+              </button>
+            </div>
+          </div>
 
           <label className="block">
             <span className="mb-1.5 block text-xs text-[#707070]">КБЖУ на 100 г</span>
@@ -361,11 +362,8 @@ export default function AdminProductForm({
   )
 }
 
-function buildImagesList(mainImage: string | undefined, imagesField: string) {
-  const extra = imagesField
-    .split('\n')
-    .map((item) => item.trim())
-    .filter(Boolean)
+function buildImagesList(mainImage: string | undefined, extraImages: string[]) {
+  const extra = extraImages.map((item) => item.trim()).filter(Boolean)
   const primary = mainImage?.trim() || extra[0] || '/images/home/hero-bg.png'
   return [primary, ...extra.filter((item) => item !== primary)]
 }

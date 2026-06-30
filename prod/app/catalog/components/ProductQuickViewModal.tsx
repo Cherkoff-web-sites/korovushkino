@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import FavoriteHeartButton from '@/components/FavoriteHeartButton'
+import ModalOverlay, { ModalPanel } from '@/components/ui/ModalOverlay'
 import { useCart } from '@/contexts/CartContext'
 import { productReviewsHref } from '@/lib/catalogPaths'
 import { productPublicPath } from '@/lib/productSeo'
@@ -49,16 +50,11 @@ export default function ProductQuickViewModal({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 p-4 sm:p-6"
-      role="presentation"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-    >
-      <div
-        role="dialog"
-        aria-modal="true"
+    <ModalOverlay onClose={onClose} backdropClassName="bg-black/45">
+      <ModalPanel
         aria-labelledby="product-quick-view-title"
-        className="relative max-h-[90vh] w-full max-w-[920px] overflow-y-auto rounded-2xl bg-white shadow-2xl"
+        className="max-h-[90vh] w-full max-w-[920px] overflow-y-auto rounded-2xl bg-white shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
       >
         <button
           type="button"
@@ -156,7 +152,7 @@ export default function ProductQuickViewModal({
             />
           </div>
         </div>
-      </div>
-    </div>
+      </ModalPanel>
+    </ModalOverlay>
   )
 }

@@ -172,6 +172,10 @@ router.post("/login/request-code", async (req, res) => {
 });
 
 router.post("/login/confirm-code", async (req, res) => {
+  if (isEmailCodeDisabled()) {
+    return res.status(400).json({ error: "Вход по коду отключён" });
+  }
+
   const rawEmail = String(req.body?.email || "").trim().toLowerCase();
   const rawCode = String(req.body?.code || "").trim();
 

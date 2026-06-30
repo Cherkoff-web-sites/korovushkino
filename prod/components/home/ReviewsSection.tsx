@@ -1,31 +1,10 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import LeaveReviewModal from '@/components/reviews/LeaveReviewModal'
 import ReviewAccountAvatar from '@/components/reviews/ReviewAccountAvatar'
 import { useAuth } from '@/contexts/AuthContext'
 import { useHomeContent } from '@/hooks/useHomeContent'
-import {
-  HOME_REVIEW_BODY,
-  HOME_REVIEW_VARIANTS,
-  buildReviewCards,
-} from '@/lib/reviewsData'
-
-type ReviewItem = ReturnType<typeof buildReviewCards>[number] & {
-  tabLine: string
-  productLabel: string
-}
-
-function buildHomeReviews(): ReviewItem[] {
-  const cards = buildReviewCards([...HOME_REVIEW_VARIANTS], HOME_REVIEW_BODY)
-  return HOME_REVIEW_VARIANTS.map((v, i) => ({
-    ...cards[i]!,
-    tabLine: `${v.authorName} ${v.date}`,
-    productLabel: 'Козье молоко',
-  }))
-}
-
-const REVIEWS = buildHomeReviews()
 
 function StarRow({ count }: { count: number }) {
   return (
@@ -42,18 +21,21 @@ function StarRow({ count }: { count: number }) {
 export default function ReviewsSection() {
   const { user, loading, openLoginModal } = useAuth()
   const { content } = useHomeContent()
+  const reviews = content.reviews.items
   const [index, setIndex] = useState(0)
   const [reviewModalOpen, setReviewModalOpen] = useState(false)
 
-  const total = REVIEWS.length
-  const clamped = ((index % total) + total) % total
-  const active = REVIEWS[clamped]!
+  const total = reviews.length
+  const clamped = total > 0 ? ((index % total) + total) % total : 0
+  const active = reviews[clamped]
 
   const goPrev = useCallback(() => {
+    if (total === 0) return
     setIndex((i) => (i - 1 + total) % total)
   }, [total])
 
   const goNext = useCallback(() => {
+    if (total === 0) return
     setIndex((i) => (i + 1) % total)
   }, [total])
 
@@ -69,6 +51,13 @@ export default function ReviewsSection() {
     }
     setReviewModalOpen(true)
   }, [loading, user, openLoginModal])
+
+  const tabLines = useMemo(
+    () => reviews.map((item) => `${item.authorName} ${item.date}`),
+    [reviews]
+  )
+
+  if (!active) return null
 
   return (
     <section id="reviews" className="relative z-10 bg-[#fdfbf6] py-10 sm:py-12 lg:py-14">
@@ -110,10 +99,7 @@ export default function ReviewsSection() {
                 </div>
 
                 <div className="text-[20px] font-normal leading-relaxed text-black">
-                  <div
-                    key={active.id}
-                    className="review-content-animate space-y-4"
-                  >
+                  <div key={active.id} className="review-content-animate space-y-4">
                     <div className="flex flex-wrap items-start gap-3">
                       <ReviewAccountAvatar size="lg" />
                       <div className="min-w-0 flex-1">
@@ -133,10 +119,10 @@ export default function ReviewsSection() {
                         <ReviewAccountAvatar size="sm" />
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-baseline justify-between gap-2">
-                            <span className="font-normal">{active.reply.authorLabel}</span>
-                            <span className="text-black/80">{active.reply.date}</span>
+                            <span className="font-normal">{content.reviews.replyAuthorLabel}</span>
+                            <span className="text-black/80">{active.replyDate}</span>
                           </div>
-                          <p className="mt-2">{active.reply.text}</p>
+                          <p className="mt-2">{active.replyText}</p>
                         </div>
                       </div>
                     </div>
@@ -148,11 +134,11 @@ export default function ReviewsSection() {
 
           <aside className="relative z-10 flex min-w-0 flex-col gap-3 lg:col-span-4">
             <nav className="flex flex-col gap-3" aria-label="Список отзывов">
-              {REVIEWS.map((r, i) => {
+              {tabLines.map((line, i) => {
                 const isActive = i === clamped
                 return (
                   <button
-                    key={r.id}
+                    key={reviews[i]!.id}
                     type="button"
                     onClick={() => selectTab(i)}
                     aria-pressed={isActive}
@@ -162,7 +148,7 @@ export default function ReviewsSection() {
                         : 'border-[#C88C39]/45 bg-white text-[16px] text-black shadow-sm hover:border-[#C88C39] hover:bg-[#FFF6E7]/80 hover:text-[#C88C39]/90'
                     }`}
                   >
-                    {r.tabLine}
+                    {line}
                   </button>
                 )
               })}

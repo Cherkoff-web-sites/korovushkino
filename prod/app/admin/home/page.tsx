@@ -275,45 +275,215 @@ export default function HomeContentEditor() {
 
         <section className={adminPanelClass}>
           <div className="border-b border-[#e8eaef] px-4 py-3">
-            <h2 className="text-sm font-semibold text-[#1F1F1F]">Отзывы</h2>
+            <h2 className="text-sm font-semibold text-[#1F1F1F]">Отзывы на главной</h2>
+            <p className="mt-1 text-xs text-[#707070]">Заголовок секции, кнопки и сами отзывы в карусели.</p>
           </div>
-          <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2">
-            <Field label="Заголовок секции">
-              <input
-                className={adminInputClass}
-                value={draft.reviews.sectionTitle}
-                onChange={(e) =>
-                  update((p) => ({
-                    ...p,
-                    reviews: { ...p.reviews, sectionTitle: e.target.value },
-                  }))
-                }
-              />
-            </Field>
-            <Field label="Кнопка «Оставить отзыв»">
-              <input
-                className={adminInputClass}
-                value={draft.reviews.leaveReviewButton}
-                onChange={(e) =>
-                  update((p) => ({
-                    ...p,
-                    reviews: { ...p.reviews, leaveReviewButton: e.target.value },
-                  }))
-                }
-              />
-            </Field>
-            <Field label="Кнопка «Все отзывы»">
-              <input
-                className={adminInputClass}
-                value={draft.reviews.allReviewsButton}
-                onChange={(e) =>
-                  update((p) => ({
-                    ...p,
-                    reviews: { ...p.reviews, allReviewsButton: e.target.value },
-                  }))
-                }
-              />
-            </Field>
+          <div className="space-y-4 p-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Field label="Заголовок секции">
+                <input
+                  className={adminInputClass}
+                  value={draft.reviews.sectionTitle}
+                  onChange={(e) =>
+                    update((p) => ({
+                      ...p,
+                      reviews: { ...p.reviews, sectionTitle: e.target.value },
+                    }))
+                  }
+                />
+              </Field>
+              <Field label="Подпись ответа магазина">
+                <input
+                  className={adminInputClass}
+                  value={draft.reviews.replyAuthorLabel}
+                  onChange={(e) =>
+                    update((p) => ({
+                      ...p,
+                      reviews: { ...p.reviews, replyAuthorLabel: e.target.value },
+                    }))
+                  }
+                />
+              </Field>
+              <Field label="Кнопка «Оставить отзыв»">
+                <input
+                  className={adminInputClass}
+                  value={draft.reviews.leaveReviewButton}
+                  onChange={(e) =>
+                    update((p) => ({
+                      ...p,
+                      reviews: { ...p.reviews, leaveReviewButton: e.target.value },
+                    }))
+                  }
+                />
+              </Field>
+              <Field label="Кнопка «Все отзывы»">
+                <input
+                  className={adminInputClass}
+                  value={draft.reviews.allReviewsButton}
+                  onChange={(e) =>
+                    update((p) => ({
+                      ...p,
+                      reviews: { ...p.reviews, allReviewsButton: e.target.value },
+                    }))
+                  }
+                />
+              </Field>
+            </div>
+
+            {draft.reviews.items.map((item, index) => (
+              <div
+                key={item.id}
+                className="rounded-lg border border-[#e8eaef] p-4"
+              >
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <h3 className="text-sm font-semibold text-[#1F1F1F]">Отзыв {index + 1}</h3>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      update((p) => ({
+                        ...p,
+                        reviews: {
+                          ...p.reviews,
+                          items: p.reviews.items.filter((_, i) => i !== index),
+                        },
+                      }))
+                    }
+                    className="text-sm text-red-600 hover:underline"
+                  >
+                    Удалить
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <Field label="Имя автора">
+                    <input
+                      className={adminInputClass}
+                      value={item.authorName}
+                      onChange={(e) =>
+                        update((p) => {
+                          const items = [...p.reviews.items]
+                          items[index] = { ...items[index]!, authorName: e.target.value }
+                          return { ...p, reviews: { ...p.reviews, items } }
+                        })
+                      }
+                    />
+                  </Field>
+                  <Field label="Товар">
+                    <input
+                      className={adminInputClass}
+                      value={item.productLabel}
+                      onChange={(e) =>
+                        update((p) => {
+                          const items = [...p.reviews.items]
+                          items[index] = { ...items[index]!, productLabel: e.target.value }
+                          return { ...p, reviews: { ...p.reviews, items } }
+                        })
+                      }
+                    />
+                  </Field>
+                  <Field label="Дата отзыва">
+                    <input
+                      className={adminInputClass}
+                      value={item.date}
+                      onChange={(e) =>
+                        update((p) => {
+                          const items = [...p.reviews.items]
+                          items[index] = { ...items[index]!, date: e.target.value }
+                          return { ...p, reviews: { ...p.reviews, items } }
+                        })
+                      }
+                    />
+                  </Field>
+                  <Field label="Дата ответа">
+                    <input
+                      className={adminInputClass}
+                      value={item.replyDate}
+                      onChange={(e) =>
+                        update((p) => {
+                          const items = [...p.reviews.items]
+                          items[index] = { ...items[index]!, replyDate: e.target.value }
+                          return { ...p, reviews: { ...p.reviews, items } }
+                        })
+                      }
+                    />
+                  </Field>
+                  <Field label="Оценка (1–5)">
+                    <input
+                      type="number"
+                      min={1}
+                      max={5}
+                      className={adminInputClass}
+                      value={item.rating}
+                      onChange={(e) =>
+                        update((p) => {
+                          const items = [...p.reviews.items]
+                          items[index] = {
+                            ...items[index]!,
+                            rating: Math.min(5, Math.max(1, Number(e.target.value) || 5)),
+                          }
+                          return { ...p, reviews: { ...p.reviews, items } }
+                        })
+                      }
+                    />
+                  </Field>
+                  <Field label="Текст отзыва">
+                    <textarea
+                      rows={3}
+                      className={`${adminInputClass} resize-y sm:col-span-2`}
+                      value={item.text}
+                      onChange={(e) =>
+                        update((p) => {
+                          const items = [...p.reviews.items]
+                          items[index] = { ...items[index]!, text: e.target.value }
+                          return { ...p, reviews: { ...p.reviews, items } }
+                        })
+                      }
+                    />
+                  </Field>
+                  <Field label="Текст ответа магазина">
+                    <textarea
+                      rows={3}
+                      className={`${adminInputClass} resize-y sm:col-span-2`}
+                      value={item.replyText}
+                      onChange={(e) =>
+                        update((p) => {
+                          const items = [...p.reviews.items]
+                          items[index] = { ...items[index]!, replyText: e.target.value }
+                          return { ...p, reviews: { ...p.reviews, items } }
+                        })
+                      }
+                    />
+                  </Field>
+                </div>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={() =>
+                update((p) => ({
+                  ...p,
+                  reviews: {
+                    ...p.reviews,
+                    items: [
+                      ...p.reviews.items,
+                      {
+                        id: `review-${Date.now()}`,
+                        authorName: 'Новый автор',
+                        date: '01.01.2026',
+                        replyDate: '02.01.2026',
+                        productLabel: 'Товар',
+                        rating: 5,
+                        text: 'Текст отзыва',
+                        replyText: 'Спасибо за отзыв!',
+                      },
+                    ],
+                  },
+                }))
+              }
+              className="rounded-lg border border-[#e2e4ea] px-4 py-2 text-sm text-[#707070] hover:bg-[#f7f8fa]"
+            >
+              Добавить отзыв
+            </button>
           </div>
         </section>
 

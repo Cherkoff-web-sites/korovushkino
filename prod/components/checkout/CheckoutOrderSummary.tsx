@@ -1,10 +1,11 @@
 'use client'
 
-import { DELIVERY_COST } from '@/components/checkout/checkoutTypes'
 import { checkoutSectionClass, checkoutSectionDividerClass, checkoutSectionTitleClass } from '@/components/checkout/checkoutStyles'
 
 type CheckoutOrderSummaryProps = {
   productsTotal: number
+  deliveryCost: number | null
+  deliveryLabel?: string
   onSubmit: () => void
   submitting?: boolean
   disabled?: boolean
@@ -13,12 +14,14 @@ type CheckoutOrderSummaryProps = {
 
 export default function CheckoutOrderSummary({
   productsTotal,
+  deliveryCost,
+  deliveryLabel,
   onSubmit,
   submitting = false,
   disabled = false,
   compact = false,
 }: CheckoutOrderSummaryProps) {
-  const total = productsTotal + DELIVERY_COST
+  const total = deliveryCost === null ? null : productsTotal + deliveryCost
 
   return (
     <aside
@@ -35,15 +38,17 @@ export default function CheckoutOrderSummary({
           </dd>
         </div>
         <div className="flex items-center justify-between gap-4">
-          <dt className="text-[#232326]/80">Доставка</dt>
+          <dt className="text-[#232326]/80">
+            Доставка{deliveryLabel ? ` (${deliveryLabel})` : ''}
+          </dt>
           <dd className="font-medium text-[#1F1F1F]">
-            {DELIVERY_COST.toLocaleString('ru-RU')} ₽
+            {deliveryCost === null ? '—' : `${deliveryCost.toLocaleString('ru-RU')} ₽`}
           </dd>
         </div>
         <div className={`flex items-center justify-between gap-4 border-t ${checkoutSectionDividerClass} pt-3`}>
           <dt className="text-base font-semibold text-[#1F1F1F] sm:text-lg">К оплате</dt>
           <dd className="text-base font-semibold text-[#1F1F1F] sm:text-lg">
-            {total.toLocaleString('ru-RU')} ₽
+            {total === null ? '—' : `${total.toLocaleString('ru-RU')} ₽`}
           </dd>
         </div>
       </dl>

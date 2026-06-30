@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, type ReactNode } from 'react'
+import ModalOverlay, { ModalPanel } from '@/components/ui/ModalOverlay'
 import { useScrollLock } from '@/lib/useScrollLock'
 
 type InfoModalProps = {
@@ -37,18 +38,10 @@ export default function InfoModal({
   const isNotice = variant === 'notice'
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <button
-        type="button"
-        className="absolute inset-0 bg-black/40"
-        aria-label="Закрыть"
-        onClick={onClose}
-      />
-      <div
-        role="dialog"
-        aria-modal="true"
+    <ModalOverlay onClose={onClose}>
+      <ModalPanel
         aria-labelledby="info-modal-title"
-        className={`relative z-10 w-full shadow-xl ${
+        className={`w-full shadow-xl ${
           isNotice
             ? 'max-w-lg rounded-2xl border border-[#E5DECF] bg-[#FFF8ED] px-6 py-8 sm:px-10 sm:py-10'
             : 'max-w-2xl rounded-2xl border border-[#D2B48C]/60 bg-white p-6 sm:p-8'
@@ -87,7 +80,7 @@ export default function InfoModal({
         >
           {children}
         </div>
-      </div>
-    </div>
+      </ModalPanel>
+    </ModalOverlay>
   )
 }

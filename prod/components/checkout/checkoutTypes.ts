@@ -1,5 +1,6 @@
 export type DeliveryAddress = {
   city: string
+  district: string
   street: string
   house: string
   apartment: string
@@ -23,6 +24,7 @@ export type CheckoutContact = {
 
 export const EMPTY_ADDRESS: DeliveryAddress = {
   city: '',
+  district: '',
   street: '',
   house: '',
   apartment: '',
@@ -46,5 +48,3 @@ export const DEFAULT_DELIVERY_TIME: DeliveryTime = {
   date: '06.08.2026',
   time: '9–21:00',
 }
-
-export const DELIVERY_COST = 300

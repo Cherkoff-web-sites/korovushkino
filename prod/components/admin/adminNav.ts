@@ -2,8 +2,10 @@ export type AdminNavIconType =
   | 'catalog'
   | 'home'
   | 'backup'
+  | 'delivery'
   | 'contact'
   | 'orders'
+  | 'newsletter'
   | 'clients'
   | 'site'
 
@@ -25,8 +27,11 @@ export const ADMIN_NAV_SECTIONS: { id: AdminNavItem['section']; label: string }[
 export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   { href: '/admin/leads/contact', label: 'Обратная связь', icon: 'contact', section: 'leads' },
   { href: '/admin/leads/orders', label: 'Заказы', icon: 'orders', section: 'leads' },
+  { href: '/admin/leads/newsletter', label: 'Рассылка', icon: 'newsletter', section: 'leads' },
   { href: '/admin/catalog', label: 'Товары', icon: 'catalog', section: 'catalog' },
+  { href: '/admin/delivery', label: 'Доставка', icon: 'delivery', section: 'catalog' },
   { href: '/admin/home', label: 'Главная страница', icon: 'home', section: 'content' },
+  { href: '/admin/site', label: 'Подвал и попапы', icon: 'site', section: 'content' },
   { href: '/admin/backup', label: 'Резервная копия', icon: 'backup', section: 'system' },
   { href: '/admin/clients', label: 'Клиенты', icon: 'clients', section: 'clients' },
 ]
@@ -38,8 +43,14 @@ export function isAdminNavActive(pathname: string, href: string) {
   if (href === '/admin/home') {
     return pathname === '/admin/home' || pathname.startsWith('/admin/home/')
   }
+  if (href === '/admin/site') {
+    return pathname === '/admin/site' || pathname.startsWith('/admin/site/')
+  }
   if (href === '/admin/backup') {
     return pathname === '/admin/backup' || pathname.startsWith('/admin/backup/')
+  }
+  if (href === '/admin/delivery') {
+    return pathname === '/admin/delivery' || pathname.startsWith('/admin/delivery/')
   }
   return pathname === href || pathname.startsWith(`${href}/`)
 }

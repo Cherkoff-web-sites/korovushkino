@@ -7,6 +7,8 @@ import {
   type StoredContactLead,
   type StoredOrder,
 } from '@/lib/adminDataStore'
+import { ADMIN_PREVIEW } from '@/lib/adminPreview'
+import { adminFetchOrders } from '@/lib/api/adminSiteApi'
 import { adminInputClass, adminPanelClass, adminTableHeadClass } from './adminStyles'
 
 type LeadsColumn = { key: string; label: string }
@@ -25,10 +27,14 @@ function toOrderRow(order: StoredOrder): LeadRow {
   return {
     date: order.date,
     name: order.name,
-    phone: order.phone,
     email: order.email,
+    total: typeof order.total === 'number' ? `${order.total.toLocaleString('ru-RU')} ₽` : '—',
+    delivery:
+      typeof order.deliveryCost === 'number' ? `${order.deliveryCost.toLocaleString('ru-RU')} ₽` : '—',
+    address: order.address || '—',
     items: order.itemsCount,
     summary: order.summary,
+    payment: order.paymentMethod || '—',
     status: order.status,
   }
 }
@@ -55,8 +61,17 @@ export default function LeadsTableView({
   const [rows, setRows] = useState<LeadRow[]>([])
   const [query, setQuery] = useState('')
 
-  const reload = useCallback(() => {
+  const reload = useCallback(async () => {
     if (dataSource === 'orders') {
+      if (!ADMIN_PREVIEW) {
+        try {
+          const data = await adminFetchOrders()
+          setRows(data.orders.map(toOrderRow))
+          return
+        } catch {
+          // fallback to localStorage
+        }
+      }
       setRows(readStoredOrders().map(toOrderRow))
       return
     }

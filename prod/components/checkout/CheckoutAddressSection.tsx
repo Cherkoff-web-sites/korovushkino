@@ -10,6 +10,8 @@ import {
   checkoutSectionTitleClass,
 } from '@/components/checkout/checkoutStyles'
 import { EditIcon, PlusIcon } from '@/components/checkout/CheckoutIcons'
+import { useDeliverySettings } from '@/hooks/useDeliverySettings'
+import { isMoscowCity } from '@/lib/deliveryPricing'
 
 type CheckoutAddressSectionProps = {
   address: DeliveryAddress | null
@@ -22,9 +24,10 @@ type CheckoutAddressSectionProps = {
   onDraftChange: (draft: DeliveryAddress) => void
 }
 
-function formatAddress(address: DeliveryAddress) {
+function formatAddress(address: DeliveryAddress, districtName?: string) {
   const parts = [
     address.city,
+    districtName || (address.district ? `р-н ${address.district}` : ''),
     address.street,
     address.house ? `д. ${address.house}` : '',
     address.apartment ? `кв. ${address.apartment}` : '',
@@ -43,10 +46,15 @@ export default function CheckoutAddressSection({
   onSave,
   onDraftChange,
 }: CheckoutAddressSectionProps) {
+  const { settings } = useDeliverySettings()
+  const moscowSelected = isMoscowCity(draft.city, settings)
+  const districtName = settings.moscowDistricts.find((item) => item.id === draft.district)?.name
+
   const canSave =
     draft.city.trim() !== '' &&
     draft.street.trim() !== '' &&
-    draft.house.trim() !== ''
+    draft.house.trim() !== '' &&
+    (!moscowSelected || draft.district.trim() !== '')
 
   return (
     <section className={checkoutSectionClass}>
@@ -68,7 +76,10 @@ export default function CheckoutAddressSection({
       {address && !editing ? (
         <div className={`mt-4 flex items-start justify-between gap-3 border-t ${checkoutSectionDividerClass} pt-4`}>
           <p className="min-w-0 text-sm leading-relaxed text-[#1F1F1F] sm:text-[15px]">
-            {formatAddress(address)}
+            {formatAddress(
+              address,
+              settings.moscowDistricts.find((item) => item.id === address.district)?.name
+            )}
           </p>
           <button
             type="button"
@@ -87,11 +98,43 @@ export default function CheckoutAddressSection({
             <input
               type="text"
               value={draft.city}
-              onChange={(event) => onDraftChange({ ...draft, city: event.target.value })}
+              onChange={(event) =>
+                onDraftChange({
+                  ...draft,
+                  city: event.target.value,
+                  district: isMoscowCity(event.target.value, settings) ? draft.district : '',
+                })
+              }
               placeholder="Город"
               className={checkoutInputClass}
               autoComplete="address-level2"
             />
+            {moscowSelected ? (
+              <select
+                value={draft.district}
+                onChange={(event) => onDraftChange({ ...draft, district: event.target.value })}
+                className={checkoutInputClass}
+              >
+                <option value="">Район Москвы</option>
+                {settings.moscowDistricts.map((district) => (
+                  <option key={district.id} value={district.id}>
+                    {district.name} — {district.price.toLocaleString('ru-RU')} ₽
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type="text"
+                value={draft.street}
+                onChange={(event) => onDraftChange({ ...draft, street: event.target.value })}
+                placeholder="Улица"
+                className={checkoutInputClass}
+                autoComplete="street-address"
+              />
+            )}
+          </div>
+
+          {moscowSelected ? (
             <input
               type="text"
               value={draft.street}
@@ -100,7 +143,7 @@ export default function CheckoutAddressSection({
               className={checkoutInputClass}
               autoComplete="street-address"
             />
-          </div>
+          ) : null}
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <input
@@ -148,6 +191,10 @@ export default function CheckoutAddressSection({
             rows={4}
             className={`${checkoutInputClass} min-h-[120px] resize-y`}
           />
+
+          {moscowSelected && districtName ? (
+            <p className="text-sm text-[#707070]">Доставка: {districtName}</p>
+          ) : null}
 
           <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
             <button type="button" onClick={onCancel} className={checkoutGhostButtonClass}>

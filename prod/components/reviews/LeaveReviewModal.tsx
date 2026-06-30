@@ -1,6 +1,7 @@
 'use client'
 
 import { FormEvent, useEffect, useState } from 'react'
+import ModalOverlay, { ModalPanel } from '@/components/ui/ModalOverlay'
 import { useScrollLock } from '@/lib/useScrollLock'
 
 type LeaveReviewModalProps = {
@@ -58,18 +59,10 @@ export default function LeaveReviewModal({
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <button
-        type="button"
-        className="absolute inset-0 bg-black/40"
-        aria-label="Закрыть"
-        onClick={onClose}
-      />
-      <div
-        role="dialog"
-        aria-modal="true"
+    <ModalOverlay onClose={onClose}>
+      <ModalPanel
         aria-labelledby="leave-review-title"
-        className="relative z-10 w-full max-w-[640px] rounded-2xl border border-[#E5DECF] bg-[#FFF8ED] px-5 py-6 shadow-xl sm:px-8 sm:py-8"
+        className="w-full max-w-[640px] rounded-2xl border border-[#E5DECF] bg-[#FFF8ED] px-5 py-6 shadow-xl sm:px-8 sm:py-8"
       >
         <button
           type="button"
@@ -118,7 +111,7 @@ export default function LeaveReviewModal({
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </ModalPanel>
+    </ModalOverlay>
   )
 }

@@ -1,13 +1,13 @@
 'use client'
 
-import { useState } from 'react'
-import { adminInputClass } from './adminStyles'
+import { useRef, useState } from 'react'
+import { readImageAsDataUrl } from '@/lib/imageFile'
 
 type AdminImageFieldProps = {
   label: string
   value: string
   onChange: (value: string) => void
-  placeholder?: string
+  onRemove?: () => void
   previewAspect?: 'square' | 'video' | 'wide'
 }
 
@@ -15,10 +15,13 @@ export default function AdminImageField({
   label,
   value,
   onChange,
-  placeholder = '/images/home/hero-bg.png',
+  onRemove,
   previewAspect = 'video',
 }: AdminImageFieldProps) {
+  const inputRef = useRef<HTMLInputElement>(null)
   const [loadError, setLoadError] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState('')
   const trimmed = value.trim()
   const aspectClass =
     previewAspect === 'square'
@@ -26,6 +29,32 @@ export default function AdminImageField({
       : previewAspect === 'wide'
         ? 'aspect-[21/9] w-full'
         : 'aspect-video w-full max-w-[320px]'
+
+  async function handleFileSelect(file: File | undefined) {
+    if (!file) return
+    setUploading(true)
+    setError('')
+    try {
+      const dataUrl = await readImageAsDataUrl(file)
+      setLoadError(false)
+      onChange(dataUrl)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Не удалось загрузить изображение')
+    } finally {
+      setUploading(false)
+      if (inputRef.current) inputRef.current.value = ''
+    }
+  }
+
+  function handleRemove() {
+    setLoadError(false)
+    setError('')
+    if (onRemove) {
+      onRemove()
+      return
+    }
+    onChange('')
+  }
 
   return (
     <div className="space-y-2">
@@ -46,10 +75,7 @@ export default function AdminImageField({
         ) : (
           <div className="flex h-full min-h-[120px] flex-col items-center justify-center gap-2 px-4 text-center text-sm text-[#707070]">
             {loadError ? (
-              <>
-                <span className="text-red-600">Не удалось загрузить превью</span>
-                <span className="break-all text-xs">{trimmed}</span>
-              </>
+              <span className="text-red-600">Не удалось показать превью</span>
             ) : (
               <span>Изображение не выбрано</span>
             )}
@@ -57,25 +83,36 @@ export default function AdminImageField({
         )}
       </div>
 
-      <div className="rounded-lg border border-[#e8eaef] bg-[#f7f8fa] px-3 py-2">
-        <p className="text-[11px] font-medium uppercase tracking-wide text-[#707070]">
-          Текущее изображение
-        </p>
-        <p className="mt-1 break-all font-mono text-xs text-[#1F1F1F]">
-          {trimmed || '— не задано —'}
-        </p>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(event) => void handleFileSelect(event.target.files?.[0])}
+      />
+
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          disabled={uploading}
+          onClick={() => inputRef.current?.click()}
+          className="rounded-lg border border-[#e2e4ea] bg-white px-3 py-2 text-sm text-[#1F1F1F] transition-colors hover:bg-[#f7f8fa] disabled:opacity-60"
+        >
+          {uploading ? 'Загрузка...' : trimmed ? 'Заменить' : 'Загрузить'}
+        </button>
+        {trimmed ? (
+          <button
+            type="button"
+            disabled={uploading}
+            onClick={handleRemove}
+            className="rounded-lg border border-red-200 bg-white px-3 py-2 text-sm text-red-700 transition-colors hover:bg-red-50 disabled:opacity-60"
+          >
+            Удалить
+          </button>
+        ) : null}
       </div>
 
-      <input
-        type="text"
-        value={value}
-        onChange={(event) => {
-          setLoadError(false)
-          onChange(event.target.value)
-        }}
-        className={adminInputClass}
-        placeholder={placeholder}
-      />
+      {error ? <p className="text-xs text-red-600">{error}</p> : null}
     </div>
   )
 }

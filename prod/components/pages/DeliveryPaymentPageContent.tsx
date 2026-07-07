@@ -1,11 +1,14 @@
 'use client'
 
 import Image from 'next/image'
+import DeliveryCalculator from '@/components/delivery/DeliveryCalculator'
+import { useDeliverySettings } from '@/hooks/useDeliverySettings'
 import { usePagesContent } from '@/hooks/usePagesContent'
 
 export default function DeliveryPaymentPageContent() {
   const { content } = usePagesContent()
   const { deliveryPayment } = content
+  const { settings, hydrated } = useDeliverySettings()
 
   return (
     <div className="bg-[#fdfbf6] pt-8 sm:py-10">
@@ -30,6 +33,12 @@ export default function DeliveryPaymentPageContent() {
                   ) : null}
                 </div>
               ))}
+              {hydrated ? (
+                <div className="rounded-md bg-[#FFF4E3] px-2.5 py-2 text-sm text-[#232326] sm:text-[15px]">
+                  Московская область — от {settings.moscowRegionPrice.toLocaleString('ru-RU')} ₽ · Москва — от{' '}
+                  {settings.moscowDefaultPrice.toLocaleString('ru-RU')} ₽
+                </div>
+              ) : null}
             </div>
 
             <div className="overflow-hidden rounded-xl border border-[#D0D9C8] bg-[#E6F2E2]">
@@ -53,22 +62,11 @@ export default function DeliveryPaymentPageContent() {
               {deliveryPayment.calculatorText}
             </p>
 
-            <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-stretch">
-              <label htmlFor="delivery-address" className="sr-only">
-                Адрес доставки
-              </label>
-              <input
-                id="delivery-address"
-                type="text"
+            <div className="mt-4">
+              <DeliveryCalculator
                 placeholder={deliveryPayment.calculatorPlaceholder}
-                className="min-h-[48px] w-full rounded-lg border border-[#E5DECF] bg-white px-4 text-sm text-[#232326] outline-none placeholder:text-[#232326]/45 focus:border-[#3D8C13] focus:ring-2 focus:ring-[#3D8C13]/20 sm:flex-1 sm:px-5 sm:text-[15px]"
+                buttonLabel={deliveryPayment.calculatorButton}
               />
-              <button
-                type="button"
-                className="min-h-[48px] shrink-0 rounded-lg bg-[#3D8C13] px-6 text-sm font-medium text-white transition-colors hover:bg-[#347710] sm:min-w-[180px] sm:text-[15px]"
-              >
-                {deliveryPayment.calculatorButton}
-              </button>
             </div>
           </div>
 

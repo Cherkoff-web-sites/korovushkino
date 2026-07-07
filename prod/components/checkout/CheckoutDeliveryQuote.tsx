@@ -3,9 +3,14 @@ import type { DeliveryQuote } from '@/lib/deliveryPricing'
 type CheckoutDeliveryQuoteProps = {
   quote: DeliveryQuote
   compact?: boolean
+  requireDistrictMessage?: string
 }
 
-export default function CheckoutDeliveryQuote({ quote, compact = false }: CheckoutDeliveryQuoteProps) {
+export default function CheckoutDeliveryQuote({
+  quote,
+  compact = false,
+  requireDistrictMessage = 'Выберите район Москвы — без него нельзя оформить заказ.',
+}: CheckoutDeliveryQuoteProps) {
   const showBlock =
     quote.cost !== null ||
     quote.requiresDistrict ||
@@ -33,9 +38,7 @@ export default function CheckoutDeliveryQuote({ quote, compact = false }: Checko
       </div>
 
       {quote.requiresDistrict ? (
-        <p className="mt-2 text-xs leading-relaxed text-[#C88C39]">
-          Выберите район Москвы — без него нельзя оформить заказ.
-        </p>
+        <p className="mt-2 text-xs leading-relaxed text-[#C88C39]">{requireDistrictMessage}</p>
       ) : null}
 
       {quote.cost === null && quote.zone === 'outside' ? (

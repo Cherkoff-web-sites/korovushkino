@@ -13,10 +13,14 @@ import { EditIcon, PlusIcon } from '@/components/checkout/CheckoutIcons'
 import { useDeliverySettings } from '@/hooks/useDeliverySettings'
 import { isMoscowCity } from '@/lib/deliveryPricing'
 
+import CheckoutDeliveryQuote from '@/components/checkout/CheckoutDeliveryQuote'
+import type { DeliveryQuote } from '@/lib/deliveryPricing'
+
 type CheckoutAddressSectionProps = {
   address: DeliveryAddress | null
   editing: boolean
   draft: DeliveryAddress
+  deliveryQuote: DeliveryQuote
   onStartAdd: () => void
   onStartEdit: () => void
   onCancel: () => void
@@ -40,6 +44,7 @@ export default function CheckoutAddressSection({
   address,
   editing,
   draft,
+  deliveryQuote,
   onStartAdd,
   onStartEdit,
   onCancel,
@@ -48,7 +53,6 @@ export default function CheckoutAddressSection({
 }: CheckoutAddressSectionProps) {
   const { settings } = useDeliverySettings()
   const moscowSelected = isMoscowCity(draft.city, settings)
-  const districtName = settings.moscowDistricts.find((item) => item.id === draft.district)?.name
 
   const canSave =
     draft.city.trim() !== '' &&
@@ -74,21 +78,24 @@ export default function CheckoutAddressSection({
       ) : null}
 
       {address && !editing ? (
-        <div className={`mt-4 flex items-start justify-between gap-3 border-t ${checkoutSectionDividerClass} pt-4`}>
-          <p className="min-w-0 text-sm leading-relaxed text-[#1F1F1F] sm:text-[15px]">
-            {formatAddress(
-              address,
-              settings.moscowDistricts.find((item) => item.id === address.district)?.name
-            )}
-          </p>
-          <button
-            type="button"
-            onClick={onStartEdit}
-            className="shrink-0 rounded-lg p-1.5 text-[#232326]/55 transition-colors hover:bg-white hover:text-[#3D8C13]"
-            aria-label="Изменить адрес"
-          >
-            <EditIcon />
-          </button>
+        <div className={`mt-4 space-y-3 border-t ${checkoutSectionDividerClass} pt-4`}>
+          <div className="flex items-start justify-between gap-3">
+            <p className="min-w-0 text-sm leading-relaxed text-[#1F1F1F] sm:text-[15px]">
+              {formatAddress(
+                address,
+                settings.moscowDistricts.find((item) => item.id === address.district)?.name
+              )}
+            </p>
+            <button
+              type="button"
+              onClick={onStartEdit}
+              className="shrink-0 rounded-lg p-1.5 text-[#232326]/55 transition-colors hover:bg-white hover:text-[#3D8C13]"
+              aria-label="Изменить адрес"
+            >
+              <EditIcon />
+            </button>
+          </div>
+          <CheckoutDeliveryQuote quote={deliveryQuote} />
         </div>
       ) : null}
 
@@ -192,9 +199,7 @@ export default function CheckoutAddressSection({
             className={`${checkoutInputClass} min-h-[120px] resize-y`}
           />
 
-          {moscowSelected && districtName ? (
-            <p className="text-sm text-[#707070]">Доставка: {districtName}</p>
-          ) : null}
+          {draft.city.trim() ? <CheckoutDeliveryQuote quote={deliveryQuote} /> : null}
 
           <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
             <button type="button" onClick={onCancel} className={checkoutGhostButtonClass}>

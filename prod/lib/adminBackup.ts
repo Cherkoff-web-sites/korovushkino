@@ -24,19 +24,26 @@ import {
   adminFetchOrders,
 } from '@/lib/api/adminSiteApi'
 import {
+  DEFAULT_PAGES_CONTENT,
+  type PagesContent,
+  readPagesContent,
+  writePagesContent,
+} from '@/lib/pagesContent'
+import {
   DEFAULT_DELIVERY_SETTINGS,
   type DeliverySettings,
   readDeliverySettings,
   writeDeliverySettings,
 } from '@/lib/deliverySettings'
 
-export const BACKUP_VERSION = 3 as const
+export const BACKUP_VERSION = 4 as const
 
 export type AdminBackup = {
   version: typeof BACKUP_VERSION
   exportedAt: string
   homeContent: HomeContent
   siteContent: SiteContent
+  pagesContent: PagesContent
   deliverySettings: DeliverySettings
   products: ProductData[]
   clients: StoredClient[]
@@ -50,12 +57,18 @@ function readSiteContentSafe(): SiteContent {
   return readSiteContent()
 }
 
+function readPagesContentSafe(): PagesContent {
+  if (typeof window === 'undefined') return DEFAULT_PAGES_CONTENT
+  return readPagesContent()
+}
+
 export function buildAdminBackup(): AdminBackup {
   return {
     version: BACKUP_VERSION,
     exportedAt: new Date().toISOString(),
     homeContent: readHomeContentSafe(),
     siteContent: readSiteContentSafe(),
+    pagesContent: readPagesContentSafe(),
     deliverySettings: readDeliverySettingsSafe(),
     products: readPreviewProducts(),
     clients: readStoredClients(),
@@ -91,6 +104,7 @@ export async function buildAdminBackupAsync(): Promise<AdminBackup> {
       exportedAt: new Date().toISOString(),
       homeContent: readHomeContentSafe(),
       siteContent: readSiteContentSafe(),
+      pagesContent: readPagesContentSafe(),
       deliverySettings: deliveryData.settings,
       products: productsData.products,
       clients: readStoredClients(),
@@ -120,6 +134,7 @@ export function parseAdminBackup(raw: string): AdminBackup {
     exportedAt?: string
     homeContent?: HomeContent
     siteContent?: SiteContent
+    pagesContent?: PagesContent
     products?: ProductData[]
     clients?: StoredClient[]
     orders?: StoredOrder[]
@@ -128,7 +143,7 @@ export function parseAdminBackup(raw: string): AdminBackup {
     deliverySettings?: DeliverySettings
   }
   const version = data.version ?? 0
-  if (!data || (version !== 1 && version !== 2 && version !== 3)) {
+  if (!data || (version !== 1 && version !== 2 && version !== 3 && version !== 4)) {
     throw new Error('Неподдерживаемый формат файла резервной копии')
   }
   if (!data.homeContent || !Array.isArray(data.products)) {
@@ -139,6 +154,7 @@ export function parseAdminBackup(raw: string): AdminBackup {
     exportedAt: data.exportedAt ?? new Date().toISOString(),
     homeContent: data.homeContent,
     siteContent: data.siteContent ?? DEFAULT_SITE_CONTENT,
+    pagesContent: data.pagesContent ?? DEFAULT_PAGES_CONTENT,
     deliverySettings: data.deliverySettings ?? DEFAULT_DELIVERY_SETTINGS,
     products: data.products,
     clients: data.clients ?? [],
@@ -151,6 +167,7 @@ export function parseAdminBackup(raw: string): AdminBackup {
 export async function restoreAdminBackup(backup: AdminBackup) {
   writeHomeContent(backup.homeContent)
   writeSiteContent(backup.siteContent ?? DEFAULT_SITE_CONTENT)
+  writePagesContent(backup.pagesContent ?? DEFAULT_PAGES_CONTENT)
   writeDeliverySettings(backup.deliverySettings ?? DEFAULT_DELIVERY_SETTINGS)
   writePreviewProducts(backup.products)
   writeStoredClients(backup.clients ?? [])

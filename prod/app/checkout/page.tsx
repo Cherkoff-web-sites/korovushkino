@@ -24,6 +24,7 @@ import { useCart } from '@/contexts/CartContext'
 import { useToast } from '@/contexts/ToastContext'
 import { useDeliverySettings } from '@/hooks/useDeliverySettings'
 import { calculateDeliveryQuote } from '@/lib/deliveryPricing'
+import type { DeliveryQuote } from '@/lib/deliveryPricing'
 import { submitCheckoutOrder } from '@/lib/leadsService'
 
 export default function CheckoutPage() {
@@ -69,12 +70,13 @@ export default function CheckoutPage() {
 
   const productsTotal = useMemo(() => getTotalPrice(), [getTotalPrice, items])
 
-  const deliveryQuote = useMemo(() => {
-    if (!address) {
-      return { cost: null, zone: 'unknown' as const, label: 'Укажите адрес', requiresDistrict: false }
+  const deliveryQuote = useMemo<DeliveryQuote>(() => {
+    const source = addressEditing ? addressDraft : address
+    if (!source) {
+      return { cost: null, zone: 'unknown', label: 'Укажите адрес', requiresDistrict: false }
     }
-    return calculateDeliveryQuote(address.city, address.district, deliverySettings)
-  }, [address, deliverySettings])
+    return calculateDeliveryQuote(source.city, source.district, deliverySettings)
+  }, [address, addressDraft, addressEditing, deliverySettings])
 
   const canSubmit =
     items.length > 0 &&
@@ -84,6 +86,7 @@ export default function CheckoutPage() {
     deliveryTime !== null &&
     paymentMethod !== null &&
     deliveryQuote.cost !== null &&
+    !deliveryQuote.requiresDistrict &&
     !addressEditing &&
     !deliveryTimeEditing &&
     !paymentEditing
@@ -227,6 +230,7 @@ export default function CheckoutPage() {
                 address={address}
                 editing={addressEditing}
                 draft={addressDraft}
+                deliveryQuote={deliveryQuote}
                 onStartAdd={handleAddressStartAdd}
                 onStartEdit={handleAddressStartEdit}
                 onCancel={handleAddressCancel}
@@ -257,8 +261,7 @@ export default function CheckoutPage() {
             <div className="lg:col-span-5 xl:col-span-4">
               <CheckoutOrderSummary
                 productsTotal={productsTotal}
-                deliveryCost={deliveryQuote.cost}
-                deliveryLabel={deliveryQuote.label}
+                deliveryQuote={deliveryQuote}
                 onSubmit={handleSubmit}
                 submitting={submitting}
                 disabled={!canSubmit}

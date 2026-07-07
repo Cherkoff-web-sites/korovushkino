@@ -9,7 +9,7 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import { productsData } from '@/lib/api/productsData'
+import { getFavoriteItemNameFromStorage } from '@/lib/favoriteItems'
 import { useToast } from '@/contexts/ToastContext'
 
 const STORAGE_KEY = 'korovushkino-favorites'
@@ -58,7 +58,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
       )
 
       if (adding) {
-        const productName = productsData[productId]?.name
+        const productName = getFavoriteItemNameFromStorage(productId)
         showToast(
           productName ? `${productName} добавлен в избранное` : 'Товар добавлен в избранное',
         )

@@ -1,11 +1,11 @@
 'use client'
 
 import { checkoutSectionClass, checkoutSectionDividerClass, checkoutSectionTitleClass } from '@/components/checkout/checkoutStyles'
+import type { DeliveryQuote } from '@/lib/deliveryPricing'
 
 type CheckoutOrderSummaryProps = {
   productsTotal: number
-  deliveryCost: number | null
-  deliveryLabel?: string
+  deliveryQuote: DeliveryQuote
   onSubmit: () => void
   submitting?: boolean
   disabled?: boolean
@@ -14,13 +14,13 @@ type CheckoutOrderSummaryProps = {
 
 export default function CheckoutOrderSummary({
   productsTotal,
-  deliveryCost,
-  deliveryLabel,
+  deliveryQuote,
   onSubmit,
   submitting = false,
   disabled = false,
   compact = false,
 }: CheckoutOrderSummaryProps) {
+  const { cost: deliveryCost, label: deliveryLabel, requiresDistrict } = deliveryQuote
   const total = deliveryCost === null ? null : productsTotal + deliveryCost
 
   return (
@@ -39,12 +39,25 @@ export default function CheckoutOrderSummary({
         </div>
         <div className="flex items-center justify-between gap-4">
           <dt className="text-[#232326]/80">
-            Доставка{deliveryLabel ? ` (${deliveryLabel})` : ''}
+            Доставка{deliveryLabel && deliveryLabel !== 'Укажите адрес' ? ` (${deliveryLabel})` : ''}
           </dt>
           <dd className="font-medium text-[#1F1F1F]">
             {deliveryCost === null ? '—' : `${deliveryCost.toLocaleString('ru-RU')} ₽`}
           </dd>
         </div>
+        {requiresDistrict ? (
+          <p className="text-xs leading-relaxed text-[#C88C39]">
+            Укажите район Москвы в адресе доставки.
+          </p>
+        ) : null}
+        {deliveryCost === null && deliveryQuote.zone === 'outside' ? (
+          <p className="text-xs leading-relaxed text-[#707070]">{deliveryQuote.label}</p>
+        ) : null}
+        {deliveryCost === null && deliveryQuote.zone === 'unknown' ? (
+          <p className="text-xs leading-relaxed text-[#707070]">
+            Введите город в адресе — стоимость доставки появится автоматически.
+          </p>
+        ) : null}
         <div className={`flex items-center justify-between gap-4 border-t ${checkoutSectionDividerClass} pt-3`}>
           <dt className="text-base font-semibold text-[#1F1F1F] sm:text-lg">К оплате</dt>
           <dd className="text-base font-semibold text-[#1F1F1F] sm:text-lg">

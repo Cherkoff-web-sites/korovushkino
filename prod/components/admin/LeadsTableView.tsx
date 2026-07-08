@@ -7,7 +7,6 @@ import {
   type StoredContactLead,
   type StoredOrder,
 } from '@/lib/adminDataStore'
-import { ADMIN_PREVIEW } from '@/lib/adminPreview'
 import { adminFetchOrders } from '@/lib/api/adminSiteApi'
 import { adminInputClass, adminPanelClass, adminTableHeadClass } from './adminStyles'
 
@@ -63,17 +62,23 @@ export default function LeadsTableView({
 
   const reload = useCallback(async () => {
     if (dataSource === 'orders') {
-      if (!ADMIN_PREVIEW) {
-        try {
-          const data = await adminFetchOrders()
-          setRows(data.orders.map(toOrderRow))
-          return
-        } catch {
-          // fallback to localStorage
+      const local = readStoredOrders().map(toOrderRow)
+      try {
+        const data = await adminFetchOrders()
+        const remote = data.orders.map(toOrderRow)
+        const merged = [...local]
+        for (const row of remote) {
+          const key = `${row.email}-${row.date}-${row.summary}`
+          if (!merged.some((item) => `${item.email}-${item.date}-${item.summary}` === key)) {
+            merged.unshift(row)
+          }
         }
+        setRows(merged)
+        return
+      } catch {
+        setRows(local)
+        return
       }
-      setRows(readStoredOrders().map(toOrderRow))
-      return
     }
     setRows(readStoredContacts().map(toContactRow))
   }, [dataSource])

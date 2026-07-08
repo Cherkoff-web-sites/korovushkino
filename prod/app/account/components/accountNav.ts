@@ -9,7 +9,6 @@ export const ACCOUNT_NAV_ITEMS: AccountNavItem[] = [
   { href: '/account/orders', label: 'Заказы', icon: 'orders' },
   { href: '/account/reviews', label: 'Отзывы', icon: 'reviews' },
   { href: '/account/addresses', label: 'Адреса', icon: 'addresses' },
-  { href: '/account/password', label: 'Пароль', icon: 'password' },
   { href: '/account/favorites', label: 'Избранные продукты', icon: 'favorites' },
   { href: '/account/settings', label: 'Учетная запись', icon: 'settings' },
 ]

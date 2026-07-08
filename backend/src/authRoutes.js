@@ -43,7 +43,7 @@ function isEmailCodeDisabled() {
   return (process.env.AUTH_EMAIL_CODE_DISABLED || "").toLowerCase() === "true";
 }
 
-async function findUserByEmail(rawEmail) {
+export async function findUserByEmail(rawEmail) {
   const result = await query(
     `SELECT ${USER_SELECT_FIELDS}
      FROM users
@@ -55,7 +55,7 @@ async function findUserByEmail(rawEmail) {
   return result.rowCount > 0 ? result.rows[0] : null;
 }
 
-async function findOrCreateUserByEmail(rawEmail) {
+export async function findOrCreateUserByEmail(rawEmail) {
   const existing = await findUserByEmail(rawEmail);
   if (existing) {
     return { user: existing, isNewUser: false };
@@ -71,7 +71,7 @@ async function findOrCreateUserByEmail(rawEmail) {
   return { user: created.rows[0], isNewUser: true };
 }
 
-function normalizeUserRow(row) {
+export function normalizeUserRow(row) {
   if (!row) return null;
   return {
     id: row.id,

@@ -5,6 +5,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import authRoutes from "./authRoutes.js";
+import adminAuthRoutes from "./adminAuthRoutes.js";
 import productRoutes, { adminRouter as adminProductRoutes } from "./productRoutes.js";
 import siteRoutes, { adminRouter as adminSiteRoutes } from "./siteRoutes.js";
 import { query } from "./db.js";
@@ -49,6 +50,7 @@ if (dbDisabled) {
   });
 } else {
   app.use("/api/auth", authRoutes);
+  app.use("/api/auth/admin", adminAuthRoutes);
 }
 
 app.use("/api", productRoutes);

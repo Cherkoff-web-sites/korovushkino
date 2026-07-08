@@ -211,9 +211,10 @@ function mergePagesContent(parsed: Partial<PagesContent>): PagesContent {
       facts: parsed.deliveryPayment?.facts?.length
         ? parsed.deliveryPayment.facts
         : DEFAULT_PAGES_CONTENT.deliveryPayment.facts,
-      paymentMethods: parsed.deliveryPayment?.paymentMethods?.length
-        ? parsed.deliveryPayment.paymentMethods
-        : DEFAULT_PAGES_CONTENT.deliveryPayment.paymentMethods,
+      paymentMethods:
+        parsed.deliveryPayment?.paymentMethods !== undefined
+          ? parsed.deliveryPayment.paymentMethods
+          : DEFAULT_PAGES_CONTENT.deliveryPayment.paymentMethods,
     },
     baskets: {
       ...DEFAULT_PAGES_CONTENT.baskets,

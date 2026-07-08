@@ -21,6 +21,7 @@ export type SiteContent = {
     intro: string
     phoneDisplay: string
     phoneHref: string
+    afterPhoneText: string
     steps: string[]
     step3Email: string
     paragraphRefund: string
@@ -52,6 +53,8 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
       'Проверяйте товар в присутствии курьера. Если после принятия заказа вы остались недовольны качеством продукции, просим вас незамедлительно позвонить по телефону',
     phoneDisplay: '8 925 140 48 05',
     phoneHref: 'tel:+79251404805',
+    afterPhoneText:
+      'Заявка будет рассмотрена в течение двух суток, в зависимости от сложности ситуации и обратной связи от поставщика. Компенсация возможна только в рамках срока годности товара.',
     steps: [
       'Сохраните полученный товар до выяснения обстоятельств, даже если он уже был приготовлен.',
       'По просьбе специалистов заморозьте товар, чтобы сохранить его состояние.',
@@ -83,9 +86,10 @@ function mergeSiteContent(parsed: Partial<SiteContent>): SiteContent {
     returnsModal: {
       ...DEFAULT_SITE_CONTENT.returnsModal,
       ...parsed.returnsModal,
-      steps: parsed.returnsModal?.steps?.length
-        ? parsed.returnsModal.steps
-        : DEFAULT_SITE_CONTENT.returnsModal.steps,
+      steps:
+        parsed.returnsModal?.steps !== undefined
+          ? parsed.returnsModal.steps
+          : DEFAULT_SITE_CONTENT.returnsModal.steps,
     },
   }
 }

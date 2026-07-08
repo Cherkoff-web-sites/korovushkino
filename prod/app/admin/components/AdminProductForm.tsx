@@ -5,6 +5,7 @@ import Button from '@/components/ui/Button'
 import {
   CATEGORY_LABELS,
   type CategorySlug,
+  type DescriptionBlock,
   type ProductData,
 } from '@/lib/api/productsData'
 import { productPageHref } from '@/lib/catalogPaths'
@@ -30,6 +31,9 @@ export type AdminProductFormValues = {
   seoTitle: string
   seoDescription: string
   seoKeywords: string
+  mainImageAlt: string
+  descriptionBlocks: DescriptionBlock[]
+  imageAlts: string[]
 }
 
 function toFormValues(product?: ProductData | null): AdminProductFormValues {
@@ -49,6 +53,13 @@ function toFormValues(product?: ProductData | null): AdminProductFormValues {
     seoTitle: product?.seo?.title ?? '',
     seoDescription: product?.seo?.description ?? '',
     seoKeywords: product?.seo?.keywords ?? '',
+    mainImageAlt: product?.imageAlts?.[0] ?? product?.name ?? '',
+    descriptionBlocks: product?.descriptionBlocks?.length
+      ? product.descriptionBlocks
+      : product?.description
+        ? [{ type: 'p', text: product.description }]
+        : [{ type: 'p', text: '' }],
+    imageAlts: product?.imageAlts ?? [],
   }
 }
 
@@ -92,10 +103,12 @@ export default function AdminProductForm({
         series: values.series,
         categorySlug: values.categorySlug,
         price: Number(values.price),
-        description: values.description,
+        description: values.descriptionBlocks.map((block) => block.text).join('\n\n'),
+        descriptionBlocks: values.descriptionBlocks.filter((block) => block.text.trim()),
         briefDescription: values.briefDescription,
         catalogCardTeaser: values.catalogCardTeaser,
         images: buildImagesList(mainImage, values.extraImages),
+        imageAlts: buildImageAlts(mainImage, values.extraImages, values.mainImageAlt, values.imageAlts),
         modalNutrition:
           values.macrosPer100g || values.kcal
             ? { macrosPer100g: values.macrosPer100g, kcal: values.kcal }
@@ -174,13 +187,82 @@ export default function AdminProductForm({
           </label>
 
           <label className="block sm:col-span-2">
-            <span className="mb-1.5 block text-xs text-[#707070]">Описание</span>
+            <span className="mb-1.5 block text-xs text-[#707070]">Описание (простой текст)</span>
             <textarea
-              required
-              rows={4}
+              rows={3}
               value={values.description}
               onChange={(event) => updateField('description', event.target.value)}
               className={`${adminInputClass} resize-y`}
+              placeholder="Используется как fallback, если блоки ниже пустые"
+            />
+          </label>
+
+          <div className="block sm:col-span-2 space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-xs font-medium text-[#707070]">Блоки описания (h2 / h3 / текст)</span>
+              <button
+                type="button"
+                onClick={() =>
+                  updateField('descriptionBlocks', [
+                    ...values.descriptionBlocks,
+                    { type: 'p', text: '' },
+                  ])
+                }
+                className="rounded-lg border border-[#e2e4ea] px-3 py-1.5 text-xs text-[#707070] hover:bg-[#f7f8fa]"
+              >
+                Добавить блок
+              </button>
+            </div>
+            {values.descriptionBlocks.map((block, index) => (
+              <div key={index} className="rounded-lg border border-[#e8eaef] p-3">
+                <div className="mb-2 flex flex-wrap items-center gap-2">
+                  <select
+                    value={block.type}
+                    onChange={(event) => {
+                      const next = [...values.descriptionBlocks]
+                      next[index] = { ...block, type: event.target.value as DescriptionBlock['type'] }
+                      updateField('descriptionBlocks', next)
+                    }}
+                    className={adminInputClass}
+                  >
+                    <option value="p">Текст</option>
+                    <option value="h2">Заголовок H2</option>
+                    <option value="h3">Заголовок H3</option>
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      updateField(
+                        'descriptionBlocks',
+                        values.descriptionBlocks.filter((_, i) => i !== index)
+                      )
+                    }
+                    className="text-xs text-red-600 hover:underline"
+                  >
+                    Удалить
+                  </button>
+                </div>
+                <textarea
+                  rows={3}
+                  value={block.text}
+                  onChange={(event) => {
+                    const next = [...values.descriptionBlocks]
+                    next[index] = { ...block, text: event.target.value }
+                    updateField('descriptionBlocks', next)
+                  }}
+                  className={`${adminInputClass} resize-y`}
+                />
+              </div>
+            ))}
+          </div>
+
+          <label className="block sm:col-span-2">
+            <span className="mb-1.5 block text-xs text-[#707070]">Alt главного фото</span>
+            <input
+              type="text"
+              value={values.mainImageAlt}
+              onChange={(event) => updateField('mainImageAlt', event.target.value)}
+              className={adminInputClass}
             />
           </label>
 
@@ -208,23 +290,37 @@ export default function AdminProductForm({
             <span className="mb-1.5 block text-xs text-[#707070]">Дополнительные фото</span>
             <div className="space-y-4">
               {values.extraImages.map((url, index) => (
-                <AdminImageField
-                  key={`extra-${index}`}
-                  label={`Доп. фото ${index + 1}`}
-                  value={url}
-                  onChange={(next) => {
-                    const extraImages = [...values.extraImages]
-                    extraImages[index] = next
-                    updateField('extraImages', extraImages)
-                  }}
-                  onRemove={() => {
-                    updateField(
-                      'extraImages',
-                      values.extraImages.filter((_, i) => i !== index)
-                    )
-                  }}
-                  previewAspect="square"
-                />
+                <div key={`extra-${index}`} className="space-y-2">
+                  <AdminImageField
+                    label={`Доп. фото ${index + 1}`}
+                    value={url}
+                    onChange={(next) => {
+                      const extraImages = [...values.extraImages]
+                      extraImages[index] = next
+                      updateField('extraImages', extraImages)
+                    }}
+                    onRemove={() => {
+                      updateField(
+                        'extraImages',
+                        values.extraImages.filter((_, i) => i !== index)
+                      )
+                    }}
+                    previewAspect="square"
+                  />
+                  <label className="block">
+                    <span className="mb-1.5 block text-xs text-[#707070]">Alt для доп. фото {index + 1}</span>
+                    <input
+                      type="text"
+                      value={values.imageAlts[index + 1] ?? ''}
+                      onChange={(event) => {
+                        const imageAlts = [...values.imageAlts]
+                        imageAlts[index + 1] = event.target.value
+                        updateField('imageAlts', imageAlts)
+                      }}
+                      className={adminInputClass}
+                    />
+                  </label>
+                </div>
               ))}
               <button
                 type="button"
@@ -366,4 +462,14 @@ function buildImagesList(mainImage: string | undefined, extraImages: string[]) {
   const extra = extraImages.map((item) => item.trim()).filter(Boolean)
   const primary = mainImage?.trim() || extra[0] || '/images/home/hero-bg.png'
   return [primary, ...extra.filter((item) => item !== primary)]
+}
+
+function buildImageAlts(
+  mainImage: string | undefined,
+  extraImages: string[],
+  mainImageAlt: string,
+  imageAlts: string[]
+) {
+  const images = buildImagesList(mainImage, extraImages)
+  return images.map((_, index) => imageAlts[index]?.trim() || (index === 0 ? mainImageAlt.trim() : ''))
 }

@@ -169,8 +169,7 @@ export default function Footer() {
           <a href={returnsModal.phoneHref} className="text-[#438E1B] hover:underline">
             {returnsModal.phoneDisplay}
           </a>
-          . Заявка будет рассмотрена в течение двух суток, в зависимости от сложности ситуации и
-          обратной связи от поставщика. Компенсация возможна только в рамках срока годности товара.
+          . {returnsModal.afterPhoneText}
         </p>
         <ol className="mt-4 list-decimal space-y-2 pl-5">
           {returnsModal.steps.map((step, index) => (

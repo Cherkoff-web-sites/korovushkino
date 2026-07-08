@@ -8,7 +8,28 @@ type LeaveReviewModalProps = {
   open: boolean
   onClose: () => void
   productName: string
-  onSubmit?: (text: string) => void | Promise<void>
+  onSubmit?: (payload: { text: string; rating: number }) => void | Promise<void>
+}
+
+function RatingPicker({ value, onChange }: { value: number; onChange: (value: number) => void }) {
+  return (
+    <div className="flex gap-1" role="group" aria-label="Оценка">
+      {Array.from({ length: 5 }, (_, index) => {
+        const score = index + 1
+        return (
+          <button
+            key={score}
+            type="button"
+            onClick={() => onChange(score)}
+            className={`text-2xl transition-colors ${score <= value ? 'text-[#C88C39]' : 'text-[#C8C8C8] hover:text-[#C88C39]/70'}`}
+            aria-label={`${score} из 5`}
+          >
+            ★
+          </button>
+        )
+      })}
+    </div>
+  )
 }
 
 export default function LeaveReviewModal({
@@ -18,6 +39,7 @@ export default function LeaveReviewModal({
   onSubmit,
 }: LeaveReviewModalProps) {
   const [text, setText] = useState('')
+  const [rating, setRating] = useState(5)
   const [submitting, setSubmitting] = useState(false)
 
   useScrollLock(open)
@@ -25,6 +47,7 @@ export default function LeaveReviewModal({
   useEffect(() => {
     if (!open) {
       setText('')
+      setRating(5)
       setSubmitting(false)
     }
   }, [open])
@@ -50,7 +73,7 @@ export default function LeaveReviewModal({
     setSubmitting(true)
     try {
       if (onSubmit) {
-        await onSubmit(trimmed)
+        await onSubmit({ text: trimmed, rating })
       }
       onClose()
     } finally {
@@ -89,6 +112,11 @@ export default function LeaveReviewModal({
         </h2>
 
         <form onSubmit={handleSubmit} className="mt-5 sm:mt-6">
+          <div className="mb-4">
+            <span className="mb-2 block text-sm text-[#707070]">Ваша оценка</span>
+            <RatingPicker value={rating} onChange={setRating} />
+          </div>
+
           <label htmlFor="review-text" className="sr-only">
             Текст отзыва
           </label>

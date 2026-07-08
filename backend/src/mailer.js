@@ -39,3 +39,24 @@ export async function sendCodeEmail(to, subject, code) {
     text,
   });
 }
+
+export async function sendNewsletterWelcomeEmail(to) {
+  const from = process.env.SMTP_FROM || process.env.SMTP_USER;
+  const subject = "Вы подписаны на рассылку Коровушкино";
+  const text = `Здравствуйте!
+
+Спасибо, что подписались на рассылку «Коровушкино» и выбрали нас.
+
+Мы будем присылать новости о ферме, новых продуктах и специальных предложениях.
+
+С уважением,
+команда «Коровушкино»`;
+
+  const mailer = getTransporter();
+  await mailer.sendMail({
+    from,
+    to,
+    subject,
+    text,
+  });
+}

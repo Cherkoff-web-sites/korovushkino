@@ -1,13 +1,13 @@
 'use client'
 
 import type { ReactNode } from 'react'
-import Image from 'next/image'
 import { usePagesContent } from '@/hooks/usePagesContent'
+import ContentImage from '@/components/ui/ContentImage'
 
 function AboutImage({ src, alt, sizes }: { src: string; alt: string; sizes?: string }) {
   return (
     <div className="relative min-h-[220px] w-full overflow-hidden rounded-xl sm:min-h-[280px] lg:min-h-[360px]">
-      <Image
+      <ContentImage
         src={src}
         alt={alt}
         fill
@@ -43,8 +43,8 @@ export default function AboutPageContent() {
             <div className="lg:col-span-5">
               <h2 className="mb-3 text-[20px] font-bold leading-snug text-black">{about.origin.title}</h2>
               <BodyBlock>
-                {about.origin.paragraphs.map((paragraph) => (
-                  <p key={paragraph}>{paragraph}</p>
+                {about.origin.paragraphs.map((paragraph, index) => (
+                  <p key={index}>{paragraph}</p>
                 ))}
               </BodyBlock>
             </div>
@@ -54,8 +54,8 @@ export default function AboutPageContent() {
             <div className="lg:col-span-7">
               <h2 className="mb-3 text-[20px] font-bold leading-snug text-black">{about.farm.title}</h2>
               <BodyBlock>
-                {about.farm.paragraphs.map((paragraph) => (
-                  <p key={paragraph}>{paragraph}</p>
+                {about.farm.paragraphs.map((paragraph, index) => (
+                  <p key={index}>{paragraph}</p>
                 ))}
               </BodyBlock>
             </div>
@@ -75,8 +75,8 @@ export default function AboutPageContent() {
             <div className="lg:col-span-5">
               <h2 className="mb-3 text-[20px] font-bold leading-snug text-black">{about.production.title}</h2>
               <BodyBlock>
-                {about.production.paragraphs.map((paragraph) => (
-                  <p key={paragraph}>{paragraph}</p>
+                {about.production.paragraphs.map((paragraph, index) => (
+                  <p key={index}>{paragraph}</p>
                 ))}
               </BodyBlock>
             </div>
@@ -86,8 +86,8 @@ export default function AboutPageContent() {
             <div className="lg:col-span-7">
               <h2 className="mb-3 text-[20px] font-bold leading-snug text-black">{about.why.title}</h2>
               <BodyBlock>
-                {about.why.paragraphs.map((paragraph) => (
-                  <p key={paragraph}>{paragraph}</p>
+                {about.why.paragraphs.map((paragraph, index) => (
+                  <p key={index}>{paragraph}</p>
                 ))}
               </BodyBlock>
             </div>

@@ -16,6 +16,11 @@ export const CATEGORY_LABELS = {
 
 export type CategorySlug = keyof typeof CATEGORY_LABELS
 
+export type DescriptionBlock = {
+  type: 'p' | 'h2' | 'h3'
+  text: string
+}
+
 export interface ProductData {
   id: string
   name: string
@@ -27,6 +32,8 @@ export interface ProductData {
   categorySlug: CategorySlug
   price: number
   description: string
+  /** Структурированное описание с заголовками h2/h3 */
+  descriptionBlocks?: DescriptionBlock[]
   briefDescription?: string
   /** Текст на карточке в каталоге (2 строки с обрезкой); если нет — показывается `description`. */
   catalogCardTeaser?: string
@@ -36,6 +43,8 @@ export interface ProductData {
     kcal: string
   }
   images: string[]
+  /** Alt-тексты для images (по индексу) */
+  imageAlts?: string[]
   breadcrumbs: {
     label: string
     href: string

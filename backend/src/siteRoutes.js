@@ -1,5 +1,6 @@
 import express from "express";
 import { authMiddleware, adminMiddleware } from "./authRoutes.js";
+import { sendNewsletterWelcomeEmail } from "./mailer.js";
 import {
   appendNewsletterSubscriber,
   appendOrder,
@@ -42,6 +43,13 @@ router.post("/newsletter", async (req, res) => {
       source,
     };
     const result = await appendNewsletterSubscriber(entry);
+    if (!result.duplicate) {
+      try {
+        await sendNewsletterWelcomeEmail(email);
+      } catch (mailErr) {
+        console.error("Newsletter welcome email failed:", mailErr);
+      }
+    }
     return res.json({ ok: true, duplicate: result.duplicate });
   } catch (err) {
     console.error(err);

@@ -1,14 +1,15 @@
 'use client'
 
-import Image from 'next/image'
-import DeliveryCalculator from '@/components/delivery/DeliveryCalculator'
-import { useDeliverySettings } from '@/hooks/useDeliverySettings'
+import Link from 'next/link'
 import { usePagesContent } from '@/hooks/usePagesContent'
+import { useDeliverySettings } from '@/hooks/useDeliverySettings'
+import ContentImage from '@/components/ui/ContentImage'
 
 export default function DeliveryPaymentPageContent() {
   const { content } = usePagesContent()
   const { deliveryPayment } = content
   const { settings, hydrated } = useDeliverySettings()
+  const enabledMethods = deliveryPayment.paymentMethods.filter((method) => method.enabled)
 
   return (
     <div className="bg-[#fdfbf6] pt-8 sm:py-10">
@@ -43,7 +44,7 @@ export default function DeliveryPaymentPageContent() {
 
             <div className="overflow-hidden rounded-xl border border-[#D0D9C8] bg-[#E6F2E2]">
               <div className="relative aspect-[4/3] w-full">
-                <Image
+                <ContentImage
                   src={deliveryPayment.sideImage}
                   alt={deliveryPayment.sideImageAlt}
                   fill
@@ -56,41 +57,24 @@ export default function DeliveryPaymentPageContent() {
 
           <div className="mt-10 sm:mt-12">
             <h2 className="text-[28px] font-normal leading-tight text-[#1F1F1F] sm:text-[32px] lg:text-[36px]">
-              {deliveryPayment.calculatorTitle}
-            </h2>
-            <p className="mt-3 max-w-3xl text-sm leading-relaxed text-[#232326]/80 sm:text-[15px]">
-              {deliveryPayment.calculatorText}
-            </p>
-
-            <div className="mt-4">
-              <DeliveryCalculator
-                placeholder={deliveryPayment.calculatorPlaceholder}
-                buttonLabel={deliveryPayment.calculatorButton}
-              />
-            </div>
-          </div>
-
-          <div className="mt-10 sm:mt-12">
-            <h2 className="text-[28px] font-normal leading-tight text-[#1F1F1F] sm:text-[32px] lg:text-[36px]">
               {deliveryPayment.paymentTitle}
             </h2>
 
-            <div className="mt-4 grid gap-2 sm:grid-cols-3 sm:gap-3">
-              {deliveryPayment.paymentMethods.map((method) => (
-                <button
-                  key={method.id}
-                  type="button"
-                  disabled={!method.enabled}
-                  className={`min-h-[48px] rounded-lg border px-3 text-sm transition-colors sm:text-[15px] ${
-                    !method.enabled
-                      ? 'border-[#E5DECF] bg-[#FFF8EB] text-[#232326]/40'
-                      : 'border-[#3D8C13] bg-[#3D8C13] font-medium text-white hover:bg-[#347710]'
-                  }`}
-                >
-                  {method.label}
-                </button>
-              ))}
-            </div>
+            {enabledMethods.length === 0 ? (
+              <p className="mt-4 text-sm text-[#707070]">Способы оплаты временно недоступны.</p>
+            ) : (
+              <div className="mt-4 grid gap-2 sm:grid-cols-3 sm:gap-3">
+                {enabledMethods.map((method) => (
+                  <Link
+                    key={method.id}
+                    href="/checkout"
+                    className="flex min-h-[48px] items-center justify-center rounded-lg border border-[#3D8C13] bg-[#3D8C13] px-3 text-center text-sm font-medium text-white transition-colors hover:bg-[#347710] sm:text-[15px]"
+                  >
+                    {method.label}
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>

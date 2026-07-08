@@ -1,7 +1,6 @@
 'use client'
 
 import {
-  PAYMENT_METHODS,
   type PaymentMethodId,
 } from '@/components/checkout/checkoutTypes'
 import {
@@ -11,7 +10,14 @@ import {
 } from '@/components/checkout/checkoutStyles'
 import { BankIcon, CardIcon, CashIcon, EditIcon } from '@/components/checkout/CheckoutIcons'
 
+type PaymentMethodOption = {
+  id: PaymentMethodId
+  label: string
+  summaryLabel: string
+}
+
 type CheckoutPaymentSectionProps = {
+  methods: PaymentMethodOption[]
   method: PaymentMethodId | null
   editing: boolean
   onStartEdit: () => void
@@ -24,17 +30,18 @@ function PaymentMethodIcon({ id }: { id: PaymentMethodId }) {
   return <BankIcon className="h-6 w-6 text-[#232326]/55" />
 }
 
-function getSummaryLabel(method: PaymentMethodId) {
-  return PAYMENT_METHODS.find((item) => item.id === method)?.summaryLabel ?? ''
+function getSummaryLabel(methods: PaymentMethodOption[], method: PaymentMethodId) {
+  return methods.find((item) => item.id === method)?.summaryLabel ?? ''
 }
 
 export default function CheckoutPaymentSection({
+  methods,
   method,
   editing,
   onStartEdit,
   onSelect,
 }: CheckoutPaymentSectionProps) {
-  const summary = method ? getSummaryLabel(method) : ''
+  const summary = method ? getSummaryLabel(methods, method) : ''
 
   return (
     <section className={checkoutSectionClass}>
@@ -58,7 +65,7 @@ export default function CheckoutPaymentSection({
         <div className={`mt-4 border-t ${checkoutSectionDividerClass} pt-4`}>
           <p className="mb-3 text-sm text-[#232326]/70">Выберите способ оплаты</p>
           <ul className="space-y-2">
-            {PAYMENT_METHODS.map((item) => {
+            {methods.map((item) => {
               const selected = method === item.id
               return (
                 <li key={item.id}>

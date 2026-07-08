@@ -26,6 +26,7 @@ import { useDeliverySettings } from '@/hooks/useDeliverySettings'
 import { calculateDeliveryQuote } from '@/lib/deliveryPricing'
 import type { DeliveryQuote } from '@/lib/deliveryPricing'
 import { submitCheckoutOrder } from '@/lib/leadsService'
+import { useEnabledPaymentMethods } from '@/hooks/useEnabledPaymentMethods'
 
 export default function CheckoutPage() {
   const router = useRouter()
@@ -33,6 +34,7 @@ export default function CheckoutPage() {
   const { showToast } = useToast()
   const { items, updateQuantity, removeItem, getTotalPrice, clearCart } = useCart()
   const { settings: deliverySettings } = useDeliverySettings()
+  const { methods: paymentMethods, defaultMethod } = useEnabledPaymentMethods()
 
   const [hydrated, setHydrated] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
@@ -43,7 +45,7 @@ export default function CheckoutPage() {
   const [deliveryTime, setDeliveryTime] = useState<DeliveryTime | null>(DEFAULT_DELIVERY_TIME)
   const [deliveryTimeEditing, setDeliveryTimeEditing] = useState(false)
   const [deliveryTimeDraft, setDeliveryTimeDraft] = useState<DeliveryTime>(DEFAULT_DELIVERY_TIME)
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethodId | null>('transfer')
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethodId | null>(null)
   const [paymentEditing, setPaymentEditing] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -51,6 +53,12 @@ export default function CheckoutPage() {
   useEffect(() => {
     setHydrated(true)
   }, [])
+
+  useEffect(() => {
+    if (defaultMethod && !paymentMethod) {
+      setPaymentMethod(defaultMethod)
+    }
+  }, [defaultMethod, paymentMethod])
 
   useEffect(() => {
     if (!user) return
@@ -251,6 +259,7 @@ export default function CheckoutPage() {
               />
 
               <CheckoutPaymentSection
+                methods={paymentMethods}
                 method={paymentMethod}
                 editing={paymentEditing}
                 onStartEdit={() => setPaymentEditing(true)}

@@ -162,9 +162,10 @@ function mergeHomeContent(parsed: Partial<HomeContent>): HomeContent {
     reviews: {
       ...DEFAULT_HOME_CONTENT.reviews,
       ...parsed.reviews,
-      items: parsed.reviews?.items?.length
-        ? parsed.reviews.items
-        : DEFAULT_HOME_CONTENT.reviews.items,
+      items:
+        parsed.reviews?.items !== undefined
+          ? parsed.reviews.items
+          : DEFAULT_HOME_CONTENT.reviews.items,
     },
   }
 }

@@ -1,5 +1,4 @@
 import { appendNewsletterSubscriber, appendStoredOrder, type StoredOrder } from '@/lib/adminDataStore'
-import { ADMIN_PREVIEW } from '@/lib/adminPreview'
 import { request } from '@/lib/api/httpClient'
 import type { CartItem } from '@/contexts/CartContext'
 import type { DeliveryAddress, DeliveryTime, PaymentMethodId } from '@/components/checkout/checkoutTypes'
@@ -62,10 +61,7 @@ function toStoredOrder(payload: SubmitOrderPayload): StoredOrder {
 
 export async function submitCheckoutOrder(payload: SubmitOrderPayload) {
   const order = toStoredOrder(payload)
-
-  if (ADMIN_PREVIEW) {
-    appendStoredOrder(order)
-  }
+  appendStoredOrder(order)
 
   try {
     await request<{ ok: true }>('/api/orders', {
@@ -73,27 +69,22 @@ export async function submitCheckoutOrder(payload: SubmitOrderPayload) {
       body: JSON.stringify(order),
     })
   } catch {
-    if (ADMIN_PREVIEW) {
-      // В preview-режиме заказ уже сохранён в localStorage.
-    }
+    // Заказ уже сохранён локально для админки
   }
 
   return order
 }
 
 export async function subscribeToNewsletter(email: string, source = 'footer') {
-  const added = ADMIN_PREVIEW ? appendNewsletterSubscriber(email, source) : false
+  const added = appendNewsletterSubscriber(email, source)
 
   try {
     const response = await request<{ ok: true; duplicate?: boolean }>('/api/newsletter', {
       method: 'POST',
       body: JSON.stringify({ email, source }),
     })
-    return ADMIN_PREVIEW ? added : !response.duplicate
+    return response.duplicate ? false : true
   } catch {
-    if (ADMIN_PREVIEW) {
-      return added
-    }
-    return false
+    return added
   }
 }

@@ -5,6 +5,8 @@ import LeaveReviewModal from '@/components/reviews/LeaveReviewModal'
 import ReviewAccountAvatar from '@/components/reviews/ReviewAccountAvatar'
 import { useAuth } from '@/contexts/AuthContext'
 import { useHomeContent } from '@/hooks/useHomeContent'
+import { useToast } from '@/contexts/ToastContext'
+import { averageReviewRating } from '@/lib/reviewRating'
 
 function StarRow({ count }: { count: number }) {
   return (
@@ -20,7 +22,8 @@ function StarRow({ count }: { count: number }) {
 
 export default function ReviewsSection() {
   const { user, loading, openLoginModal } = useAuth()
-  const { content } = useHomeContent()
+  const { content, save } = useHomeContent()
+  const { showToast } = useToast()
   const reviews = content.reviews.items
   const [index, setIndex] = useState(0)
   const [reviewModalOpen, setReviewModalOpen] = useState(false)
@@ -43,6 +46,32 @@ export default function ReviewsSection() {
     setIndex(i)
   }, [])
 
+  const handleSubmitReview = useCallback(
+    async ({ text, rating }: { text: string; rating: number }) => {
+      const authorName =
+        [user?.firstName, user?.surname].filter(Boolean).join(' ') || user?.email || 'Покупатель'
+      const newReview = {
+        id: `review-${Date.now()}`,
+        authorName,
+        date: new Date().toLocaleDateString('ru-RU'),
+        replyDate: '',
+        productLabel: active?.productLabel || 'нашу продукцию',
+        rating,
+        text,
+        replyText: '',
+      }
+      save({
+        ...content,
+        reviews: {
+          ...content.reviews,
+          items: [newReview, ...content.reviews.items],
+        },
+      })
+      showToast('Спасибо! Отзыв отправлен на модерацию')
+    },
+    [active?.productLabel, content, save, showToast, user]
+  )
+
   const handleLeaveReview = useCallback(() => {
     if (loading) return
     if (!user) {
@@ -57,13 +86,42 @@ export default function ReviewsSection() {
     [reviews]
   )
 
-  if (!active) return null
+  if (!active) {
+    return (
+      <section id="reviews" className="relative z-10 bg-[#fdfbf6] py-10 sm:py-12 lg:py-14">
+        <div className="container">
+          <h2 className="mb-[40px] text-[36px] font-normal leading-tight text-black">
+            {content.reviews.sectionTitle}
+          </h2>
+          <p className="text-[#707070]">Отзывов пока нет. Будьте первым!</p>
+          <button
+            type="button"
+            onClick={handleLeaveReview}
+            className="mt-6 rounded-lg bg-[#3D8C13] px-6 py-3 text-white hover:bg-[#367c11]"
+          >
+            {content.reviews.leaveReviewButton}
+          </button>
+          <LeaveReviewModal
+            open={reviewModalOpen}
+            onClose={() => setReviewModalOpen(false)}
+            productName="нашу продукцию"
+            onSubmit={handleSubmitReview}
+          />
+        </div>
+      </section>
+    )
+  }
+
+  const averageRating = averageReviewRating(reviews)
 
   return (
     <section id="reviews" className="relative z-10 bg-[#fdfbf6] py-10 sm:py-12 lg:py-14">
       <div className="container">
         <h2 className="mb-[40px] text-[36px] font-normal leading-tight text-black">
           {content.reviews.sectionTitle}
+          {reviews.length > 0 ? (
+            <span className="ml-3 text-lg text-[#C88C39]">★ {averageRating.toFixed(1)}</span>
+          ) : null}
         </h2>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
@@ -168,6 +226,7 @@ export default function ReviewsSection() {
         open={reviewModalOpen}
         onClose={() => setReviewModalOpen(false)}
         productName={active.productLabel}
+        onSubmit={handleSubmitReview}
       />
     </section>
   )

@@ -17,7 +17,7 @@ export default function FavoritesEntryButton({ className, onNavigate }: Favorite
   const icon = <Image src="/images/header/icon-favorites.svg" alt="" width={22} height={22} />
 
   const badge =
-    favoriteCount > 0 ? (
+    user && favoriteCount > 0 ? (
       <span className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-600 px-0.5 text-[10px] font-bold leading-none text-white ring-2 ring-[#3D8C13]">
         {favoriteCount > 9 ? '9+' : favoriteCount}
       </span>

@@ -253,6 +253,19 @@ export default function SiteContentEditor() {
                 }
               />
             </Field>
+            <Field label="Текст после телефона">
+              <textarea
+                rows={3}
+                className={`${adminInputClass} resize-y`}
+                value={draft.returnsModal.afterPhoneText}
+                onChange={(e) =>
+                  update((p) => ({
+                    ...p,
+                    returnsModal: { ...p.returnsModal, afterPhoneText: e.target.value },
+                  }))
+                }
+              />
+            </Field>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label="Телефон в тексте">
                 <input

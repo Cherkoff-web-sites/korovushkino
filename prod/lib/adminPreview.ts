@@ -2,11 +2,13 @@ import {
   getCatalogProducts,
   productsData,
   type CategorySlug,
+  type DescriptionBlock,
   type ProductData,
   CATEGORY_LABELS,
   productBreadcrumbs,
 } from '@/lib/api/productsData'
 import { readPreviewProducts } from '@/lib/previewProductsStore'
+import { productUrlSlug } from '@/lib/productSeo'
 
 /** Локальный режим админки без backend (перед продом — false). */
 export const ADMIN_PREVIEW = true
@@ -19,7 +21,8 @@ export function getPreviewProducts(): ProductData[] {
 }
 
 export function getPreviewProduct(id: string): ProductData | null {
-  const fromStore = getPreviewProducts().find((item) => item.id === id)
+  const products = getPreviewProducts()
+  const fromStore = products.find((item) => item.id === id || productUrlSlug(item) === id)
   if (fromStore) return fromStore
   return productsData[id] ?? null
 }
@@ -53,6 +56,9 @@ export function buildPreviewProduct(payload: Record<string, unknown>, existingId
     categorySlug,
     price: Number(payload.price) || 0,
     description: String(payload.description || '').trim(),
+    descriptionBlocks: Array.isArray(payload.descriptionBlocks)
+      ? (payload.descriptionBlocks as DescriptionBlock[])
+      : undefined,
     briefDescription: String(payload.briefDescription || '').trim(),
     catalogCardTeaser: String(payload.catalogCardTeaser || '').trim() || undefined,
     modalNutrition:
@@ -67,6 +73,9 @@ export function buildPreviewProduct(payload: Record<string, unknown>, existingId
           }
         : undefined,
     images: images.length > 0 ? images : ['/images/home/hero-bg.png'],
+    imageAlts: Array.isArray(payload.imageAlts)
+      ? payload.imageAlts.map((item) => String(item).trim())
+      : undefined,
     breadcrumbs: productBreadcrumbs(name, categorySlug),
     urlSlug: slugifyId(String(payload.urlSlug || id)) || id,
     seo: {

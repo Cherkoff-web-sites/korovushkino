@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import {
   ADMIN_NAV_ITEMS,
@@ -9,14 +9,24 @@ import {
   isAdminNavActive,
 } from './adminNav'
 import AdminNavIcon from './AdminNavIcon'
+import { apiLogout } from '@/lib/api/authApi'
 
 export default function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname()
+  const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
 
   function handleNavigate() {
     setMobileOpen(false)
     onNavigate?.()
+  }
+
+  function handleLogout() {
+    apiLogout()
+    setMobileOpen(false)
+    onNavigate?.()
+    router.push('/')
+    router.refresh()
   }
 
   const sidebarContent = (
@@ -62,7 +72,7 @@ export default function AdminSidebar({ onNavigate }: { onNavigate?: () => void }
         })}
       </nav>
 
-      <div className="border-t border-white/10 px-3 py-4">
+      <div className="space-y-1 border-t border-white/10 px-3 py-4">
         <Link
           href="/"
           onClick={handleNavigate}
@@ -71,6 +81,17 @@ export default function AdminSidebar({ onNavigate }: { onNavigate?: () => void }
           <AdminNavIcon type="site" />
           На сайт
         </Link>
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-white/75 transition-colors hover:bg-red-500/20 hover:text-white"
+        >
+          <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+            <path d="M15 12H3m0 0 4-4m-4 4 4 4" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M9 5V4a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2h-7a2 2 0 0 1-2-2v-1" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Выйти из админки
+        </button>
       </div>
     </div>
   )

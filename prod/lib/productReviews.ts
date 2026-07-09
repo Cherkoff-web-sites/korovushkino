@@ -12,7 +12,9 @@ function slugifyLabel(label: string) {
   return label.trim().toLowerCase().replace(/\s+/g, '-')
 }
 
-export function reviewMatchesProduct(review: ReviewLike, product: ProductData): boolean {
+export type ProductReviewTarget = Pick<ProductData, 'id' | 'name' | 'urlSlug'>
+
+export function reviewMatchesProduct(review: ReviewLike, product: ProductReviewTarget): boolean {
   const slug = productUrlSlug(product)
   const reviewProductId = String(review.productId || '').trim()
   const label = String(review.productLabel || '').trim()
@@ -33,11 +35,14 @@ export function reviewMatchesProduct(review: ReviewLike, product: ProductData): 
   return false
 }
 
-export function getReviewsForProduct<T extends ReviewLike>(reviews: T[], product: ProductData): T[] {
+export function getReviewsForProduct<T extends ReviewLike>(
+  reviews: T[],
+  product: ProductReviewTarget
+): T[] {
   return reviews.filter((review) => reviewMatchesProduct(review, product))
 }
 
-export function getProductRatingStats(reviews: ReviewLike[], product: ProductData) {
+export function getProductRatingStats(reviews: ReviewLike[], product: ProductReviewTarget) {
   const productReviews = getReviewsForProduct(reviews, product)
   return {
     rating: productReviews.length ? averageReviewRating(productReviews) : 0,

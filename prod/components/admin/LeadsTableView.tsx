@@ -5,7 +5,9 @@ import {
   type StoredContactLead,
   type StoredOrder,
 } from '@/lib/adminDataStore'
-import { adminFetchContacts, adminFetchOrders } from '@/lib/api/adminSiteApi'
+import { adminFetchContacts, adminFetchOrders, adminUpdateOrderStatus } from '@/lib/api/adminSiteApi'
+import { ORDER_STATUSES, formatOrderItemsSummary, normalizeOrderStatus } from '@/lib/orderStatuses'
+import { parseOrderItems } from '@/lib/userOrders'
 import { adminInputClass, adminPanelClass, adminTableHeadClass } from './adminStyles'
 
 type LeadsColumn = { key: string; label: string }
@@ -21,7 +23,10 @@ type LeadsTableViewProps = {
 type LeadRow = Record<string, string | number>
 
 function toOrderRow(order: StoredOrder): LeadRow {
+  const items = parseOrderItems(order)
+
   return {
+    id: order.id,
     date: order.date,
     name: order.name,
     email: order.email,
@@ -30,9 +35,9 @@ function toOrderRow(order: StoredOrder): LeadRow {
       typeof order.deliveryCost === 'number' ? `${order.deliveryCost.toLocaleString('ru-RU')} ₽` : '—',
     address: order.address || '—',
     items: order.itemsCount,
-    summary: order.summary,
+    summary: formatOrderItemsSummary(items, order.summary),
     payment: order.paymentMethod || '—',
-    status: order.status,
+    status: normalizeOrderStatus(order.status),
   }
 }
 
@@ -57,6 +62,7 @@ export default function LeadsTableView({
 }: LeadsTableViewProps) {
   const [rows, setRows] = useState<LeadRow[]>([])
   const [query, setQuery] = useState('')
+  const [statusUpdatingId, setStatusUpdatingId] = useState<string | null>(null)
 
   const reload = useCallback(async () => {
     if (dataSource === 'orders') {
@@ -86,6 +92,21 @@ export default function LeadsTableView({
     }
   }, [dataSource, reload])
 
+  async function handleOrderStatusChange(orderId: string, status: string) {
+    setStatusUpdatingId(orderId)
+    try {
+      await adminUpdateOrderStatus(orderId, status)
+      setRows((prev) =>
+        prev.map((row) => (String(row.id) === orderId ? { ...row, status } : row))
+      )
+      window.dispatchEvent(new Event('admin-orders-updated'))
+    } catch {
+      await reload()
+    } finally {
+      setStatusUpdatingId(null)
+    }
+  }
+
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase()
     if (!needle) return rows
@@ -93,6 +114,34 @@ export default function LeadsTableView({
       columns.some((column) => String(row[column.key] ?? '').toLowerCase().includes(needle))
     )
   }, [columns, query, rows])
+
+  function renderCell(column: LeadsColumn, row: LeadRow) {
+    if (dataSource === 'orders' && column.key === 'status') {
+      const orderId = String(row.id || '')
+      return (
+        <select
+          value={String(row.status || ORDER_STATUSES[0])}
+          disabled={!orderId || statusUpdatingId === orderId}
+          onChange={(event) => void handleOrderStatusChange(orderId, event.target.value)}
+          className={`${adminInputClass} min-w-[140px] py-2`}
+        >
+          {ORDER_STATUSES.map((status) => (
+            <option key={status} value={status}>
+              {status}
+            </option>
+          ))}
+        </select>
+      )
+    }
+
+    const value = row[column.key] ?? '—'
+
+    if (column.key === 'summary') {
+      return <span className="whitespace-pre-line">{value}</span>
+    }
+
+    return value
+  }
 
   return (
     <div>
@@ -148,10 +197,13 @@ export default function LeadsTableView({
               </tr>
             ) : (
               filtered.map((row, index) => (
-                <tr key={index} className="border-t border-[#e8eaef]">
+                <tr key={String(row.id ?? index)} className="border-t border-[#e8eaef]">
                   {columns.map((column) => (
-                    <td key={column.key} className="px-4 py-3">
-                      {row[column.key] ?? '—'}
+                    <td
+                      key={column.key}
+                      className={`px-4 py-3 align-top ${column.key === 'summary' ? 'min-w-[220px]' : ''}`}
+                    >
+                      {renderCell(column, row)}
                     </td>
                   ))}
                 </tr>

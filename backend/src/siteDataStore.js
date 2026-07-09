@@ -67,7 +67,7 @@ export async function listOrders() {
 
 export async function appendOrder(order) {
   const id = String(order?.id || `ord-${Date.now()}`);
-  const data = { ...order, id };
+  const data = { ...order, id, status: normalizeStatus(order?.status) };
   await query(
     `INSERT INTO orders (id, email, status, data)
      VALUES ($1, $2, $3, $4::jsonb)
@@ -76,9 +76,24 @@ export async function appendOrder(order) {
          status = EXCLUDED.status,
          data = EXCLUDED.data,
          updated_at = NOW()`,
-    [id, normalizeEmail(data.email), normalizeStatus(data.status), JSON.stringify(data)]
+    [id, normalizeEmail(data.email), data.status, JSON.stringify(data)]
   );
   return data;
+}
+
+export async function updateOrder(id, patch) {
+  const result = await query("SELECT data FROM orders WHERE id = $1", [id]);
+  const current = rowData(result.rows[0]);
+  if (!current) return null;
+
+  const next = {
+    ...current,
+    ...patch,
+    id: String(current.id || id),
+    status: patch?.status ? normalizeStatus(patch.status) : normalizeStatus(current.status),
+  };
+
+  return appendOrder(next);
 }
 
 export async function replaceOrders(items) {

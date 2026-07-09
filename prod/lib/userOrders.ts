@@ -1,11 +1,8 @@
 import type { StoredOrder, StoredOrderItem } from '@/lib/adminDataStore'
 import { fetchMyOrders } from '@/lib/api/userOrdersApi'
+import { isActiveOrderStatus } from '@/lib/orderStatuses'
 
-const ACTIVE_STATUSES = new Set(['Новый', 'В обработке', 'В пути'])
-
-export function isActiveOrderStatus(status: string) {
-  return ACTIVE_STATUSES.has(status.trim())
-}
+export { isActiveOrderStatus }
 
 export function parseOrderItems(order: StoredOrder): StoredOrderItem[] {
   if (order.items?.length) return order.items

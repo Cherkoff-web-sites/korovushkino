@@ -9,8 +9,11 @@ import { TaggedHeading } from '@/components/ui/RenderTaggedContent'
 import { resolveHeadingTag } from '@/lib/contentBlocks'
 import { useToast } from '@/contexts/ToastContext'
 import type { HomeReviewItem } from '@/lib/homeContent'
+import { getCatalogProducts } from '@/lib/api/productsData'
+import { fetchCatalogProducts } from '@/lib/api/productsClient'
+import type { ProductData } from '@/lib/api/productsData'
 import { averageReviewRating } from '@/lib/reviewRating'
-import { mergePublishedReviews } from '@/lib/reviewsDisplay'
+import { selectHomePageReviews } from '@/lib/reviewsDisplay'
 import { fetchPublishedReviews, readApprovedReviews, submitUserReview } from '@/lib/userReviewsStore'
 
 function StarRow({ count }: { count: number }) {
@@ -30,6 +33,7 @@ export default function ReviewsSection() {
   const { content } = useHomeContent()
   const { showToast } = useToast()
   const [approvedUserReviews, setApprovedUserReviews] = useState(() => readApprovedReviews())
+  const [products, setProducts] = useState<ProductData[]>(() => getCatalogProducts())
   const [index, setIndex] = useState(0)
   const [reviewModalOpen, setReviewModalOpen] = useState(false)
 
@@ -44,15 +48,31 @@ export default function ReviewsSection() {
     }
   }, [])
 
+  useEffect(() => {
+    void fetchCatalogProducts().then((nextProducts) => {
+      if (nextProducts.length > 0) {
+        setProducts(nextProducts)
+      }
+    })
+  }, [])
+
   const reviews: HomeReviewItem[] = useMemo(
     () =>
-      mergePublishedReviews(
+      selectHomePageReviews(
         content.reviews.items,
         approvedUserReviews,
-        content.reviews.replyAuthorLabel
+        content.reviews.replyAuthorLabel,
+        products
       ),
-    [approvedUserReviews, content.reviews.items, content.reviews.replyAuthorLabel]
+    [approvedUserReviews, content.reviews.items, content.reviews.replyAuthorLabel, products]
   )
+
+  useEffect(() => {
+    setIndex((current) => {
+      if (reviews.length === 0) return 0
+      return current >= reviews.length ? 0 : current
+    })
+  }, [reviews.length])
 
   const total = reviews.length
   const clamped = total > 0 ? ((index % total) + total) % total : 0

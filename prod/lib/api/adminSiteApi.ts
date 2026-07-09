@@ -22,6 +22,13 @@ export async function adminFetchOrders() {
   return request<{ orders: StoredOrder[] }>('/api/admin/orders')
 }
 
+export async function adminUpdateOrderStatus(orderId: string, status: string) {
+  return request<{ ok: true; order: StoredOrder }>(`/api/admin/orders/${encodeURIComponent(orderId)}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  })
+}
+
 export async function adminFetchContacts() {
   return request<{ contacts: unknown[] }>('/api/admin/contacts')
 }

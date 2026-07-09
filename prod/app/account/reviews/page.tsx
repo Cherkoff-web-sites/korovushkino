@@ -2,8 +2,10 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import LeaveReviewModal from '@/components/reviews/LeaveReviewModal'
+import ReviewAccountAvatar from '@/components/reviews/ReviewAccountAvatar'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/contexts/ToastContext'
+import { useHomeContent } from '@/hooks/useHomeContent'
 import { useUserOrders } from '@/hooks/useUserOrders'
 import {
   fetchMyReviews,
@@ -29,6 +31,7 @@ function StarRow({ count }: { count: number }) {
 export default function AccountReviewsPage() {
   const { user } = useAuth()
   const { showToast } = useToast()
+  const { content: homeContent } = useHomeContent()
   const { orders, loading: ordersLoading } = useUserOrders()
   const email = user?.email || user?.login || ''
 
@@ -150,6 +153,27 @@ export default function AccountReviewsPage() {
                   </div>
                 </div>
                 <p className="mt-3 text-sm leading-relaxed text-[#232326]">{review.text}</p>
+
+                {review.replyText?.trim() ? (
+                  <div className="ml-4 mt-5 rounded-lg border border-[#D2B48C]/80 bg-[#FFF6E7] p-4 sm:ml-6 sm:p-5">
+                    <div className="flex flex-wrap items-start gap-3">
+                      <ReviewAccountAvatar size="sm" />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-baseline justify-between gap-2">
+                          <span className="text-sm font-medium text-black">
+                            {homeContent.reviews.replyAuthorLabel}
+                          </span>
+                          {review.replyDate ? (
+                            <time className="text-xs text-[#707070]" dateTime={review.replyDate}>
+                              {review.replyDate}
+                            </time>
+                          ) : null}
+                        </div>
+                        <p className="mt-2 text-sm leading-relaxed text-[#232326]">{review.replyText}</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
               </li>
             ))}
           </ul>

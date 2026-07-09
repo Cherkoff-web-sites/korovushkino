@@ -20,6 +20,7 @@ import {
   restoreSiteData,
   saveDeliverySettings,
   saveSiteContent,
+  updateOrder,
   updateReview,
   upsertClientProfile,
 } from "./siteDataStore.js";
@@ -214,6 +215,27 @@ adminRouter.get("/orders", async (_req, res) => {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Не удалось загрузить заказы" });
+  }
+});
+
+adminRouter.patch("/orders/:id", async (req, res) => {
+  const id = String(req.params.id || "");
+  const status = String(req.body?.status || "").trim();
+  const allowed = new Set(["Новый", "В работе", "Собран", "Доставлен"]);
+
+  if (!id || !allowed.has(status)) {
+    return res.status(400).json({ error: "Некорректный статус заказа" });
+  }
+
+  try {
+    const updated = await updateOrder(id, { status });
+    if (!updated) {
+      return res.status(404).json({ error: "Заказ не найден" });
+    }
+    return res.json({ ok: true, order: updated });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Не удалось обновить заказ" });
   }
 });
 

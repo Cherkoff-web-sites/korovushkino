@@ -1,9 +1,4 @@
-import {
-  HOME_REVIEW_BODY,
-  HOME_REVIEW_VARIANTS,
-  REPLY_AUTHOR_LABEL,
-  replyTextForAuthor,
-} from '@/lib/reviewsData'
+import { REPLY_AUTHOR_LABEL } from '@/lib/reviewsData'
 import type { HeadingTag } from '@/lib/contentBlocks'
 import { resolveHeadingTag } from '@/lib/contentBlocks'
 
@@ -74,21 +69,6 @@ export type HomeContent = {
     replyAuthorLabel: string
     items: HomeReviewItem[]
   }
-}
-
-function buildDefaultReviewItems(): HomeReviewItem[] {
-  return HOME_REVIEW_VARIANTS.map((variant) => ({
-    id: variant.id,
-    authorName: variant.authorName,
-    date: variant.date,
-    replyDate: variant.replyDate,
-    productLabel: 'Козье молоко',
-    rating: 5,
-    text: HOME_REVIEW_BODY,
-    textTag: 'p',
-    replyText: replyTextForAuthor(variant.authorName),
-    replyTextTag: 'p',
-  }))
 }
 
 export const DEFAULT_HOME_CONTENT: HomeContent = {
@@ -236,7 +216,7 @@ export const DEFAULT_HOME_CONTENT: HomeContent = {
     leaveReviewButton: 'Оставить отзыв',
     allReviewsButton: 'Все отзывы',
     replyAuthorLabel: REPLY_AUTHOR_LABEL,
-    items: buildDefaultReviewItems(),
+    items: [],
   },
 }
 

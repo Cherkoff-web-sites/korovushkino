@@ -96,3 +96,51 @@ a {
   animation: modal-panel-in 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-enter {
+  animation: page-enter 0.34s ease-out;
+}
+
+@keyframes page-transition-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.page-transition-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(253, 251, 246, 0.72);
+  backdrop-filter: blur(2px);
+  opacity: 1;
+  transition: opacity 0.22s ease;
+  pointer-events: none;
+}
+
+.page-transition-overlay--out {
+  opacity: 0;
+}
+
+.page-transition-spinner {
+  width: 42px;
+  height: 42px;
+  border-radius: 9999px;
+  border: 3px solid rgba(61, 140, 19, 0.18);
+  border-top-color: #3d8c13;
+  animation: page-transition-spin 0.75s linear infinite;
+}
+

@@ -430,7 +430,7 @@ async function buildBackupPayload(section) {
     listClients(),
   ]);
   const full = {
-    version: 5,
+    version: 6,
     exportedAt: new Date().toISOString(),
     products,
     order,

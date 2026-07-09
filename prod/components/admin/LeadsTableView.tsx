@@ -62,6 +62,7 @@ export default function LeadsTableView({
 }: LeadsTableViewProps) {
   const [rows, setRows] = useState<LeadRow[]>([])
   const [query, setQuery] = useState('')
+  const [statusFilter, setStatusFilter] = useState<string>('all')
   const [statusUpdatingId, setStatusUpdatingId] = useState<string | null>(null)
 
   const reload = useCallback(async () => {
@@ -108,12 +109,19 @@ export default function LeadsTableView({
   }
 
   const filtered = useMemo(() => {
+    let result = rows
+
+    if (dataSource === 'orders' && statusFilter !== 'all') {
+      result = result.filter((row) => String(row.status) === statusFilter)
+    }
+
     const needle = query.trim().toLowerCase()
-    if (!needle) return rows
-    return rows.filter((row) =>
+    if (!needle) return result
+
+    return result.filter((row) =>
       columns.some((column) => String(row[column.key] ?? '').toLowerCase().includes(needle))
     )
-  }, [columns, query, rows])
+  }, [columns, dataSource, query, rows, statusFilter])
 
   function renderCell(column: LeadsColumn, row: LeadRow) {
     if (dataSource === 'orders' && column.key === 'status') {
@@ -163,8 +171,20 @@ export default function LeadsTableView({
         </label>
         <label className="min-w-[140px]">
           <span className="mb-1.5 block text-xs text-[#707070]">Статус</span>
-          <select disabled className={adminInputClass}>
-            <option>Все</option>
+          <select
+            value={statusFilter}
+            onChange={(event) => setStatusFilter(event.target.value)}
+            disabled={dataSource !== 'orders'}
+            className={adminInputClass}
+          >
+            <option value="all">Все</option>
+            {dataSource === 'orders'
+              ? ORDER_STATUSES.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))
+              : null}
           </select>
         </label>
         <label className="min-w-[140px]">

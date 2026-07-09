@@ -1,5 +1,4 @@
 import type { StoredOrder, StoredOrderItem } from '@/lib/adminDataStore'
-import { readStoredOrders } from '@/lib/adminDataStore'
 import { fetchMyOrders } from '@/lib/api/userOrdersApi'
 
 const ACTIVE_STATUSES = new Set(['Новый', 'В обработке', 'В пути'])
@@ -28,34 +27,15 @@ export function parseOrderItems(order: StoredOrder): StoredOrderItem[] {
     .filter((item): item is StoredOrderItem => item !== null)
 }
 
-function mergeOrders(local: StoredOrder[], remote: StoredOrder[]) {
-  const map = new Map<string, StoredOrder>()
-  for (const order of [...remote, ...local]) {
-    const existing = map.get(order.id)
-    if (!existing) {
-      map.set(order.id, order)
-      continue
-    }
-    map.set(order.id, {
-      ...existing,
-      ...order,
-      items: order.items?.length ? order.items : existing.items,
-    })
-  }
-  return Array.from(map.values()).sort((a, b) => b.id.localeCompare(a.id))
-}
-
 export async function getOrdersForUser(email: string): Promise<StoredOrder[]> {
   const normalized = email.trim().toLowerCase()
   if (!normalized) return []
 
-  const local = readStoredOrders().filter((order) => order.email.trim().toLowerCase() === normalized)
-
   try {
     const data = await fetchMyOrders()
-    return mergeOrders(local, data.orders)
+    return data.orders
   } catch {
-    return local
+    return []
   }
 }
 

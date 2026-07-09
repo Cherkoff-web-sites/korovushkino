@@ -71,6 +71,35 @@ export function normalizeProduct(body, existingId) {
         }
       : undefined;
 
+  const descriptionBlocks = Array.isArray(body.descriptionBlocks)
+    ? body.descriptionBlocks
+        .map((item) => ({
+          type: ["p", "h2", "h3"].includes(item?.type) ? item.type : "p",
+          text: String(item?.text || "").trim(),
+        }))
+        .filter((item) => item.text)
+    : undefined;
+
+  const imageAlts = Array.isArray(body.imageAlts)
+    ? body.imageAlts.map((item) => String(item || "").trim())
+    : undefined;
+
+  const parametersTable = Array.isArray(body.parametersTable)
+    ? body.parametersTable
+        .map((table) => ({
+          title: String(table?.title || "").trim(),
+          headers: Array.isArray(table?.headers)
+            ? table.headers.map((item) => String(item || "").trim())
+            : [],
+          rows: Array.isArray(table?.rows)
+            ? table.rows.map((row) =>
+                Array.isArray(row) ? row.map((cell) => String(cell || "").trim()) : []
+              )
+            : [],
+        }))
+        .filter((table) => table.title || table.headers.length || table.rows.length)
+    : undefined;
+
   const seoTitle = String(body.seo?.title || "").trim();
   const seoDescription = String(body.seo?.description || "").trim();
   const seoKeywords = String(body.seo?.keywords || "").trim();
@@ -91,15 +120,18 @@ export function normalizeProduct(body, existingId) {
     categorySlug,
     price,
     description,
+    descriptionBlocks,
     briefDescription: String(body.briefDescription || "").trim(),
     catalogCardTeaser: String(body.catalogCardTeaser || "").trim() || undefined,
     modalNutrition,
     images: images.length > 0 ? images : ["/images/home/hero-bg.png"],
+    imageAlts,
     breadcrumbs: productBreadcrumbs(name, categorySlug),
     urlSlug: slugifyId(body.urlSlug || body.id || id) || id,
     seo,
     advantages: Array.isArray(body.advantages)
       ? body.advantages.map((item) => String(item).trim()).filter(Boolean)
       : undefined,
+    parametersTable,
   };
 }

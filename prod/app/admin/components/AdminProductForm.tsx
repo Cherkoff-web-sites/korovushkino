@@ -83,7 +83,7 @@ export default function AdminProductForm({
 
   useEffect(() => {
     setValues(toFormValues(initialProduct))
-  }, [initialProduct])
+  }, [initialProduct?.id])
 
   const previewPath = useMemo(() => {
     const slug = productUrlSlug({ id: values.id || 'novyj-tovar', urlSlug: values.urlSlug })

@@ -3,7 +3,9 @@
 import type { DeliveryTime } from '@/components/checkout/checkoutTypes'
 import {
   checkoutInputClass,
+  checkoutInputErrorClass,
   checkoutSectionClass,
+  checkoutSectionErrorClass,
   checkoutSectionDividerClass,
   checkoutSectionTitleClass,
 } from '@/components/checkout/checkoutStyles'
@@ -16,6 +18,8 @@ type CheckoutDeliveryTimeSectionProps = {
   onStartEdit: () => void
   onDraftChange: (draft: DeliveryTime) => void
   onSave: () => void
+  invalid?: boolean
+  invalidFields?: { date?: boolean; time?: boolean }
 }
 
 export default function CheckoutDeliveryTimeSection({
@@ -25,9 +29,11 @@ export default function CheckoutDeliveryTimeSection({
   onStartEdit,
   onDraftChange,
   onSave,
+  invalid = false,
+  invalidFields,
 }: CheckoutDeliveryTimeSectionProps) {
   return (
-    <section className={checkoutSectionClass}>
+    <section className={invalid ? checkoutSectionErrorClass : checkoutSectionClass}>
       <h2 className={checkoutSectionTitleClass}>Дата и время доставки</h2>
 
       {!editing && value ? (
@@ -55,7 +61,7 @@ export default function CheckoutDeliveryTimeSection({
               value={draft.date}
               onChange={(event) => onDraftChange({ ...draft, date: event.target.value })}
               placeholder="ДД.ММ.ГГГГ"
-              className={checkoutInputClass}
+              className={invalidFields?.date ? checkoutInputErrorClass : checkoutInputClass}
             />
           </label>
           <label className="block">
@@ -65,7 +71,7 @@ export default function CheckoutDeliveryTimeSection({
               value={draft.time}
               onChange={(event) => onDraftChange({ ...draft, time: event.target.value })}
               placeholder="9–21:00"
-              className={checkoutInputClass}
+              className={invalidFields?.time ? checkoutInputErrorClass : checkoutInputClass}
             />
           </label>
           <div className="flex justify-end">

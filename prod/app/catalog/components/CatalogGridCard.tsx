@@ -6,17 +6,29 @@ import FavoriteHeartButton from '@/components/FavoriteHeartButton'
 import { useCart } from '@/contexts/CartContext'
 import { productPublicPath } from '@/lib/productSeo'
 import type { ProductData } from '@/lib/api/productsData'
+import { formatStarString } from '@/lib/reviewRating'
 
 const cartIcon = '/images/header/icon-cart.svg'
 
-function GoldStars() {
+function ProductStars({ rating }: { rating: number }) {
+  if (rating <= 0) {
+    return (
+      <div className="flex gap-0.5 text-[#D4D4D4]" aria-hidden>
+        {Array.from({ length: 5 }).map((_, i) => (
+          <span key={i} className="text-[15px] leading-none sm:text-base">
+            ★
+          </span>
+        ))}
+      </div>
+    )
+  }
+
   return (
-    <div className="flex gap-0.5 text-[#D4A017]" aria-hidden>
-      {Array.from({ length: 5 }).map((_, i) => (
-        <span key={i} className="text-[15px] leading-none sm:text-base">
-          ★
-        </span>
-      ))}
+    <div className="flex gap-0.5 text-[#D4A017]" aria-label={`Рейтинг ${rating}`}>
+      <span className="sr-only">Рейтинг {rating}</span>
+      <span className="text-[15px] leading-none sm:text-base" aria-hidden>
+        {formatStarString(rating)}
+      </span>
     </div>
   )
 }
@@ -24,9 +36,11 @@ function GoldStars() {
 export default function CatalogGridCard({
   product,
   onOpen,
+  rating = 0,
 }: {
   product: ProductData
   onOpen: (product: ProductData) => void
+  rating?: number
 }) {
   const { addItem } = useCart()
   const cardText = product.catalogCardTeaser ?? product.description
@@ -53,7 +67,7 @@ export default function CatalogGridCard({
 
   return (
     <article className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-[#D1C4B2] bg-[#FFF9F0] shadow-sm transition-shadow hover:shadow-md">
-      <Link
+      <a
         href={productHref}
         className="absolute inset-0 z-0 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3D8C13] focus-visible:ring-inset"
         aria-label={`Перейти к товару: ${product.name}`}
@@ -86,7 +100,7 @@ export default function CatalogGridCard({
           </p>
         </div>
         <div className="relative z-[2] mt-auto flex items-end justify-between gap-3 pt-4">
-          <GoldStars />
+          <ProductStars rating={rating} />
           <div className="pointer-events-auto flex items-center gap-2">
             <button
               type="button"

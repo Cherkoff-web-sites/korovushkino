@@ -34,8 +34,10 @@ export default function HomeContentEditor() {
   const [dirty, setDirty] = useState(false)
 
   useEffect(() => {
-    setDraft(content)
-  }, [content])
+    if (!dirty) {
+      setDraft(content)
+    }
+  }, [content, dirty])
 
   function update(mutator: (prev: HomeContent) => HomeContent) {
     setDraft((prev) => {

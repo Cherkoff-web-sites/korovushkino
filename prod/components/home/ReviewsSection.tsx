@@ -11,7 +11,7 @@ import { useToast } from '@/contexts/ToastContext'
 import type { HomeReviewItem } from '@/lib/homeContent'
 import { averageReviewRating } from '@/lib/reviewRating'
 import { mergePublishedReviews } from '@/lib/reviewsDisplay'
-import { readApprovedReviews, submitUserReview } from '@/lib/userReviewsStore'
+import { fetchPublishedReviews, readApprovedReviews, submitUserReview } from '@/lib/userReviewsStore'
 
 function StarRow({ count }: { count: number }) {
   return (
@@ -34,13 +34,13 @@ export default function ReviewsSection() {
   const [reviewModalOpen, setReviewModalOpen] = useState(false)
 
   useEffect(() => {
-    const reload = () => setApprovedUserReviews(readApprovedReviews())
-    reload()
+    const reload = () => {
+      void fetchPublishedReviews().then(setApprovedUserReviews)
+    }
+    void fetchPublishedReviews().then(setApprovedUserReviews)
     window.addEventListener('user-reviews-updated', reload)
-    window.addEventListener('storage', reload)
     return () => {
       window.removeEventListener('user-reviews-updated', reload)
-      window.removeEventListener('storage', reload)
     }
   }, [])
 

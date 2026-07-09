@@ -4,33 +4,37 @@ import { useCallback, useEffect, useState } from 'react'
 import {
   DEFAULT_HOME_CONTENT,
   type HomeContent,
-  readHomeContent,
-  writeHomeContent,
+  mergeHomeContent,
 } from '@/lib/homeContent'
+import { adminSaveContent, fetchPublicContent } from '@/lib/api/adminSiteApi'
 
 export function useHomeContent() {
   const [content, setContent] = useState<HomeContent>(DEFAULT_HOME_CONTENT)
   const [hydrated, setHydrated] = useState(false)
 
-  const reload = useCallback(() => {
-    setContent(readHomeContent())
+  const reload = useCallback(async () => {
+    try {
+      const data = await fetchPublicContent<Partial<HomeContent>>('home')
+      setContent(data.content ? mergeHomeContent(data.content) : DEFAULT_HOME_CONTENT)
+    } catch {
+      setContent(DEFAULT_HOME_CONTENT)
+    }
     setHydrated(true)
   }, [])
 
   useEffect(() => {
-    reload()
-    const onUpdate = () => reload()
+    void reload()
+    const onUpdate = () => void reload()
     window.addEventListener('home-content-updated', onUpdate)
-    window.addEventListener('storage', onUpdate)
     return () => {
       window.removeEventListener('home-content-updated', onUpdate)
-      window.removeEventListener('storage', onUpdate)
     }
   }, [reload])
 
   const save = useCallback((next: HomeContent) => {
-    writeHomeContent(next)
     setContent(next)
+    void adminSaveContent('home', next)
+    window.dispatchEvent(new Event('home-content-updated'))
   }, [])
 
   return { content, hydrated, save, reset: () => save(DEFAULT_HOME_CONTENT) }

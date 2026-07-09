@@ -8,6 +8,8 @@ import authRoutes from "./authRoutes.js";
 import adminAuthRoutes from "./adminAuthRoutes.js";
 import productRoutes, { adminRouter as adminProductRoutes } from "./productRoutes.js";
 import siteRoutes, { adminRouter as adminSiteRoutes } from "./siteRoutes.js";
+import { adminRouter as adminSeoRoutes } from "./seoRoutes.js";
+import { findRedirect, getRobotsTxt, getSitemapXml } from "./seoStore.js";
 import { query } from "./db.js";
 
 dotenv.config();
@@ -41,6 +43,43 @@ app.get("/api/health", (_req, res) => {
   res.sendStatus(200);
 });
 
+app.get("/robots.txt", async (_req, res) => {
+  try {
+    const body = await getRobotsTxt();
+    res.type("text/plain").send(body);
+  } catch (err) {
+    console.error(err);
+    res.status(500).type("text/plain").send("User-agent: *\nDisallow:\n");
+  }
+});
+
+app.get("/sitemap.xml", async (_req, res) => {
+  try {
+    const body = await getSitemapXml();
+    res.type("application/xml").send(body);
+  } catch (err) {
+    console.error(err);
+    res.status(500).type("application/xml").send('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>');
+  }
+});
+
+app.use(async (req, res, next) => {
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    return next();
+  }
+  if (req.path.startsWith("/api") || req.path === "/robots.txt" || req.path === "/sitemap.xml") {
+    return next();
+  }
+  try {
+    const redirect = await findRedirect(req.path);
+    if (!redirect) return next();
+    return res.redirect(redirect.permanent ? 301 : 302, redirect.to);
+  } catch (err) {
+    console.error(err);
+    return next();
+  }
+});
+
 const dbDisabled = (process.env.DB_DISABLED || "").toLowerCase() === "true";
 
 if (dbDisabled) {
@@ -57,6 +96,7 @@ app.use("/api", productRoutes);
 app.use("/api", siteRoutes);
 app.use("/api/admin", adminProductRoutes);
 app.use("/api/admin", adminSiteRoutes);
+app.use("/api/admin/seo", adminSeoRoutes);
 
 if (hasStaticFrontend) {
   app.get("*", (req, res, next) => {
@@ -67,9 +107,30 @@ if (hasStaticFrontend) {
     const normalized = req.path.endsWith("/") ? req.path : `${req.path}/`;
     const indexPath = path.join(staticDir, normalized, "index.html");
     const htmlPath = path.join(staticDir, `${req.path.replace(/\/$/, "")}.html`);
+    const catalogProductMatch = req.path.replace(/\/+$/, "").match(/^\/catalog\/([^/]+)(\/reviews)?$/);
+    const catalogFallbackPath = catalogProductMatch
+      ? path.join(
+          staticDir,
+          "catalog",
+          "__product__",
+          catalogProductMatch[2] ? "reviews" : "",
+          "index.html"
+        )
+      : null;
 
     res.sendFile(indexPath, (err) => {
       if (!err) return;
+      if (catalogFallbackPath) {
+        return res.sendFile(catalogFallbackPath, (fallbackErr) => {
+          if (!fallbackErr) return;
+          res.sendFile(htmlPath, (htmlErr) => {
+            if (!htmlErr) return;
+            res.sendFile(path.join(staticDir, "index.html"), (rootErr) => {
+              if (rootErr) next(rootErr);
+            });
+          });
+        });
+      }
       res.sendFile(htmlPath, (htmlErr) => {
         if (!htmlErr) return;
         res.sendFile(path.join(staticDir, "index.html"), (fallbackErr) => {
@@ -93,12 +154,17 @@ async function ensureSchema() {
 
 const port = Number(process.env.PORT) || 4000;
 
-app.listen(port, "0.0.0.0", () => {
-  console.log(`Backend listening on http://0.0.0.0:${port}`);
-});
+async function start() {
+  if (!dbDisabled) {
+    await ensureSchema();
+  }
 
-if (!dbDisabled) {
-  ensureSchema().catch((err) => {
-    console.error("Database bootstrap failed:", err.message);
+  app.listen(port, "0.0.0.0", () => {
+    console.log(`Backend listening on http://0.0.0.0:${port}`);
   });
 }
+
+start().catch((err) => {
+  console.error("Backend startup failed:", err.message);
+  process.exit(1);
+});

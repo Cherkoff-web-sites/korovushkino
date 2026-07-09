@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { readStoredClients, type StoredClient } from '@/lib/adminDataStore'
+import type { StoredClient } from '@/lib/adminDataStore'
 import { adminFetchClients } from '@/lib/api/adminSiteApi'
 import { adminInputClass, adminPanelClass, adminTableHeadClass } from './adminStyles'
 
@@ -14,45 +14,24 @@ const CLIENT_COLUMNS = [
   { key: 'status', label: 'Статус' },
 ] as const
 
-function mergeClients(local: StoredClient[], remote: StoredClient[]) {
-  const map = new Map<string, StoredClient>()
-  for (const item of [...remote, ...local]) {
-    const key = item.email.trim().toLowerCase() || item.id
-    const existing = map.get(key)
-    if (!existing) {
-      map.set(key, item)
-      continue
-    }
-    map.set(key, {
-      ...existing,
-      ...item,
-      ordersCount: Math.max(existing.ordersCount, item.ordersCount),
-    })
-  }
-  return Array.from(map.values())
-}
-
 export default function ClientsListView() {
   const [clients, setClients] = useState<StoredClient[]>([])
   const [query, setQuery] = useState('')
 
   const reload = useCallback(async () => {
-    const local = readStoredClients()
     try {
       const data = await adminFetchClients()
-      setClients(mergeClients(local, data.clients))
+      setClients(data.clients)
     } catch {
-      setClients(local)
+      setClients([])
     }
   }, [])
 
   useEffect(() => {
     reload()
     window.addEventListener('admin-clients-updated', reload)
-    window.addEventListener('storage', reload)
     return () => {
       window.removeEventListener('admin-clients-updated', reload)
-      window.removeEventListener('storage', reload)
     }
   }, [reload])
 

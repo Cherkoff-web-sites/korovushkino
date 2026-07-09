@@ -4,16 +4,17 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import type { ProductData } from '@/lib/api/productsData'
 import { CATEGORY_LABELS } from '@/lib/api/productsData'
-import { fetchCatalogProduct } from '@/lib/api/productsClient'
 import { productReviewsHref } from '@/lib/catalogPaths'
+import { useResolvedCatalogProduct } from '@/hooks/useResolvedCatalogProduct'
 import ProductPageActions from '../components/ProductPageActions'
 import { ProductDescription } from '../components/ProductDescription'
 import ProductSeoHead from '../components/ProductSeoHead'
 import ContentImage from '@/components/ui/ContentImage'
-import { readHomeContent } from '@/lib/homeContent'
+import { useHomeContent } from '@/hooks/useHomeContent'
 import { averageReviewRating, formatStarString } from '@/lib/reviewRating'
+import { getReviewsForProduct } from '@/lib/productReviews'
 import { mergePublishedReviews } from '@/lib/reviewsDisplay'
-import { readApprovedReviews } from '@/lib/userReviewsStore'
+import { fetchPublishedReviews, readApprovedReviews, type UserReview } from '@/lib/userReviewsStore'
 
 const PLACEHOLDER = '/images/home/hero-bg.png'
 
@@ -22,52 +23,56 @@ function productImageAlt(product: ProductData, index = 0) {
 }
 
 export default function ProductPageContent({
-  productId,
-  fallbackProduct,
+  paramSlug,
+  initialProduct,
 }: {
-  productId: string
-  fallbackProduct: ProductData
+  paramSlug: string
+  initialProduct: ProductData | null
 }) {
-  const [product, setProduct] = useState<ProductData>(fallbackProduct)
+  const { product: resolvedProduct, loading, slug } = useResolvedCatalogProduct(paramSlug)
+  const [approvedUserReviews, setApprovedUserReviews] = useState<UserReview[]>(() => readApprovedReviews())
+  const { content: homeContent } = useHomeContent()
+  const product = resolvedProduct ?? initialProduct
 
   useEffect(() => {
-    let cancelled = false
+    void fetchPublishedReviews().then(setApprovedUserReviews)
+  }, [])
 
-    fetchCatalogProduct(productId)
-      .then((next) => {
-        if (!cancelled && next) setProduct(next)
-      })
-      .catch(() => {
-        // оставляем fallback
-      })
+  if (loading && !product) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center bg-[#fdfbf6] px-4">
+        <p className="text-sm text-[#707070]">Загрузка товара…</p>
+      </div>
+    )
+  }
 
-    const onUpdate = () => {
-      const next = fetchCatalogProduct(productId)
-      void next.then((item) => {
-        if (item) setProduct(item)
-      })
-    }
-
-    window.addEventListener('preview-products-updated', onUpdate)
-    return () => {
-      cancelled = true
-      window.removeEventListener('preview-products-updated', onUpdate)
-    }
-  }, [productId])
+  if (!product) {
+    return (
+      <div className="flex min-h-[50vh] flex-col items-center justify-center bg-[#fdfbf6] px-4 text-center">
+        <h1 className="text-2xl font-normal text-[#1F1F1F]">Товар не найден</h1>
+        <p className="mt-3 max-w-md text-sm text-[#707070]">
+          {slug ? `Страница «${slug}» не найдена в каталоге.` : 'Укажите корректный адрес товара.'}
+        </p>
+        <Link
+          href="/catalog/"
+          className="mt-6 inline-flex rounded-lg bg-[#3D8C13] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#347710]"
+        >
+          В каталог
+        </Link>
+      </div>
+    )
+  }
 
   const mainImage = product.images[0] ?? PLACEHOLDER
   const categoryHref = `/catalog?category=${product.categorySlug}`
   const categoryLabel = CATEGORY_LABELS[product.categorySlug]
-  const homeContent = readHomeContent()
   const publishedReviews = mergePublishedReviews(
     homeContent.reviews.items,
-    readApprovedReviews(),
+    approvedUserReviews,
     homeContent.reviews.replyAuthorLabel
   )
-  const productReviews = publishedReviews.filter(
-    (item) => item.productLabel.toLowerCase() === product.name.toLowerCase()
-  )
-  const avgRating = averageReviewRating(productReviews.length ? productReviews : publishedReviews)
+  const productReviews = getReviewsForProduct(publishedReviews, product)
+  const avgRating = productReviews.length ? averageReviewRating(productReviews) : 0
 
   return (
     <div>
@@ -129,7 +134,7 @@ export default function ProductPageContent({
             <div className="min-w-0 lg:col-span-7">
               <div className="flex flex-wrap items-center gap-2">
                 <Link
-                  href={productReviewsHref(product.id)}
+                  href={productReviewsHref(product)}
                   className="group inline-flex items-center gap-2 text-sm text-[#9A9A9A] transition-colors hover:text-[#3D8C13]"
                 >
                   <span className="underline-offset-4 group-hover:underline">Отзывы</span>

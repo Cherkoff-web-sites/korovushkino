@@ -1,15 +1,20 @@
 'use client'
 
+import { useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { useCart } from '@/contexts/CartContext'
 import { useAuth } from '@/contexts/AuthContext'
+import { useUserOrders } from '@/hooks/useUserOrders'
 import AccountSectionCard from './components/AccountSectionCard'
 
 export default function AccountPersonalPage() {
   const router = useRouter()
-  const { getTotalPrice } = useCart()
   const { user, logout } = useAuth()
-  const ordersTotal = getTotalPrice()
+  const { orders, loading } = useUserOrders()
+
+  const ordersTotal = useMemo(
+    () => orders.reduce((sum, order) => sum + (Number(order.total) || 0), 0),
+    [orders]
+  )
 
   const fullName = [user?.surname, user?.firstName].filter(Boolean).join(' ') || 'Не указано'
   const email = user?.email || user?.login || '—'
@@ -33,7 +38,7 @@ export default function AccountPersonalPage() {
         <div className="grid grid-cols-1 gap-1 border-b border-[#D2B48C]/40 pb-4 sm:grid-cols-[minmax(140px,200px)_1fr] sm:gap-4 sm:items-baseline">
           <dt className="text-sm text-[#707070] sm:text-[15px]">Сумма заказов</dt>
           <dd className="text-sm font-medium text-black sm:text-[15px]">
-            {ordersTotal.toLocaleString('ru-RU')}₽
+            {loading ? '…' : `${ordersTotal.toLocaleString('ru-RU')}₽`}
           </dd>
         </div>
       </dl>

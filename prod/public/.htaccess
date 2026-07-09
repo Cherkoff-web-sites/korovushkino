@@ -1,0 +1,12 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Товар по новому slug без пересборки: отдаём fallback-страницу, slug читается из URL в браузере
+  RewriteCond %{REQUEST_URI} ^/catalog/([^/]+)/?$
+  RewriteCond %{DOCUMENT_ROOT}/catalog/%1/index.html !-f
+  RewriteRule ^catalog/([^/]+)/?$ /catalog/__product__/index.html [L]
+
+  RewriteCond %{REQUEST_URI} ^/catalog/([^/]+)/reviews/?$
+  RewriteCond %{DOCUMENT_ROOT}/catalog/%1/reviews/index.html !-f
+  RewriteRule ^catalog/([^/]+)/reviews/?$ /catalog/__product__/reviews/index.html [L]
+</IfModule>

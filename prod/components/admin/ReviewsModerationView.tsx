@@ -2,9 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-  deleteUserReview,
   moderateReviewOnApi,
-  readUserReviews,
   REVIEW_STATUS_LABELS,
   syncReviewsFromApi,
   type ReviewModerationStatus,
@@ -34,16 +32,14 @@ export default function ReviewsModerationView() {
 
   const reload = useCallback(async () => {
     const merged = await syncReviewsFromApi()
-    setReviews(merged.length > 0 ? merged : readUserReviews())
+    setReviews(merged)
   }, [])
 
   useEffect(() => {
     void reload()
     window.addEventListener('user-reviews-updated', reload)
-    window.addEventListener('storage', reload)
     return () => {
       window.removeEventListener('user-reviews-updated', reload)
-      window.removeEventListener('storage', reload)
     }
   }, [reload])
 
@@ -61,13 +57,8 @@ export default function ReviewsModerationView() {
 
   async function handleDelete(id: string) {
     if (!window.confirm('Удалить этот отзыв?')) return
-    deleteUserReview(id)
-    try {
-      const { request } = await import('@/lib/api/httpClient')
-      await request(`/api/admin/reviews/${encodeURIComponent(id)}`, { method: 'DELETE' })
-    } catch {
-      // локально уже удалён
-    }
+    const { request } = await import('@/lib/api/httpClient')
+    await request(`/api/admin/reviews/${encodeURIComponent(id)}`, { method: 'DELETE' })
     await reload()
   }
 

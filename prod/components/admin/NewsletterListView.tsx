@@ -1,43 +1,28 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { readStoredNewsletterSubscribers, type StoredNewsletterSubscriber } from '@/lib/adminDataStore'
+import type { StoredNewsletterSubscriber } from '@/lib/adminDataStore'
 import { adminFetchNewsletterSubscribers } from '@/lib/api/adminSiteApi'
 import { adminInputClass, adminPanelClass, adminTableHeadClass } from './adminStyles'
-
-function mergeSubscribers(
-  local: StoredNewsletterSubscriber[],
-  remote: StoredNewsletterSubscriber[]
-) {
-  const map = new Map<string, StoredNewsletterSubscriber>()
-  for (const item of [...remote, ...local]) {
-    const key = item.email.toLowerCase()
-    if (!map.has(key)) map.set(key, item)
-  }
-  return Array.from(map.values())
-}
 
 export default function NewsletterListView() {
   const [rows, setRows] = useState<StoredNewsletterSubscriber[]>([])
   const [query, setQuery] = useState('')
 
   const reload = useCallback(async () => {
-    const local = readStoredNewsletterSubscribers()
     try {
       const data = await adminFetchNewsletterSubscribers()
-      setRows(mergeSubscribers(local, data.subscribers))
+      setRows(data.subscribers)
     } catch {
-      setRows(local)
+      setRows([])
     }
   }, [])
 
   useEffect(() => {
     reload()
     window.addEventListener('admin-newsletter-updated', reload)
-    window.addEventListener('storage', reload)
     return () => {
       window.removeEventListener('admin-newsletter-updated', reload)
-      window.removeEventListener('storage', reload)
     }
   }, [reload])
 

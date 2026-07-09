@@ -4,33 +4,37 @@ import { useCallback, useEffect, useState } from 'react'
 import {
   DEFAULT_SITE_CONTENT,
   type SiteContent,
-  readSiteContent,
-  writeSiteContent,
+  mergeSiteContent,
 } from '@/lib/siteContent'
+import { adminSaveContent, fetchPublicContent } from '@/lib/api/adminSiteApi'
 
 export function useSiteContent() {
   const [content, setContent] = useState<SiteContent>(DEFAULT_SITE_CONTENT)
   const [hydrated, setHydrated] = useState(false)
 
-  const reload = useCallback(() => {
-    setContent(readSiteContent())
+  const reload = useCallback(async () => {
+    try {
+      const data = await fetchPublicContent<Partial<SiteContent>>('site')
+      setContent(data.content ? mergeSiteContent(data.content) : DEFAULT_SITE_CONTENT)
+    } catch {
+      setContent(DEFAULT_SITE_CONTENT)
+    }
     setHydrated(true)
   }, [])
 
   useEffect(() => {
-    reload()
-    const onUpdate = () => reload()
+    void reload()
+    const onUpdate = () => void reload()
     window.addEventListener('site-content-updated', onUpdate)
-    window.addEventListener('storage', onUpdate)
     return () => {
       window.removeEventListener('site-content-updated', onUpdate)
-      window.removeEventListener('storage', onUpdate)
     }
   }, [reload])
 
   const save = useCallback((next: SiteContent) => {
-    writeSiteContent(next)
     setContent(next)
+    void adminSaveContent('site', next)
+    window.dispatchEvent(new Event('site-content-updated'))
   }, [])
 
   return { content, hydrated, save, reset: () => save(DEFAULT_SITE_CONTENT) }

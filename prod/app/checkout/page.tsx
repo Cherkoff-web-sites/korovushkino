@@ -27,6 +27,74 @@ import { calculateDeliveryQuote } from '@/lib/deliveryPricing'
 import type { DeliveryQuote } from '@/lib/deliveryPricing'
 import { submitCheckoutOrder } from '@/lib/leadsService'
 import { useEnabledPaymentMethods } from '@/hooks/useEnabledPaymentMethods'
+import { isMoscowCity } from '@/lib/deliveryPricing'
+
+type CheckoutFieldErrors = {
+  contact: { fullName?: boolean; email?: boolean }
+  address: boolean
+  addressFields: Partial<Record<keyof DeliveryAddress, boolean>>
+  deliveryTime: boolean
+  deliveryTimeFields: { date?: boolean; time?: boolean }
+  payment: boolean
+}
+
+function buildCheckoutFieldErrors({
+  contact,
+  address,
+  addressEditing,
+  addressDraft,
+  deliveryTime,
+  deliveryTimeEditing,
+  deliveryTimeDraft,
+  paymentMethod,
+  paymentEditing,
+  deliverySettings,
+  deliveryQuote,
+}: {
+  contact: CheckoutContact
+  address: DeliveryAddress | null
+  addressEditing: boolean
+  addressDraft: DeliveryAddress
+  deliveryTime: DeliveryTime | null
+  deliveryTimeEditing: boolean
+  deliveryTimeDraft: DeliveryTime
+  paymentMethod: PaymentMethodId | null
+  paymentEditing: boolean
+  deliverySettings: ReturnType<typeof useDeliverySettings>['settings']
+  deliveryQuote: DeliveryQuote
+}): CheckoutFieldErrors {
+  const moscowSelected = isMoscowCity(addressDraft.city, deliverySettings)
+  const addressSource = addressEditing ? addressDraft : address
+
+  const addressFields: Partial<Record<keyof DeliveryAddress, boolean>> = {}
+  if (addressEditing) {
+    if (!addressDraft.city.trim()) addressFields.city = true
+    if (!addressDraft.street.trim()) addressFields.street = true
+    if (!addressDraft.house.trim()) addressFields.house = true
+    if (moscowSelected && !addressDraft.district.trim()) addressFields.district = true
+  }
+
+  const deliveryTimeFields = {
+    date: deliveryTimeEditing && !deliveryTimeDraft.date.trim(),
+    time: deliveryTimeEditing && !deliveryTimeDraft.time.trim(),
+  }
+
+  return {
+    contact: {
+      fullName: !contact.fullName.trim(),
+      email: !contact.email.trim(),
+    },
+    address:
+      !address ||
+      addressEditing ||
+      deliveryQuote.requiresDistrict ||
+      deliveryQuote.cost === null,
+    addressFields,
+    deliveryTime: !deliveryTime || deliveryTimeEditing,
+    deliveryTimeFields,
+    payment: !paymentMethod || paymentEditing,
+  }
+}
 
 export default function CheckoutPage() {
   const router = useRouter()
@@ -49,6 +117,7 @@ export default function CheckoutPage() {
   const [paymentEditing, setPaymentEditing] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [showValidationErrors, setShowValidationErrors] = useState(false)
 
   useEffect(() => {
     setHydrated(true)
@@ -99,7 +168,38 @@ export default function CheckoutPage() {
     !deliveryTimeEditing &&
     !paymentEditing
 
+  const fieldErrors = useMemo(
+    () =>
+      buildCheckoutFieldErrors({
+        contact,
+        address,
+        addressEditing,
+        addressDraft,
+        deliveryTime,
+        deliveryTimeEditing,
+        deliveryTimeDraft,
+        paymentMethod,
+        paymentEditing,
+        deliverySettings,
+        deliveryQuote,
+      }),
+    [
+      contact,
+      address,
+      addressEditing,
+      addressDraft,
+      deliveryTime,
+      deliveryTimeEditing,
+      deliveryTimeDraft,
+      paymentMethod,
+      paymentEditing,
+      deliverySettings,
+      deliveryQuote,
+    ]
+  )
+
   function handleAddressStartAdd() {
+    setShowValidationErrors(false)
     setAddressDraft(EMPTY_ADDRESS)
     setAddressEditing(true)
   }
@@ -133,9 +233,12 @@ export default function CheckoutPage() {
 
   async function handleSubmit() {
     if (!canSubmit || !address || !deliveryTime || !paymentMethod || deliveryQuote.cost === null) {
+      setShowValidationErrors(true)
       showToast('Заполните все поля оформления заказа')
       return
     }
+
+    setShowValidationErrors(false)
 
     setSubmitting(true)
     try {
@@ -232,7 +335,14 @@ export default function CheckoutPage() {
                 onRemove={removeItem}
               />
 
-              <CheckoutContactSection value={contact} onChange={setContact} />
+              <CheckoutContactSection
+                value={contact}
+                onChange={(value) => {
+                  setShowValidationErrors(false)
+                  setContact(value)
+                }}
+                invalidFields={showValidationErrors ? fieldErrors.contact : undefined}
+              />
 
               <CheckoutAddressSection
                 address={address}
@@ -243,7 +353,12 @@ export default function CheckoutPage() {
                 onStartEdit={handleAddressStartEdit}
                 onCancel={handleAddressCancel}
                 onSave={handleAddressSave}
-                onDraftChange={setAddressDraft}
+                onDraftChange={(draft) => {
+                  setShowValidationErrors(false)
+                  setAddressDraft(draft)
+                }}
+                invalid={showValidationErrors && fieldErrors.address}
+                invalidFields={showValidationErrors ? fieldErrors.addressFields : undefined}
               />
 
               <CheckoutDeliveryTimeSection
@@ -251,19 +366,29 @@ export default function CheckoutPage() {
                 editing={deliveryTimeEditing}
                 draft={deliveryTimeDraft}
                 onStartEdit={() => {
+                  setShowValidationErrors(false)
                   setDeliveryTimeDraft(deliveryTime ?? DEFAULT_DELIVERY_TIME)
                   setDeliveryTimeEditing(true)
                 }}
-                onDraftChange={setDeliveryTimeDraft}
+                onDraftChange={(draft) => {
+                  setShowValidationErrors(false)
+                  setDeliveryTimeDraft(draft)
+                }}
                 onSave={handleDeliveryTimeSave}
+                invalid={showValidationErrors && fieldErrors.deliveryTime}
+                invalidFields={showValidationErrors ? fieldErrors.deliveryTimeFields : undefined}
               />
 
               <CheckoutPaymentSection
                 methods={paymentMethods}
                 method={paymentMethod}
                 editing={paymentEditing}
-                onStartEdit={() => setPaymentEditing(true)}
+                onStartEdit={() => {
+                  setShowValidationErrors(false)
+                  setPaymentEditing(true)
+                }}
                 onSelect={handlePaymentSelect}
+                invalid={showValidationErrors && fieldErrors.payment}
               />
             </div>
 

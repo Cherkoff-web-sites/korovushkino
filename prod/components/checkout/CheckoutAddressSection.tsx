@@ -4,8 +4,10 @@ import type { DeliveryAddress } from '@/components/checkout/checkoutTypes'
 import {
   checkoutGhostButtonClass,
   checkoutInputClass,
+  checkoutInputErrorClass,
   checkoutPrimaryButtonClass,
   checkoutSectionClass,
+  checkoutSectionErrorClass,
   checkoutSectionDividerClass,
   checkoutSectionTitleClass,
 } from '@/components/checkout/checkoutStyles'
@@ -26,6 +28,8 @@ type CheckoutAddressSectionProps = {
   onCancel: () => void
   onSave: () => void
   onDraftChange: (draft: DeliveryAddress) => void
+  invalid?: boolean
+  invalidFields?: Partial<Record<keyof DeliveryAddress, boolean>>
 }
 
 function formatAddress(address: DeliveryAddress, districtName?: string) {
@@ -50,6 +54,8 @@ export default function CheckoutAddressSection({
   onCancel,
   onSave,
   onDraftChange,
+  invalid = false,
+  invalidFields,
 }: CheckoutAddressSectionProps) {
   const { settings } = useDeliverySettings()
   const moscowSelected = isMoscowCity(draft.city, settings)
@@ -60,15 +66,21 @@ export default function CheckoutAddressSection({
     draft.house.trim() !== '' &&
     (!moscowSelected || draft.district.trim() !== '')
 
+  const inputClass = (field?: boolean) => (field ? checkoutInputErrorClass : checkoutInputClass)
+
   return (
-    <section className={checkoutSectionClass}>
+    <section className={invalid ? checkoutSectionErrorClass : checkoutSectionClass}>
       <h2 className={checkoutSectionTitleClass}>Адрес доставки</h2>
 
       {!address && !editing ? (
         <button
           type="button"
           onClick={onStartAdd}
-          className="mt-4 flex w-full items-center gap-3 rounded-lg border border-[#C88C39]/60 bg-white px-4 py-3 text-left transition-colors hover:border-[#C88C39] sm:py-3.5"
+          className={`mt-4 flex w-full items-center gap-3 rounded-lg border bg-white px-4 py-3 text-left transition-colors sm:py-3.5 ${
+            invalid
+              ? 'border-[#D64545] hover:border-[#D64545]'
+              : 'border-[#C88C39]/60 hover:border-[#C88C39]'
+          }`}
         >
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#3D8C13] text-white">
             <PlusIcon />
@@ -113,14 +125,14 @@ export default function CheckoutAddressSection({
                 })
               }
               placeholder="Город"
-              className={checkoutInputClass}
+              className={inputClass(invalidFields?.city)}
               autoComplete="address-level2"
             />
             {moscowSelected ? (
               <select
                 value={draft.district}
                 onChange={(event) => onDraftChange({ ...draft, district: event.target.value })}
-                className={checkoutInputClass}
+                className={inputClass(invalidFields?.district)}
               >
                 <option value="">Район Москвы</option>
                 {settings.moscowDistricts.map((district) => (
@@ -135,7 +147,7 @@ export default function CheckoutAddressSection({
                 value={draft.street}
                 onChange={(event) => onDraftChange({ ...draft, street: event.target.value })}
                 placeholder="Улица"
-                className={checkoutInputClass}
+                className={inputClass(invalidFields?.street)}
                 autoComplete="street-address"
               />
             )}
@@ -147,7 +159,7 @@ export default function CheckoutAddressSection({
               value={draft.street}
               onChange={(event) => onDraftChange({ ...draft, street: event.target.value })}
               placeholder="Улица"
-              className={checkoutInputClass}
+              className={inputClass(invalidFields?.street)}
               autoComplete="street-address"
             />
           ) : null}
@@ -158,7 +170,7 @@ export default function CheckoutAddressSection({
               value={draft.house}
               onChange={(event) => onDraftChange({ ...draft, house: event.target.value })}
               placeholder="Дом"
-              className={checkoutInputClass}
+              className={inputClass(invalidFields?.house)}
             />
             <input
               type="text"

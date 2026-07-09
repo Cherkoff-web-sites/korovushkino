@@ -56,20 +56,6 @@ function writeAll(items: UserReview[]) {
   window.dispatchEvent(new Event('user-reviews-updated'))
 }
 
-function mergeReviews(local: UserReview[], remote: UserReview[]) {
-  const map = new Map<string, UserReview>()
-  for (const item of [...remote, ...local]) {
-    const normalized = normalizeReview(item)
-    const existing = map.get(normalized.id)
-    if (!existing) {
-      map.set(normalized.id, normalized)
-      continue
-    }
-    map.set(normalized.id, { ...existing, ...normalized })
-  }
-  return Array.from(map.values())
-}
-
 export function readUserReviews(): UserReview[] {
   return readAll()
 }
@@ -119,8 +105,34 @@ export function deleteUserReview(id: string) {
 export async function syncReviewsFromApi() {
   try {
     const data = await request<{ reviews: UserReview[] }>('/api/admin/reviews')
-    writeAll(mergeReviews(readAll(), data.reviews))
+    writeAll(data.reviews.map((item) => normalizeReview(item)))
     return readAll()
+  } catch {
+    return readAll()
+  }
+}
+
+export async function fetchPublishedReviews() {
+  try {
+    const data = await request<{ reviews: UserReview[] }>('/api/reviews/published')
+    const published = data.reviews.map((item) => normalizeReview(item))
+    const rest = readAll().filter((item) => item.status !== 'approved')
+    writeAll([...published, ...rest])
+    return published
+  } catch {
+    return readApprovedReviews()
+  }
+}
+
+export async function fetchMyReviews() {
+  try {
+    const data = await request<{ reviews: UserReview[] }>('/api/reviews/mine')
+    const mine = data.reviews.map((item) => normalizeReview(item))
+    const other = readAll().filter(
+      (item) => !mine.some((review) => review.id === item.id)
+    )
+    writeAll([...mine, ...other])
+    return mine
   } catch {
     return readAll()
   }
@@ -128,18 +140,19 @@ export async function syncReviewsFromApi() {
 
 export async function submitUserReview(review: Omit<UserReview, 'status'> & { status?: ReviewModerationStatus }) {
   const payload = normalizeReview({ ...review, status: review.status || 'pending' })
-  writeAll([payload, ...readAll().filter((item) => item.id !== payload.id)])
 
   try {
-    await request<{ ok: true; review: UserReview }>('/api/reviews', {
+    const data = await request<{ ok: true; review: UserReview }>('/api/reviews', {
       method: 'POST',
       body: JSON.stringify(payload),
     })
+    const saved = normalizeReview(data.review)
+    writeAll([saved, ...readAll().filter((item) => item.id !== saved.id)])
+    return saved
   } catch {
-    // Отзыв уже в localStorage — админка увидит в том же браузере
+    writeAll([payload, ...readAll().filter((item) => item.id !== payload.id)])
+    return payload
   }
-
-  return payload
 }
 
 export async function moderateReviewOnApi(
@@ -147,16 +160,14 @@ export async function moderateReviewOnApi(
   status: ReviewModerationStatus,
   extra?: { replyText?: string }
 ) {
-  updateReviewStatus(id, status, extra)
-
-  try {
-    await request<{ ok: true; review: UserReview }>(`/api/admin/reviews/${encodeURIComponent(id)}`, {
+  const data = await request<{ ok: true; review: UserReview }>(`/api/admin/reviews/${encodeURIComponent(id)}`, {
       method: 'PATCH',
       body: JSON.stringify({ status, replyText: extra?.replyText }),
     })
-  } catch {
-    // Локальное обновление уже применено
-  }
+  updateReviewStatus(id, data.review.status, {
+    replyText: data.review.replyText,
+    replyDate: data.review.replyDate,
+  })
 }
 
 export function hasUserReviewedProduct(email: string, productId: string) {

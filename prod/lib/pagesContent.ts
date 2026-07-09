@@ -259,7 +259,7 @@ export const DEFAULT_PAGES_CONTENT: PagesContent = {
 
 const STORAGE_KEY = 'korovushkino_pages_content'
 
-function mergePagesContent(parsed: Partial<PagesContent>): PagesContent {
+export function mergePagesContent(parsed: Partial<PagesContent>): PagesContent {
   const about: Partial<PagesContent['about']> = parsed.about ?? {}
   const contact: Partial<PagesContent['contact']> = parsed.contact ?? {}
   const deliveryPayment: Partial<PagesContent['deliveryPayment']> = parsed.deliveryPayment ?? {}

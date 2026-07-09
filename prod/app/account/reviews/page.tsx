@@ -6,8 +6,8 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/contexts/ToastContext'
 import { useUserOrders } from '@/hooks/useUserOrders'
 import {
+  fetchMyReviews,
   getReviewableProducts,
-  readReviewsForUser,
   REVIEW_STATUS_LABELS,
   submitUserReview,
   type UserReview,
@@ -37,21 +37,20 @@ export default function AccountReviewsPage() {
     null
   )
 
-  const reloadReviews = useCallback(() => {
+  const reloadReviews = useCallback(async () => {
     if (!email) {
       setReviews([])
       return
     }
-    setReviews(readReviewsForUser(email))
+    setReviews(await fetchMyReviews())
   }, [email])
 
   useEffect(() => {
-    reloadReviews()
-    window.addEventListener('user-reviews-updated', reloadReviews)
-    window.addEventListener('storage', reloadReviews)
+    void reloadReviews()
+    const onUpdate = () => void reloadReviews()
+    window.addEventListener('user-reviews-updated', onUpdate)
     return () => {
-      window.removeEventListener('user-reviews-updated', reloadReviews)
-      window.removeEventListener('storage', reloadReviews)
+      window.removeEventListener('user-reviews-updated', onUpdate)
     }
   }, [reloadReviews])
 
@@ -76,7 +75,7 @@ export default function AccountReviewsPage() {
     }
 
     await submitUserReview(review)
-    reloadReviews()
+    await reloadReviews()
     setReviewTarget(null)
     showToast('Отзыв отправлен на модерацию')
   }

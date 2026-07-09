@@ -103,6 +103,16 @@ export default function AdminNavIcon({ type, active = false }: { type: AdminNavI
     )
   }
 
+  if (type === 'seo') {
+    return (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.6" aria-hidden>
+        <circle cx="11" cy="11" r="7" />
+        <path d="M20 20l-3.5-3.5" strokeLinecap="round" />
+        <path d="M8 11h6M11 8v6" strokeLinecap="round" />
+      </svg>
+    )
+  }
+
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.6" aria-hidden>
       <circle cx="12" cy="12" r="8" />

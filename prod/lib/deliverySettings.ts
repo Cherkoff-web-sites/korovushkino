@@ -47,7 +47,7 @@ export const DEFAULT_DELIVERY_SETTINGS: DeliverySettings = {
 
 const STORAGE_KEY = 'korovushkino_delivery_settings'
 
-function mergeDeliverySettings(parsed: Partial<DeliverySettings>): DeliverySettings {
+export function mergeDeliverySettings(parsed: Partial<DeliverySettings>): DeliverySettings {
   return {
     ...DEFAULT_DELIVERY_SETTINGS,
     ...parsed,

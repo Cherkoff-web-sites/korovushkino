@@ -10,6 +10,7 @@ export type AdminNavIconType =
   | 'clients'
   | 'site'
   | 'pages'
+  | 'seo'
 
 export type AdminNavItem = {
   href: string
@@ -36,6 +37,7 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   { href: '/admin/home', label: 'Главная страница', icon: 'home', section: 'content' },
   { href: '/admin/pages', label: 'Страницы сайта', icon: 'pages', section: 'content' },
   { href: '/admin/site', label: 'Подвал и попапы', icon: 'site', section: 'content' },
+  { href: '/admin/seo', label: 'SEO-файлы', icon: 'seo', section: 'system' },
   { href: '/admin/backup', label: 'Резервная копия', icon: 'backup', section: 'system' },
   { href: '/admin/clients', label: 'Клиенты', icon: 'clients', section: 'clients' },
 ]
@@ -52,6 +54,9 @@ export function isAdminNavActive(pathname: string, href: string) {
   }
   if (href === '/admin/pages') {
     return pathname === '/admin/pages' || pathname.startsWith('/admin/pages/')
+  }
+  if (href === '/admin/seo') {
+    return pathname === '/admin/seo' || pathname.startsWith('/admin/seo/')
   }
   if (href === '/admin/backup') {
     return pathname === '/admin/backup' || pathname.startsWith('/admin/backup/')

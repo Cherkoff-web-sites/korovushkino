@@ -2,12 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-  readStoredContacts,
-  readStoredOrders,
   type StoredContactLead,
   type StoredOrder,
 } from '@/lib/adminDataStore'
-import { adminFetchOrders } from '@/lib/api/adminSiteApi'
+import { adminFetchContacts, adminFetchOrders } from '@/lib/api/adminSiteApi'
 import { adminInputClass, adminPanelClass, adminTableHeadClass } from './adminStyles'
 
 type LeadsColumn = { key: string; label: string }
@@ -62,35 +60,29 @@ export default function LeadsTableView({
 
   const reload = useCallback(async () => {
     if (dataSource === 'orders') {
-      const local = readStoredOrders().map(toOrderRow)
       try {
         const data = await adminFetchOrders()
-        const remote = data.orders.map(toOrderRow)
-        const merged = [...local]
-        for (const row of remote) {
-          const key = `${row.email}-${row.date}-${row.summary}`
-          if (!merged.some((item) => `${item.email}-${item.date}-${item.summary}` === key)) {
-            merged.unshift(row)
-          }
-        }
-        setRows(merged)
+        setRows(data.orders.map(toOrderRow))
         return
       } catch {
-        setRows(local)
+        setRows([])
         return
       }
     }
-    setRows(readStoredContacts().map(toContactRow))
+    try {
+      const data = await adminFetchContacts()
+      setRows((data.contacts as StoredContactLead[]).map(toContactRow))
+    } catch {
+      setRows([])
+    }
   }, [dataSource])
 
   useEffect(() => {
     reload()
     const eventName = dataSource === 'orders' ? 'admin-orders-updated' : 'admin-contacts-updated'
     window.addEventListener(eventName, reload)
-    window.addEventListener('storage', reload)
     return () => {
       window.removeEventListener(eventName, reload)
-      window.removeEventListener('storage', reload)
     }
   }, [dataSource, reload])
 

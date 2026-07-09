@@ -115,7 +115,7 @@ function mergeSocialLinks(stored?: SocialLink[]): SocialLink[] {
   })
 }
 
-function mergeSiteContent(parsed: Partial<SiteContent>): SiteContent {
+export function mergeSiteContent(parsed: Partial<SiteContent>): SiteContent {
   const footer = { ...DEFAULT_SITE_CONTENT.footer, ...parsed.footer }
   const returnsModal = { ...DEFAULT_SITE_CONTENT.returnsModal, ...parsed.returnsModal }
 

@@ -72,23 +72,24 @@ function toStoredOrder(payload: SubmitOrderPayload): StoredOrder {
 
 export async function submitCheckoutOrder(payload: SubmitOrderPayload) {
   const order = toStoredOrder(payload)
-  appendStoredOrder(order)
 
   try {
-    await request<{ ok: true }>('/api/orders', {
+    const data = await request<{ ok: true; order: StoredOrder }>('/api/orders', {
       method: 'POST',
       body: JSON.stringify(order),
     })
+    return data.order
   } catch {
-    // Заказ уже сохранён локально для админки
+    appendStoredOrder(order)
+    return order
+  } finally {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('admin-orders-updated'))
+    }
   }
-
-  return order
 }
 
 export async function subscribeToNewsletter(email: string, source = 'footer') {
-  const added = appendNewsletterSubscriber(email, source)
-
   try {
     const response = await request<{ ok: true; duplicate?: boolean }>('/api/newsletter', {
       method: 'POST',
@@ -96,6 +97,6 @@ export async function subscribeToNewsletter(email: string, source = 'footer') {
     })
     return response.duplicate ? false : true
   } catch {
-    return added
+    return appendNewsletterSubscriber(email, source)
   }
 }

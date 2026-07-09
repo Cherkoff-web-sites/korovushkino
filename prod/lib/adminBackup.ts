@@ -1,42 +1,24 @@
 import type { ProductData } from '@/lib/api/productsData'
-import { DEFAULT_HOME_CONTENT, type HomeContent, readHomeContent, writeHomeContent } from '@/lib/homeContent'
-import { DEFAULT_SITE_CONTENT, type SiteContent, readSiteContent, writeSiteContent } from '@/lib/siteContent'
+import { DEFAULT_HOME_CONTENT, type HomeContent } from '@/lib/homeContent'
+import { DEFAULT_SITE_CONTENT, type SiteContent } from '@/lib/siteContent'
 import {
-  readStoredClients,
-  readStoredContacts,
-  readStoredNewsletterSubscribers,
-  readStoredOrders,
-  writeStoredClients,
-  writeStoredContacts,
-  writeStoredNewsletterSubscribers,
-  writeStoredOrders,
   type StoredClient,
   type StoredContactLead,
   type StoredNewsletterSubscriber,
   type StoredOrder,
 } from '@/lib/adminDataStore'
-import { readPreviewProducts, writePreviewProducts } from '@/lib/previewProductsStore'
-import { ADMIN_PREVIEW } from '@/lib/adminPreview'
-import { adminCreateProduct, adminFetchProducts, adminUpdateProduct } from '@/lib/api/adminProductsApi'
-import {
-  adminFetchDeliverySettings,
-  adminFetchNewsletterSubscribers,
-  adminFetchOrders,
-} from '@/lib/api/adminSiteApi'
+import { adminExportBackup, adminImportBackup, type BackupSection } from '@/lib/api/adminSiteApi'
 import {
   DEFAULT_PAGES_CONTENT,
   type PagesContent,
-  readPagesContent,
-  writePagesContent,
 } from '@/lib/pagesContent'
 import {
   DEFAULT_DELIVERY_SETTINGS,
   type DeliverySettings,
-  readDeliverySettings,
-  writeDeliverySettings,
 } from '@/lib/deliverySettings'
+import { DEFAULT_SEO_SETTINGS, type SeoSettings } from '@/lib/seoSettings'
 
-export const BACKUP_VERSION = 4 as const
+export const BACKUP_VERSION = 5 as const
 
 export type AdminBackup = {
   version: typeof BACKUP_VERSION
@@ -50,82 +32,51 @@ export type AdminBackup = {
   orders: StoredOrder[]
   contacts: StoredContactLead[]
   newsletter: StoredNewsletterSubscriber[]
-}
-
-function readSiteContentSafe(): SiteContent {
-  if (typeof window === 'undefined') return DEFAULT_SITE_CONTENT
-  return readSiteContent()
-}
-
-function readPagesContentSafe(): PagesContent {
-  if (typeof window === 'undefined') return DEFAULT_PAGES_CONTENT
-  return readPagesContent()
-}
-
-export function buildAdminBackup(): AdminBackup {
-  return {
-    version: BACKUP_VERSION,
-    exportedAt: new Date().toISOString(),
-    homeContent: readHomeContentSafe(),
-    siteContent: readSiteContentSafe(),
-    pagesContent: readPagesContentSafe(),
-    deliverySettings: readDeliverySettingsSafe(),
-    products: readPreviewProducts(),
-    clients: readStoredClients(),
-    orders: readStoredOrders(),
-    contacts: readStoredContacts(),
-    newsletter: readStoredNewsletterSubscribers(),
-  }
-}
-
-function readDeliverySettingsSafe(): DeliverySettings {
-  if (typeof window === 'undefined') return DEFAULT_DELIVERY_SETTINGS
-  return readDeliverySettings()
-}
-
-function readHomeContentSafe(): HomeContent {
-  if (typeof window === 'undefined') return DEFAULT_HOME_CONTENT
-  return readHomeContent()
+  seo: SeoSettings
 }
 
 export async function buildAdminBackupAsync(): Promise<AdminBackup> {
-  if (ADMIN_PREVIEW || typeof window === 'undefined') {
-    return buildAdminBackup()
+  const data = await adminExportBackup()
+  const content = (data.content && typeof data.content === 'object' ? data.content : {}) as {
+    home?: HomeContent
+    site?: SiteContent
+    pages?: PagesContent
   }
-  try {
-    const [productsData, ordersData, newsletterData, deliveryData] = await Promise.all([
-      adminFetchProducts(),
-      adminFetchOrders(),
-      adminFetchNewsletterSubscribers(),
-      adminFetchDeliverySettings(),
-    ])
-    return {
-      version: BACKUP_VERSION,
-      exportedAt: new Date().toISOString(),
-      homeContent: readHomeContentSafe(),
-      siteContent: readSiteContentSafe(),
-      pagesContent: readPagesContentSafe(),
-      deliverySettings: deliveryData.settings,
-      products: productsData.products,
-      clients: readStoredClients(),
-      orders: ordersData.orders,
-      contacts: readStoredContacts(),
-      newsletter: newsletterData.subscribers,
-    }
-  } catch {
-    return buildAdminBackup()
+  return {
+    version: BACKUP_VERSION,
+    exportedAt: String(data.exportedAt || new Date().toISOString()),
+    homeContent: content.home ?? DEFAULT_HOME_CONTENT,
+    siteContent: content.site ?? DEFAULT_SITE_CONTENT,
+    pagesContent: content.pages ?? DEFAULT_PAGES_CONTENT,
+    deliverySettings: (data.deliverySettings as DeliverySettings | undefined) ?? DEFAULT_DELIVERY_SETTINGS,
+    products: Array.isArray(data.products) ? (data.products as ProductData[]) : [],
+    clients: Array.isArray(data.clients) ? (data.clients as StoredClient[]) : [],
+    orders: Array.isArray(data.orders) ? (data.orders as StoredOrder[]) : [],
+    contacts: Array.isArray(data.contacts) ? (data.contacts as StoredContactLead[]) : [],
+    newsletter: Array.isArray(data.newsletter) ? (data.newsletter as StoredNewsletterSubscriber[]) : [],
+    seo: (data.seo as SeoSettings | undefined) ?? DEFAULT_SEO_SETTINGS,
   }
 }
 
-export function downloadAdminBackup(backup: AdminBackup) {
-  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' })
+export function downloadJson(data: unknown, filename: string) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
   const anchor = document.createElement('a')
-  const date = backup.exportedAt.slice(0, 10)
   anchor.href = url
-  anchor.download = `korovushkino-backup-${date}.json`
+  anchor.download = filename
   anchor.click()
   URL.revokeObjectURL(url)
+}
+
+export function downloadAdminBackup(backup: AdminBackup) {
+  const date = backup.exportedAt.slice(0, 10)
+  downloadJson(backup, `korovushkino-backup-${date}.json`)
+}
+
+export async function downloadBackupSection(section: BackupSection) {
+  const data = await adminExportBackup(section)
+  const date = new Date().toISOString().slice(0, 10)
+  downloadJson(data, `korovushkino-${section}-backup-${date}.json`)
 }
 
 export function parseAdminBackup(raw: string): AdminBackup {
@@ -141,9 +92,10 @@ export function parseAdminBackup(raw: string): AdminBackup {
     contacts?: StoredContactLead[]
     newsletter?: StoredNewsletterSubscriber[]
     deliverySettings?: DeliverySettings
+    seo?: SeoSettings
   }
   const version = data.version ?? 0
-  if (!data || (version !== 1 && version !== 2 && version !== 3 && version !== 4)) {
+  if (!data || (version !== 1 && version !== 2 && version !== 3 && version !== 4 && version !== 5)) {
     throw new Error('Неподдерживаемый формат файла резервной копии')
   }
   if (!data.homeContent || !Array.isArray(data.products)) {
@@ -161,28 +113,21 @@ export function parseAdminBackup(raw: string): AdminBackup {
     orders: data.orders ?? [],
     contacts: data.contacts ?? [],
     newsletter: data.newsletter ?? [],
+    seo: data.seo ?? DEFAULT_SEO_SETTINGS,
   }
 }
 
 export async function restoreAdminBackup(backup: AdminBackup) {
-  writeHomeContent(backup.homeContent)
-  writeSiteContent(backup.siteContent ?? DEFAULT_SITE_CONTENT)
-  writePagesContent(backup.pagesContent ?? DEFAULT_PAGES_CONTENT)
-  writeDeliverySettings(backup.deliverySettings ?? DEFAULT_DELIVERY_SETTINGS)
-  writePreviewProducts(backup.products)
-  writeStoredClients(backup.clients ?? [])
-  writeStoredOrders(backup.orders ?? [])
-  writeStoredContacts(backup.contacts ?? [])
-  writeStoredNewsletterSubscribers(backup.newsletter ?? [])
+  await adminImportBackup({
+    ...backup,
+    content: {
+      home: backup.homeContent,
+      site: backup.siteContent ?? DEFAULT_SITE_CONTENT,
+      pages: backup.pagesContent ?? DEFAULT_PAGES_CONTENT,
+    },
+  })
+}
 
-  if (!ADMIN_PREVIEW) {
-    for (const product of backup.products) {
-      const payload = product as Partial<ProductData> & Record<string, unknown>
-      try {
-        await adminUpdateProduct(product.id, payload)
-      } catch {
-        await adminCreateProduct(payload)
-      }
-    }
-  }
+export async function restoreBackupSection(section: BackupSection, data: unknown) {
+  await adminImportBackup(data, section)
 }

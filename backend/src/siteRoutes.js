@@ -4,16 +4,27 @@ import { query } from "./db.js";
 import { sendNewsletterWelcomeEmail } from "./mailer.js";
 import {
   appendNewsletterSubscriber,
+  appendContact,
   appendOrder,
   appendReview,
+  backupSection,
   deleteReview,
+  exportSiteData,
   getDeliverySettings,
+  getSiteContent,
+  listContacts,
   listNewsletterSubscribers,
   listOrders,
   listReviews,
+  replaceClients,
+  restoreSiteData,
   saveDeliverySettings,
+  saveSiteContent,
   updateReview,
+  upsertClientProfile,
 } from "./siteDataStore.js";
+import { getProductOrder, listProducts, replaceCatalog } from "./productsStore.js";
+import { getSeoSettings, saveSeoSettings } from "./seoStore.js";
 
 const router = express.Router();
 
@@ -72,20 +83,69 @@ router.get("/delivery/settings", async (_req, res) => {
   }
 });
 
+router.get("/content/:section", async (req, res) => {
+  const section = String(req.params.section || "").trim();
+  const allowed = new Set(["home", "pages", "site", "delivery"]);
+  if (!allowed.has(section)) {
+    return res.status(400).json({ error: "Некорректный раздел контента" });
+  }
+  try {
+    const content = section === "delivery" ? await getDeliverySettings() : await getSiteContent(section, null);
+    return res.json({ section, content });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Не удалось загрузить контент" });
+  }
+});
+
 router.get("/orders/mine", authMiddleware, async (req, res) => {
   try {
-    const email = String(req.user?.email || req.user?.login || "")
-      .trim()
-      .toLowerCase();
-    if (!email) {
+    const identities = new Set(
+      [req.user?.email, req.user?.login]
+        .map((value) => String(value || "").trim().toLowerCase())
+        .filter(Boolean)
+    );
+    if (!identities.size) {
       return res.json({ orders: [] });
     }
     const orders = await listOrders();
-    const mine = orders.filter((order) => String(order.email || "").trim().toLowerCase() === email);
+    const mine = orders.filter((order) =>
+      identities.has(String(order.email || "").trim().toLowerCase())
+    );
     return res.json({ orders: mine });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Не удалось загрузить заказы" });
+  }
+});
+
+router.post("/clients/sync", authMiddleware, async (req, res) => {
+  try {
+    const result = await query(
+      `SELECT id, login, email, surname, first_name, phone
+       FROM users
+       WHERE id = $1`,
+      [req.user.id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Пользователь не найден" });
+    }
+
+    const row = result.rows[0];
+    const email = row.email || row.login || "";
+    const name = [row.surname, row.first_name].filter(Boolean).join(" ").trim();
+
+    await upsertClientProfile({
+      email,
+      name: name || "—",
+      phone: row.phone || "—",
+    });
+
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Не удалось синхронизировать профиль клиента" });
   }
 });
 
@@ -132,6 +192,18 @@ router.get("/reviews/published", async (_req, res) => {
   }
 });
 
+router.get("/reviews/mine", authMiddleware, async (req, res) => {
+  try {
+    const email = String(req.user?.email || req.user?.login || "").trim().toLowerCase();
+    const reviews = await listReviews();
+    const mine = reviews.filter((item) => String(item.authorEmail || "").trim().toLowerCase() === email);
+    return res.json({ reviews: mine });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Не удалось загрузить отзывы" });
+  }
+});
+
 const adminRouter = express.Router();
 adminRouter.use(authMiddleware, adminMiddleware);
 
@@ -142,6 +214,26 @@ adminRouter.get("/orders", async (_req, res) => {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Не удалось загрузить заказы" });
+  }
+});
+
+adminRouter.get("/contacts", async (_req, res) => {
+  try {
+    const contacts = await listContacts();
+    return res.json({ contacts });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Не удалось загрузить обращения" });
+  }
+});
+
+adminRouter.post("/contacts", async (req, res) => {
+  try {
+    const saved = await appendContact(req.body || {});
+    return res.json({ contact: saved });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Не удалось сохранить обращение" });
   }
 });
 
@@ -214,44 +306,47 @@ adminRouter.delete("/reviews/:id", async (req, res) => {
 
 adminRouter.get("/clients", async (_req, res) => {
   try {
-    const orders = await listOrders();
-    const orderCountByEmail = {};
-    for (const order of orders) {
-      const email = String(order.email || "").trim().toLowerCase();
-      if (!email) continue;
-      orderCountByEmail[email] = (orderCountByEmail[email] || 0) + 1;
-    }
-
-    const result = await query(
-      `SELECT id, login, email, role, surname, first_name, phone, created_at
-       FROM users
-       WHERE COALESCE(role, 'user') <> 'admin'
-       ORDER BY created_at DESC`
-    );
-
-    const clients = result.rows.map((row) => {
-      const email = row.email || row.login || "";
-      const emailKey = String(email).trim().toLowerCase();
-      const name = [row.surname, row.first_name].filter(Boolean).join(" ").trim();
-      return {
-        id: String(row.id),
-        email,
-        name: name || "—",
-        phone: row.phone || "—",
-        registeredAt: row.created_at
-          ? new Date(row.created_at).toLocaleString("ru-RU")
-          : "—",
-        ordersCount: orderCountByEmail[emailKey] || 0,
-        status: "Активен",
-      };
-    });
-
+    const clients = await listClients();
     return res.json({ clients });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Не удалось загрузить клиентов" });
   }
 });
+
+async function listClients() {
+  const result = await query(
+    `SELECT
+       users.id,
+       users.login,
+       users.email,
+       users.role,
+       users.surname,
+       users.first_name,
+       users.phone,
+       users.created_at,
+       COUNT(orders.id)::int AS orders_count
+     FROM users
+     LEFT JOIN orders ON LOWER(orders.email) = LOWER(COALESCE(NULLIF(users.email, ''), users.login))
+     WHERE LOWER(COALESCE(users.role, 'user')) <> 'admin'
+     GROUP BY users.id
+     ORDER BY users.created_at DESC NULLS LAST, users.id DESC`
+  );
+
+  return result.rows.map((row) => {
+    const email = row.email || row.login || "";
+    const name = [row.surname, row.first_name].filter(Boolean).join(" ").trim();
+    return {
+      id: String(row.id),
+      email,
+      name: name || "—",
+      phone: row.phone || "—",
+      registeredAt: row.created_at ? new Date(row.created_at).toLocaleString("ru-RU") : "—",
+      ordersCount: Number(row.orders_count || 0),
+      status: "Активен",
+    };
+  });
+}
 
 adminRouter.get("/delivery/settings", async (_req, res) => {
   try {
@@ -270,6 +365,125 @@ adminRouter.put("/delivery/settings", async (req, res) => {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Не удалось сохранить настройки доставки" });
+  }
+});
+
+adminRouter.get("/content/:section", async (req, res) => {
+  const section = String(req.params.section || "").trim();
+  const allowed = new Set(["home", "pages", "site", "delivery"]);
+  if (!allowed.has(section)) {
+    return res.status(400).json({ error: "Некорректный раздел контента" });
+  }
+  try {
+    const content = section === "delivery" ? await getDeliverySettings() : await getSiteContent(section, null);
+    return res.json({ section, content });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Не удалось загрузить контент" });
+  }
+});
+
+adminRouter.put("/content/:section", async (req, res) => {
+  const section = String(req.params.section || "").trim();
+  const allowed = new Set(["home", "pages", "site", "delivery"]);
+  if (!allowed.has(section)) {
+    return res.status(400).json({ error: "Некорректный раздел контента" });
+  }
+  try {
+    const content = req.body?.content ?? req.body;
+    const saved =
+      section === "delivery" ? await saveDeliverySettings(content) : await saveSiteContent(section, content);
+    return res.json({ section, content: saved });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Не удалось сохранить контент" });
+  }
+});
+
+async function buildBackupPayload(section) {
+  const [products, order, siteData, clients] = await Promise.all([
+    listProducts(),
+    getProductOrder(),
+    exportSiteData(),
+    listClients(),
+  ]);
+  const full = {
+    version: 5,
+    exportedAt: new Date().toISOString(),
+    products,
+    order,
+    clients,
+    orders: siteData.orders,
+    reviews: siteData.reviews,
+    newsletter: siteData.newsletter,
+    contacts: siteData.contacts,
+    content: siteData.content,
+    deliverySettings: siteData.deliverySettings,
+    seo: await getSeoSettings(),
+  };
+
+  if (!section) return full;
+  if (section === "products") return { section, products, order };
+  if (section === "clients") return { section, clients };
+  if (section === "delivery") return { section, deliverySettings: siteData.deliverySettings };
+  if (section === "seo") return { section, seo: await getSeoSettings() };
+  return { section, [section]: await backupSection(section) };
+}
+
+async function restoreBackupPayload(payload, section) {
+  const data = payload?.section && payload[payload.section] !== undefined ? payload : payload || {};
+  const target = section || payload?.section || "";
+
+  if (!target || target === "products") {
+    const products = Array.isArray(data.products) ? data.products : [];
+    const record = Object.fromEntries(products.map((product) => [product.id, product]));
+    await replaceCatalog(record, data.order || products.map((product) => product.id));
+  }
+  if (!target || target === "clients") {
+    await replaceClients(data.clients || []);
+  }
+  if (!target || target === "seo") {
+    if (data.seo) await saveSeoSettings(data.seo);
+  }
+  await restoreSiteData(data, target || undefined);
+  return buildBackupPayload();
+}
+
+adminRouter.get("/backup", async (_req, res) => {
+  try {
+    return res.json(await buildBackupPayload());
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Не удалось выгрузить резервную копию" });
+  }
+});
+
+adminRouter.get("/backup/:section", async (req, res) => {
+  try {
+    return res.json(await buildBackupPayload(String(req.params.section || "")));
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Не удалось выгрузить раздел" });
+  }
+});
+
+adminRouter.post("/backup/import", async (req, res) => {
+  try {
+    const backup = await restoreBackupPayload(req.body || {});
+    return res.json({ ok: true, backup });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Не удалось импортировать резервную копию" });
+  }
+});
+
+adminRouter.post("/backup/import/:section", async (req, res) => {
+  try {
+    const backup = await restoreBackupPayload(req.body || {}, String(req.params.section || ""));
+    return res.json({ ok: true, backup });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Не удалось импортировать раздел" });
   }
 });
 

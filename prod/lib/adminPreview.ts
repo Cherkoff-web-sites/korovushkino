@@ -11,7 +11,7 @@ import { readPreviewProducts } from '@/lib/previewProductsStore'
 import { productUrlSlug } from '@/lib/productSeo'
 
 /** Локальный режим админки без backend (перед продом — false). */
-export const ADMIN_PREVIEW = true
+export const ADMIN_PREVIEW = false
 
 export function getPreviewProducts(): ProductData[] {
   if (typeof window !== 'undefined') {

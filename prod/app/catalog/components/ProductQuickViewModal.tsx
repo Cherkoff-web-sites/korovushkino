@@ -78,7 +78,7 @@ export default function ProductQuickViewModal({
 
             <div className="mt-3 flex flex-wrap items-center gap-3">
               <Link
-                href={productReviewsHref(product.id)}
+                href={productReviewsHref(product)}
                 onClick={onClose}
                 aria-label={`Отзывы о товаре «${product.name}»`}
                 className="group inline-flex items-center gap-2 text-sm text-[#9A9A9A] transition-colors hover:text-[#3D8C13]"

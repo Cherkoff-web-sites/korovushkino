@@ -70,7 +70,7 @@ export default function ProductEditorPanel({
           </div>
           <div className="p-4">
             <AdminProductForm
-              key={`${product?.id ?? 'new'}-${mainImage}`}
+              key={product?.id ?? 'new'}
               initialProduct={formProduct}
               isEdit={!isNew && Boolean(product)}
               mainImage={mainImage}

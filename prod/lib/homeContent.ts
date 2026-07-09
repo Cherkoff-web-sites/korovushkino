@@ -256,7 +256,7 @@ export const HIGHLIGHT_LAYOUT: Record<
 
 const STORAGE_KEY = 'korovushkino_home_content'
 
-function mergeHomeContent(parsed: Partial<HomeContent>): HomeContent {
+export function mergeHomeContent(parsed: Partial<HomeContent>): HomeContent {
   const hero = { ...DEFAULT_HOME_CONTENT.hero, ...parsed.hero }
   const about = { ...DEFAULT_HOME_CONTENT.about, ...parsed.about }
   const reviews = { ...DEFAULT_HOME_CONTENT.reviews, ...parsed.reviews }

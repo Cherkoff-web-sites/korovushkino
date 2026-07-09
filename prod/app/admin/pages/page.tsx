@@ -62,18 +62,25 @@ export default function AdminPagesEditor() {
   const { content, save, reset } = usePagesContent()
   const { showToast } = useToast()
   const [draft, setDraft] = useState<PagesContent>(content)
+  const [dirty, setDirty] = useState(false)
 
   useEffect(() => {
-    setDraft(content)
-  }, [content])
+    if (!dirty) {
+      setDraft(content)
+    }
+  }, [content, dirty])
 
   function update(mutator: (prev: PagesContent) => PagesContent) {
-    setDraft((prev) => mutator(prev))
+    setDraft((prev) => {
+      setDirty(true)
+      return mutator(prev)
+    })
   }
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault()
     save(draft)
+    setDirty(false)
     showToast('Страницы сайта сохранены')
   }
 

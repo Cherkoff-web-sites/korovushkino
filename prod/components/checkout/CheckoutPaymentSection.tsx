@@ -5,6 +5,7 @@ import {
 } from '@/components/checkout/checkoutTypes'
 import {
   checkoutSectionClass,
+  checkoutSectionErrorClass,
   checkoutSectionDividerClass,
   checkoutSectionTitleClass,
 } from '@/components/checkout/checkoutStyles'
@@ -22,6 +23,7 @@ type CheckoutPaymentSectionProps = {
   editing: boolean
   onStartEdit: () => void
   onSelect: (method: PaymentMethodId) => void
+  invalid?: boolean
 }
 
 function PaymentMethodIcon({ id }: { id: PaymentMethodId }) {
@@ -40,11 +42,12 @@ export default function CheckoutPaymentSection({
   editing,
   onStartEdit,
   onSelect,
+  invalid = false,
 }: CheckoutPaymentSectionProps) {
   const summary = method ? getSummaryLabel(methods, method) : ''
 
   return (
-    <section className={checkoutSectionClass}>
+    <section className={invalid ? checkoutSectionErrorClass : checkoutSectionClass}>
       <h2 className={checkoutSectionTitleClass}>Оплата</h2>
 
       {!editing && method ? (

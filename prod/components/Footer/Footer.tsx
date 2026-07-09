@@ -17,6 +17,7 @@ export default function Footer() {
   const { showToast } = useToast()
   const { footer, returnsModal } = content
   const [returnModalOpen, setReturnModalOpen] = useState(false)
+  const [newsletterModalOpen, setNewsletterModalOpen] = useState(false)
 
   async function handleNewsletterSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -31,7 +32,7 @@ export default function Footer() {
     const added = await subscribeToNewsletter(email, 'footer')
     form.reset()
     if (added) {
-      showToast('Вы подписаны на рассылку')
+      setNewsletterModalOpen(true)
     } else {
       showToast('Этот email уже в списке подписчиков')
     }
@@ -212,6 +213,18 @@ export default function Footer() {
         <TaggedHeading tag={resolveHeadingTag(returnsModal.paragraphStorageTag, 'p')} className="mt-4">
           {returnsModal.paragraphStorage}
         </TaggedHeading>
+      </InfoModal>
+
+      <InfoModal
+        open={newsletterModalOpen}
+        onClose={() => setNewsletterModalOpen(false)}
+        title="Вы подписаны на рассылку"
+        variant="notice"
+      >
+        <p>
+          Спасибо! Мы будем присылать новости и акции на указанный email. Письмо с подтверждением может
+          прийти в течение нескольких минут.
+        </p>
       </InfoModal>
 
     </>

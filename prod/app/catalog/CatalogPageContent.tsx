@@ -12,6 +12,7 @@ import {
 import { fetchCatalogProducts } from '@/lib/api/productsClient'
 import CatalogGridCard from './components/CatalogGridCard'
 import ProductQuickViewModal from './components/ProductQuickViewModal'
+import { usePublishedProductRatings } from '@/hooks/usePublishedProductRatings'
 
 const categoryEntries = Object.entries(CATEGORY_LABELS) as [CategorySlug, string][]
 
@@ -44,6 +45,8 @@ export default function CatalogPageContent({ allProducts }: { allProducts: Produ
     if (!activeSlug) return products
     return products.filter((p) => p.categorySlug === activeSlug)
   }, [products, activeSlug])
+
+  const { ratingsByProductId } = usePublishedProductRatings(products)
 
   const categoryTitle = activeSlug ? CATEGORY_LABELS[activeSlug] : 'Все категории'
 
@@ -112,7 +115,12 @@ export default function CatalogPageContent({ allProducts }: { allProducts: Produ
         ) : (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {filteredProducts.map((product) => (
-              <CatalogGridCard key={product.id} product={product} onOpen={setPreviewProduct} />
+              <CatalogGridCard
+                key={product.id}
+                product={product}
+                onOpen={setPreviewProduct}
+                rating={ratingsByProductId.get(product.id)?.rating ?? 0}
+              />
             ))}
           </div>
         )}

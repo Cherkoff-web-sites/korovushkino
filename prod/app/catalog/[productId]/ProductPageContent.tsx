@@ -12,6 +12,8 @@ import ProductSeoHead from '../components/ProductSeoHead'
 import ContentImage from '@/components/ui/ContentImage'
 import { readHomeContent } from '@/lib/homeContent'
 import { averageReviewRating, formatStarString } from '@/lib/reviewRating'
+import { mergePublishedReviews } from '@/lib/reviewsDisplay'
+import { readApprovedReviews } from '@/lib/userReviewsStore'
 
 const PLACEHOLDER = '/images/home/hero-bg.png'
 
@@ -56,11 +58,16 @@ export default function ProductPageContent({
   const mainImage = product.images[0] ?? PLACEHOLDER
   const categoryHref = `/catalog?category=${product.categorySlug}`
   const categoryLabel = CATEGORY_LABELS[product.categorySlug]
-  const homeReviews = readHomeContent().reviews.items
-  const productReviews = homeReviews.filter(
+  const homeContent = readHomeContent()
+  const publishedReviews = mergePublishedReviews(
+    homeContent.reviews.items,
+    readApprovedReviews(),
+    homeContent.reviews.replyAuthorLabel
+  )
+  const productReviews = publishedReviews.filter(
     (item) => item.productLabel.toLowerCase() === product.name.toLowerCase()
   )
-  const avgRating = averageReviewRating(productReviews.length ? productReviews : homeReviews)
+  const avgRating = averageReviewRating(productReviews.length ? productReviews : publishedReviews)
 
   return (
     <div>

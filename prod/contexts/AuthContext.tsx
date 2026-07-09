@@ -18,6 +18,7 @@ import {
   apiLogout,
   type AuthUser,
 } from '@/lib/api/authApi'
+import { syncClientFromUser } from '@/lib/clientsSync'
 
 type AuthContextValue = {
   user: AuthUser | null
@@ -45,16 +46,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loginModalOpen, setLoginModalOpen] = useState(false)
   const skipLoginPromptRef = useRef(false)
 
+  const applyUser = useCallback((nextUser: AuthUser | null) => {
+    setUser(nextUser)
+    if (nextUser) syncClientFromUser(nextUser)
+  }, [])
+
   const refreshUser = useCallback(async () => {
     try {
       const nextUser = await apiGetMe()
-      setUser(nextUser)
+      applyUser(nextUser)
       return nextUser
     } catch {
-      setUser(null)
+      applyUser(null)
       return null
     }
-  }, [])
+  }, [applyUser])
 
   useEffect(() => {
     let cancelled = false
@@ -67,7 +73,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         ])
         if (!cancelled) {
           setEmailCodeRequired(config.emailCodeRequired)
-          setUser(nextUser)
+          if (nextUser) {
+            applyUser(nextUser)
+          } else {
+            setUser(null)
+          }
         }
       } finally {
         if (!cancelled) setLoading(false)
@@ -78,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [applyUser])
 
   const openLoginModal = useCallback(() => setLoginModalOpen(true), [])
   const closeLoginModal = useCallback(() => setLoginModalOpen(false), [])
@@ -86,17 +96,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loginWithEmail = useCallback(async (email: string) => {
     const result = await apiLoginRequestCode(email)
     if (result.user && result.accessToken) {
-      setUser(result.user)
+      applyUser(result.user)
       return false
     }
     return result.emailCodeRequired === true
-  }, [])
+  }, [applyUser])
 
   const confirmLoginCode = useCallback(async (email: string, code: string) => {
     const nextUser = await apiLoginConfirmCode(email, code)
-    setUser(nextUser)
+    applyUser(nextUser)
     return nextUser
-  }, [])
+  }, [applyUser])
 
   const loginWithDemo = useCallback((email: string) => {
     const normalizedEmail = email.trim().toLowerCase()
@@ -111,8 +121,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       createdAt: null,
       updatedAt: null,
     }
-    setUser(demoUser)
-  }, [])
+    applyUser(demoUser)
+  }, [applyUser])
 
   const logout = useCallback(() => {
     skipLoginPromptRef.current = true

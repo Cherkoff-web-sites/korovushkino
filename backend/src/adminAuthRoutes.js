@@ -70,7 +70,7 @@ router.post("/request-code", async (req, res) => {
         return res.status(500).json({ error: "Ошибка сервера" });
       }
     }
-    return res.status(400).json({ error: "Укажите корректную почту или аварийный пароль" });
+    return res.status(400).json({ error: "Укажите корректную почту" });
   }
 
   const email = rawInput.toLowerCase();
@@ -92,7 +92,7 @@ router.post("/request-code", async (req, res) => {
     return res.json({ ok: true, emailCodeRequired: true });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ error: "Не удалось отправить код. Проверьте SMTP или используйте аварийный пароль." });
+    return res.status(500).json({ error: "Не удалось отправить код. Попробуйте позже." });
   }
 });
 

@@ -2,22 +2,26 @@
 
 import Link from 'next/link'
 import { usePagesContent } from '@/hooks/usePagesContent'
-import { useDeliverySettings } from '@/hooks/useDeliverySettings'
 import ContentImage from '@/components/ui/ContentImage'
+import DeliveryTariffs from '@/components/delivery/DeliveryTariffs'
+import { TaggedHeading } from '@/components/ui/RenderTaggedContent'
+import { resolveHeadingTag } from '@/lib/contentBlocks'
 
 export default function DeliveryPaymentPageContent() {
   const { content } = usePagesContent()
   const { deliveryPayment } = content
-  const { settings, hydrated } = useDeliverySettings()
   const enabledMethods = deliveryPayment.paymentMethods.filter((method) => method.enabled)
 
   return (
     <div className="bg-[#fdfbf6] pt-8 sm:py-10">
       <section className="pb-10 sm:pb-12 lg:pb-14">
         <div className="container">
-          <h1 className="text-[28px] font-normal leading-tight text-[#1F1F1F] sm:text-[32px] lg:text-[36px]">
+          <TaggedHeading
+            tag={resolveHeadingTag(deliveryPayment.pageTitleTag, 'h1')}
+            className="text-[28px] font-normal leading-tight text-[#1F1F1F] sm:text-[32px] lg:text-[36px]"
+          >
             {deliveryPayment.pageTitle}
-          </h1>
+          </TaggedHeading>
 
           <div className="mt-6 grid gap-6 lg:mt-8 lg:grid-cols-[minmax(0,1fr)_minmax(260px,420px)] lg:items-start lg:gap-8">
             <div className="space-y-3 sm:space-y-4">
@@ -34,12 +38,6 @@ export default function DeliveryPaymentPageContent() {
                   ) : null}
                 </div>
               ))}
-              {hydrated ? (
-                <div className="rounded-md bg-[#FFF4E3] px-2.5 py-2 text-sm text-[#232326] sm:text-[15px]">
-                  Московская область — от {settings.moscowRegionPrice.toLocaleString('ru-RU')} ₽ · Москва — от{' '}
-                  {settings.moscowDefaultPrice.toLocaleString('ru-RU')} ₽
-                </div>
-              ) : null}
             </div>
 
             <div className="overflow-hidden rounded-xl border border-[#D0D9C8] bg-[#E6F2E2]">
@@ -56,9 +54,30 @@ export default function DeliveryPaymentPageContent() {
           </div>
 
           <div className="mt-10 sm:mt-12">
-            <h2 className="text-[28px] font-normal leading-tight text-[#1F1F1F] sm:text-[32px] lg:text-[36px]">
+            <TaggedHeading
+              tag={resolveHeadingTag(deliveryPayment.calculatorTitleTag, 'h2')}
+              className="text-[28px] font-normal leading-tight text-[#1F1F1F] sm:text-[32px] lg:text-[36px]"
+            >
+              {deliveryPayment.calculatorTitle}
+            </TaggedHeading>
+            <TaggedHeading
+              tag={resolveHeadingTag(deliveryPayment.calculatorTextTag, 'p')}
+              className="mt-3 max-w-3xl text-sm leading-relaxed text-[#232326]/80 sm:text-[15px]"
+            >
+              {deliveryPayment.calculatorText}
+            </TaggedHeading>
+            <div className="mt-6">
+              <DeliveryTariffs />
+            </div>
+          </div>
+
+          <div className="mt-10 sm:mt-12">
+            <TaggedHeading
+              tag={resolveHeadingTag(deliveryPayment.paymentTitleTag, 'h2')}
+              className="text-[28px] font-normal leading-tight text-[#1F1F1F] sm:text-[32px] lg:text-[36px]"
+            >
               {deliveryPayment.paymentTitle}
-            </h2>
+            </TaggedHeading>
 
             {enabledMethods.length === 0 ? (
               <p className="mt-4 text-sm text-[#707070]">Способы оплаты временно недоступны.</p>

@@ -1,12 +1,15 @@
 'use client'
 
 import { useRef, useState } from 'react'
+import { adminInputClass } from '@/components/admin/adminStyles'
 import { readImageAsDataUrl } from '@/lib/imageFile'
 
 type AdminImageFieldProps = {
   label: string
   value: string
   onChange: (value: string) => void
+  alt?: string
+  onAltChange?: (alt: string) => void
   onRemove?: () => void
   previewAspect?: 'square' | 'video' | 'wide'
 }
@@ -15,6 +18,8 @@ export default function AdminImageField({
   label,
   value,
   onChange,
+  alt = '',
+  onAltChange,
   onRemove,
   previewAspect = 'video',
 }: AdminImageFieldProps) {
@@ -67,7 +72,7 @@ export default function AdminImageField({
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={trimmed}
-            alt=""
+            alt={alt.trim() || label}
             className="h-full w-full object-cover"
             onError={() => setLoadError(true)}
             onLoad={() => setLoadError(false)}
@@ -111,6 +116,18 @@ export default function AdminImageField({
           </button>
         ) : null}
       </div>
+
+      {onAltChange ? (
+        <label className="block">
+          <span className="mb-1.5 block text-xs text-[#707070]">Подпись к изображению (alt)</span>
+          <input
+            className={adminInputClass}
+            value={alt}
+            onChange={(event) => onAltChange(event.target.value)}
+            placeholder="Опишите изображение для SEO и доступности"
+          />
+        </label>
+      ) : null}
 
       {error ? <p className="text-xs text-red-600">{error}</p> : null}
     </div>

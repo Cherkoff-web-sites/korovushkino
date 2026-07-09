@@ -4,8 +4,10 @@ import Link from 'next/link'
 import { FormEvent, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import InfoModal from '@/components/ui/InfoModal'
+import { TaggedHeading } from '@/components/ui/RenderTaggedContent'
 import FooterSocialLinks from '@/components/Footer/FooterSocialLinks'
 import { useSiteContent } from '@/hooks/useSiteContent'
+import { resolveHeadingTag } from '@/lib/contentBlocks'
 import { subscribeToNewsletter } from '@/lib/leadsService'
 import { useToast } from '@/contexts/ToastContext'
 
@@ -50,10 +52,18 @@ export default function Footer() {
           <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-10 px-4 pb-14 pt-12 sm:pb-16 sm:pt-14 lg:flex-row lg:items-stretch lg:gap-8 lg:pb-20 lg:pt-14">
             <div className="min-w-0 flex-1 lg:max-w-[min(100%,58%)] lg:pr-4">
               <div className="max-w-2xl">
-                <h2 className="text-lg font-bold text-[#1F1F1F] sm:text-xl">{footer.newsletterTitle}</h2>
-                <p className="mt-2 text-sm font-normal leading-relaxed text-[#232326]/70 sm:text-[15px]">
+                <TaggedHeading
+                  tag={resolveHeadingTag(footer.newsletterTitleTag, 'h2')}
+                  className="text-lg font-bold text-[#1F1F1F] sm:text-xl"
+                >
+                  {footer.newsletterTitle}
+                </TaggedHeading>
+                <TaggedHeading
+                  tag={resolveHeadingTag(footer.newsletterTextTag, 'p')}
+                  className="mt-2 text-sm font-normal leading-relaxed text-[#232326]/70 sm:text-[15px]"
+                >
                   {footer.newsletterText}
-                </p>
+                </TaggedHeading>
                 <form className="mt-5" onSubmit={handleNewsletterSubmit}>
                   <label htmlFor="footer-email" className="sr-only">
                     Электронная почта
@@ -146,12 +156,18 @@ export default function Footer() {
 
             <aside className="w-full shrink-0 lg:mt-0 lg:w-[min(100%,42%)] lg:max-w-[480px] lg:self-stretch">
               <div className="flex h-full min-h-[240px] flex-col justify-center rounded-2xl border border-[#E5DECF] bg-[#FFF8ED] p-6 sm:min-h-[280px] sm:p-8 lg:py-10">
-                <h3 className="text-2xl font-bold leading-tight text-[#1F1F1F] sm:text-3xl">
+                <TaggedHeading
+                  tag={resolveHeadingTag(footer.brandTitleTag, 'h3')}
+                  className="text-2xl font-bold leading-tight text-[#1F1F1F] sm:text-3xl"
+                >
                   {footer.brandTitle}
-                </h3>
-                <p className="mt-4 text-sm font-normal leading-relaxed text-[#232326] sm:text-base">
+                </TaggedHeading>
+                <TaggedHeading
+                  tag={resolveHeadingTag(footer.brandDescriptionTag, 'p')}
+                  className="mt-4 text-sm font-normal leading-relaxed text-[#232326] sm:text-base"
+                >
                   {footer.brandDescription}
-                </p>
+                </TaggedHeading>
                 <FooterSocialLinks links={footer.socialLinks} />
               </div>
             </aside>
@@ -164,13 +180,13 @@ export default function Footer() {
         onClose={() => setReturnModalOpen(false)}
         title={returnsModal.title}
       >
-        <p>
+        <TaggedHeading tag={resolveHeadingTag(returnsModal.introTag, 'p')}>
           {returnsModal.intro}{' '}
           <a href={returnsModal.phoneHref} className="text-[#438E1B] hover:underline">
             {returnsModal.phoneDisplay}
           </a>
           . {returnsModal.afterPhoneText}
-        </p>
+        </TaggedHeading>
         <ol className="mt-4 list-decimal space-y-2 pl-5">
           {returnsModal.steps.map((step, index) => (
             <li key={index}>
@@ -190,8 +206,12 @@ export default function Footer() {
             </li>
           ))}
         </ol>
-        <p className="mt-4">{returnsModal.paragraphRefund}</p>
-        <p className="mt-4">{returnsModal.paragraphStorage}</p>
+        <TaggedHeading tag={resolveHeadingTag(returnsModal.paragraphRefundTag, 'p')} className="mt-4">
+          {returnsModal.paragraphRefund}
+        </TaggedHeading>
+        <TaggedHeading tag={resolveHeadingTag(returnsModal.paragraphStorageTag, 'p')} className="mt-4">
+          {returnsModal.paragraphStorage}
+        </TaggedHeading>
       </InfoModal>
 
     </>

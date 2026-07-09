@@ -1,4 +1,4 @@
-import type { StoredNewsletterSubscriber, StoredOrder } from '@/lib/adminDataStore'
+import type { StoredNewsletterSubscriber, StoredOrder, StoredClient } from '@/lib/adminDataStore'
 import type { DeliverySettings } from '@/lib/deliverySettings'
 import { request } from '@/lib/api/httpClient'
 
@@ -12,6 +12,10 @@ export async function adminFetchOrders() {
 
 export async function adminFetchNewsletterSubscribers() {
   return request<{ subscribers: StoredNewsletterSubscriber[] }>('/api/admin/newsletter')
+}
+
+export async function adminFetchClients() {
+  return request<{ clients: StoredClient[] }>('/api/admin/clients')
 }
 
 export async function adminFetchDeliverySettings() {

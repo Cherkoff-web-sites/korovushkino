@@ -3,12 +3,14 @@
 import { FormEvent, useEffect, useState } from 'react'
 import AdminPageHeader from '@/components/admin/AdminPageHeader'
 import AdminImageField from '@/components/admin/AdminImageField'
+import AdminTaggedTextField from '@/components/admin/AdminTaggedTextField'
 import { adminInputClass, adminPanelClass } from '@/components/admin/adminStyles'
 import Button from '@/components/ui/Button'
 import { useHomeContent } from '@/hooks/useHomeContent'
 import type { HomeContent } from '@/lib/homeContent'
 import { DEFAULT_HOME_CONTENT } from '@/lib/homeContent'
 import { useToast } from '@/contexts/ToastContext'
+import { resolveHeadingTag } from '@/lib/contentBlocks'
 
 function Field({
   label,
@@ -81,39 +83,46 @@ export default function HomeContentEditor() {
               <AdminImageField
                 label="Фоновое изображение hero"
                 value={draft.hero.backgroundImage}
+                alt={draft.hero.backgroundImageAlt}
                 onChange={(value) =>
                   update((p) => ({ ...p, hero: { ...p.hero, backgroundImage: value } }))
+                }
+                onAltChange={(backgroundImageAlt) =>
+                  update((p) => ({ ...p, hero: { ...p.hero, backgroundImageAlt } }))
                 }
                 previewAspect="wide"
               />
             </div>
-            <Field label="Заголовок">
-              <input
-                className={adminInputClass}
-                value={draft.hero.title}
-                onChange={(e) => update((p) => ({ ...p, hero: { ...p.hero, title: e.target.value } }))}
-              />
-            </Field>
-            <Field label="Текст 1">
-              <textarea
-                rows={3}
-                className={`${adminInputClass} resize-y`}
-                value={draft.hero.paragraph1}
-                onChange={(e) =>
-                  update((p) => ({ ...p, hero: { ...p.hero, paragraph1: e.target.value } }))
-                }
-              />
-            </Field>
-            <Field label="Текст 2">
-              <textarea
-                rows={3}
-                className={`${adminInputClass} resize-y`}
-                value={draft.hero.paragraph2}
-                onChange={(e) =>
-                  update((p) => ({ ...p, hero: { ...p.hero, paragraph2: e.target.value } }))
-                }
-              />
-            </Field>
+            <AdminTaggedTextField
+              label="Заголовок"
+              value={draft.hero.title}
+              tag={resolveHeadingTag(draft.hero.titleTag, 'h1')}
+              pageTitle
+              onValueChange={(title) => update((p) => ({ ...p, hero: { ...p.hero, title } }))}
+              onTagChange={(titleTag) => update((p) => ({ ...p, hero: { ...p.hero, titleTag } }))}
+            />
+            <AdminTaggedTextField
+              label="Текст 1"
+              value={draft.hero.paragraph1}
+              tag={resolveHeadingTag(draft.hero.paragraph1Tag, 'p')}
+              multiline
+              rows={3}
+              onValueChange={(paragraph1) => update((p) => ({ ...p, hero: { ...p.hero, paragraph1 } }))}
+              onTagChange={(paragraph1Tag) =>
+                update((p) => ({ ...p, hero: { ...p.hero, paragraph1Tag } }))
+              }
+            />
+            <AdminTaggedTextField
+              label="Текст 2"
+              value={draft.hero.paragraph2}
+              tag={resolveHeadingTag(draft.hero.paragraph2Tag, 'p')}
+              multiline
+              rows={3}
+              onValueChange={(paragraph2) => update((p) => ({ ...p, hero: { ...p.hero, paragraph2 } }))}
+              onTagChange={(paragraph2Tag) =>
+                update((p) => ({ ...p, hero: { ...p.hero, paragraph2Tag } }))
+              }
+            />
             <Field label="Текст кнопки">
               <input
                 className={adminInputClass}
@@ -145,6 +154,7 @@ export default function HomeContentEditor() {
                 <AdminImageField
                   label={`Иконка ${index + 1}`}
                   value={item.icon}
+                  alt={item.iconAlt}
                   onChange={(value) =>
                     update((p) => {
                       const benefits = [...p.benefits]
@@ -152,21 +162,34 @@ export default function HomeContentEditor() {
                       return { ...p, benefits }
                     })
                   }
+                  onAltChange={(iconAlt) =>
+                    update((p) => {
+                      const benefits = [...p.benefits]
+                      benefits[index] = { ...benefits[index]!, iconAlt }
+                      return { ...p, benefits }
+                    })
+                  }
                   previewAspect="square"
                 />
-                <Field label={`Текст ${index + 1}`}>
-                  <input
-                    className={adminInputClass}
-                    value={item.text}
-                    onChange={(e) =>
-                      update((p) => {
-                        const benefits = [...p.benefits]
-                        benefits[index] = { ...benefits[index]!, text: e.target.value }
-                        return { ...p, benefits }
-                      })
-                    }
-                  />
-                </Field>
+                <AdminTaggedTextField
+                  label={`Текст ${index + 1}`}
+                  value={item.text}
+                  tag={resolveHeadingTag(item.textTag, 'p')}
+                  onValueChange={(text) =>
+                    update((p) => {
+                      const benefits = [...p.benefits]
+                      benefits[index] = { ...benefits[index]!, text }
+                      return { ...p, benefits }
+                    })
+                  }
+                  onTagChange={(textTag) =>
+                    update((p) => {
+                      const benefits = [...p.benefits]
+                      benefits[index] = { ...benefits[index]!, textTag }
+                      return { ...p, benefits }
+                    })
+                  }
+                />
               </div>
             ))}
           </div>
@@ -179,26 +202,40 @@ export default function HomeContentEditor() {
           <div className="space-y-4 p-4">
             {draft.highlights.map((item, index) => (
               <div key={item.id} className="grid grid-cols-1 gap-4 border-b border-[#e8eaef] pb-4 last:border-b-0 sm:grid-cols-2">
-                <Field label={`Название: ${item.id}`}>
-                  <input
-                    className={adminInputClass}
-                    value={item.title}
-                    onChange={(e) =>
-                      update((p) => {
-                        const highlights = [...p.highlights]
-                        highlights[index] = { ...highlights[index]!, title: e.target.value }
-                        return { ...p, highlights }
-                      })
-                    }
-                  />
-                </Field>
+                <AdminTaggedTextField
+                  label={`Название: ${item.id}`}
+                  value={item.title}
+                  tag={resolveHeadingTag(item.titleTag, 'h3')}
+                  onValueChange={(title) =>
+                    update((p) => {
+                      const highlights = [...p.highlights]
+                      highlights[index] = { ...highlights[index]!, title }
+                      return { ...p, highlights }
+                    })
+                  }
+                  onTagChange={(titleTag) =>
+                    update((p) => {
+                      const highlights = [...p.highlights]
+                      highlights[index] = { ...highlights[index]!, titleTag }
+                      return { ...p, highlights }
+                    })
+                  }
+                />
                 <AdminImageField
                   label={`Изображение: ${item.id}`}
                   value={item.backgroundImage}
+                  alt={item.backgroundImageAlt}
                   onChange={(value) =>
                     update((p) => {
                       const highlights = [...p.highlights]
                       highlights[index] = { ...highlights[index]!, backgroundImage: value }
+                      return { ...p, highlights }
+                    })
+                  }
+                  onAltChange={(backgroundImageAlt) =>
+                    update((p) => {
+                      const highlights = [...p.highlights]
+                      highlights[index] = { ...highlights[index]!, backgroundImageAlt }
                       return { ...p, highlights }
                     })
                   }
@@ -214,60 +251,83 @@ export default function HomeContentEditor() {
             <h2 className="text-sm font-semibold text-[#1F1F1F]">Блок «О нас»</h2>
           </div>
           <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2">
-            <Field label="Заголовок секции">
-              <input
-                className={adminInputClass}
-                value={draft.about.sectionTitle}
-                onChange={(e) =>
-                  update((p) => ({ ...p, about: { ...p.about, sectionTitle: e.target.value } }))
-                }
-              />
-            </Field>
+            <AdminTaggedTextField
+              label="Заголовок секции"
+              value={draft.about.sectionTitle}
+              tag={resolveHeadingTag(draft.about.sectionTitleTag, 'h2')}
+              onValueChange={(sectionTitle) =>
+                update((p) => ({ ...p, about: { ...p.about, sectionTitle } }))
+              }
+              onTagChange={(sectionTitleTag) =>
+                update((p) => ({ ...p, about: { ...p.about, sectionTitleTag } }))
+              }
+            />
             <AdminImageField
               label="Фото справа (верх)"
               value={draft.about.row1RightImage}
+              alt={draft.about.row1RightImageAlt}
               onChange={(value) =>
                 update((p) => ({ ...p, about: { ...p.about, row1RightImage: value } }))
+              }
+              onAltChange={(row1RightImageAlt) =>
+                update((p) => ({ ...p, about: { ...p.about, row1RightImageAlt } }))
               }
               previewAspect="video"
             />
             <AdminImageField
               label="Фото слева (низ)"
               value={draft.about.row2LeftImage}
+              alt={draft.about.row2LeftImageAlt}
               onChange={(value) =>
                 update((p) => ({ ...p, about: { ...p.about, row2LeftImage: value } }))
+              }
+              onAltChange={(row2LeftImageAlt) =>
+                update((p) => ({ ...p, about: { ...p.about, row2LeftImageAlt } }))
               }
               previewAspect="video"
             />
             {draft.about.blocks.map((block, index) => (
               <div key={index} className="sm:col-span-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <Field label={`Подзаголовок ${index + 1}`}>
-                  <input
-                    className={adminInputClass}
-                    value={block.title}
-                    onChange={(e) =>
-                      update((p) => {
-                        const blocks = [...p.about.blocks]
-                        blocks[index] = { ...blocks[index]!, title: e.target.value }
-                        return { ...p, about: { ...p.about, blocks } }
-                      })
-                    }
-                  />
-                </Field>
-                <Field label={`Текст ${index + 1}`}>
-                  <textarea
-                    rows={3}
-                    className={`${adminInputClass} resize-y`}
-                    value={block.text}
-                    onChange={(e) =>
-                      update((p) => {
-                        const blocks = [...p.about.blocks]
-                        blocks[index] = { ...blocks[index]!, text: e.target.value }
-                        return { ...p, about: { ...p.about, blocks } }
-                      })
-                    }
-                  />
-                </Field>
+                <AdminTaggedTextField
+                  label={`Подзаголовок ${index + 1}`}
+                  value={block.title}
+                  tag={resolveHeadingTag(block.titleTag, 'h3')}
+                  onValueChange={(title) =>
+                    update((p) => {
+                      const blocks = [...p.about.blocks]
+                      blocks[index] = { ...blocks[index]!, title }
+                      return { ...p, about: { ...p.about, blocks } }
+                    })
+                  }
+                  onTagChange={(titleTag) =>
+                    update((p) => {
+                      const blocks = [...p.about.blocks]
+                      blocks[index] = { ...blocks[index]!, titleTag }
+                      return { ...p, about: { ...p.about, blocks } }
+                    })
+                  }
+                />
+                <AdminTaggedTextField
+                  label={`Текст ${index + 1}`}
+                  value={block.text}
+                  tag={resolveHeadingTag(block.textTag, 'p')}
+                  multiline
+                  rows={3}
+                  onValueChange={(text) =>
+                    update((p) => {
+                      const blocks = [...p.about.blocks]
+                      blocks[index] = { ...blocks[index]!, text }
+                      return { ...p, about: { ...p.about, blocks } }
+                    })
+                  }
+                  onTagChange={(textTag) =>
+                    update((p) => {
+                      const blocks = [...p.about.blocks]
+                      blocks[index] = { ...blocks[index]!, textTag }
+                      return { ...p, about: { ...p.about, blocks } }
+                    })
+                  }
+                />
               </div>
             ))}
           </div>
@@ -280,18 +340,23 @@ export default function HomeContentEditor() {
           </div>
           <div className="space-y-4 p-4">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Field label="Заголовок секции">
-                <input
-                  className={adminInputClass}
-                  value={draft.reviews.sectionTitle}
-                  onChange={(e) =>
-                    update((p) => ({
-                      ...p,
-                      reviews: { ...p.reviews, sectionTitle: e.target.value },
-                    }))
-                  }
-                />
-              </Field>
+              <AdminTaggedTextField
+                label="Заголовок секции"
+                value={draft.reviews.sectionTitle}
+                tag={resolveHeadingTag(draft.reviews.sectionTitleTag, 'h2')}
+                onValueChange={(sectionTitle) =>
+                  update((p) => ({
+                    ...p,
+                    reviews: { ...p.reviews, sectionTitle },
+                  }))
+                }
+                onTagChange={(sectionTitleTag) =>
+                  update((p) => ({
+                    ...p,
+                    reviews: { ...p.reviews, sectionTitleTag },
+                  }))
+                }
+              />
               <Field label="Подпись ответа магазина">
                 <input
                   className={adminInputClass}

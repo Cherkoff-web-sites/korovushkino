@@ -1,12 +1,17 @@
 'use client'
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import LeaveReviewModal from '@/components/reviews/LeaveReviewModal'
 import ReviewAccountAvatar from '@/components/reviews/ReviewAccountAvatar'
 import { useAuth } from '@/contexts/AuthContext'
 import { useHomeContent } from '@/hooks/useHomeContent'
+import { TaggedHeading } from '@/components/ui/RenderTaggedContent'
+import { resolveHeadingTag } from '@/lib/contentBlocks'
 import { useToast } from '@/contexts/ToastContext'
+import type { HomeReviewItem } from '@/lib/homeContent'
 import { averageReviewRating } from '@/lib/reviewRating'
+import { mergePublishedReviews } from '@/lib/reviewsDisplay'
+import { readApprovedReviews, submitUserReview } from '@/lib/userReviewsStore'
 
 function StarRow({ count }: { count: number }) {
   return (
@@ -22,11 +27,32 @@ function StarRow({ count }: { count: number }) {
 
 export default function ReviewsSection() {
   const { user, loading, openLoginModal } = useAuth()
-  const { content, save } = useHomeContent()
+  const { content } = useHomeContent()
   const { showToast } = useToast()
-  const reviews = content.reviews.items
+  const [approvedUserReviews, setApprovedUserReviews] = useState(() => readApprovedReviews())
   const [index, setIndex] = useState(0)
   const [reviewModalOpen, setReviewModalOpen] = useState(false)
+
+  useEffect(() => {
+    const reload = () => setApprovedUserReviews(readApprovedReviews())
+    reload()
+    window.addEventListener('user-reviews-updated', reload)
+    window.addEventListener('storage', reload)
+    return () => {
+      window.removeEventListener('user-reviews-updated', reload)
+      window.removeEventListener('storage', reload)
+    }
+  }, [])
+
+  const reviews: HomeReviewItem[] = useMemo(
+    () =>
+      mergePublishedReviews(
+        content.reviews.items,
+        approvedUserReviews,
+        content.reviews.replyAuthorLabel
+      ),
+    [approvedUserReviews, content.reviews.items, content.reviews.replyAuthorLabel]
+  )
 
   const total = reviews.length
   const clamped = total > 0 ? ((index % total) + total) % total : 0
@@ -50,26 +76,28 @@ export default function ReviewsSection() {
     async ({ text, rating }: { text: string; rating: number }) => {
       const authorName =
         [user?.firstName, user?.surname].filter(Boolean).join(' ') || user?.email || 'Покупатель'
-      const newReview = {
+      const authorEmail = (user?.email || user?.login || '').trim().toLowerCase()
+      const productLabel = active?.productLabel || 'нашу продукцию'
+
+      if (!authorEmail) {
+        showToast('Войдите в аккаунт, чтобы оставить отзыв')
+        return
+      }
+
+      await submitUserReview({
         id: `review-${Date.now()}`,
+        authorEmail,
         authorName,
+        productId: productLabel.toLowerCase().replace(/\s+/g, '-'),
+        productLabel,
         date: new Date().toLocaleDateString('ru-RU'),
-        replyDate: '',
-        productLabel: active?.productLabel || 'нашу продукцию',
         rating,
         text,
-        replyText: '',
-      }
-      save({
-        ...content,
-        reviews: {
-          ...content.reviews,
-          items: [newReview, ...content.reviews.items],
-        },
       })
+
       showToast('Спасибо! Отзыв отправлен на модерацию')
     },
-    [active?.productLabel, content, save, showToast, user]
+    [active?.productLabel, showToast, user?.email, user?.firstName, user?.login, user?.surname]
   )
 
   const handleLeaveReview = useCallback(() => {
@@ -90,9 +118,12 @@ export default function ReviewsSection() {
     return (
       <section id="reviews" className="relative z-10 bg-[#fdfbf6] py-10 sm:py-12 lg:py-14">
         <div className="container">
-          <h2 className="mb-[40px] text-[36px] font-normal leading-tight text-black">
+          <TaggedHeading
+            tag={resolveHeadingTag(content.reviews.sectionTitleTag, 'h2')}
+            className="mb-[40px] text-[36px] font-normal leading-tight text-black"
+          >
             {content.reviews.sectionTitle}
-          </h2>
+          </TaggedHeading>
           <p className="text-[#707070]">Отзывов пока нет. Будьте первым!</p>
           <button
             type="button"
@@ -117,12 +148,15 @@ export default function ReviewsSection() {
   return (
     <section id="reviews" className="relative z-10 bg-[#fdfbf6] py-10 sm:py-12 lg:py-14">
       <div className="container">
-        <h2 className="mb-[40px] text-[36px] font-normal leading-tight text-black">
+        <TaggedHeading
+          tag={resolveHeadingTag(content.reviews.sectionTitleTag, 'h2')}
+          className="mb-[40px] text-[36px] font-normal leading-tight text-black"
+        >
           {content.reviews.sectionTitle}
           {reviews.length > 0 ? (
             <span className="ml-3 text-lg text-[#C88C39]">★ {averageRating.toFixed(1)}</span>
           ) : null}
-        </h2>
+        </TaggedHeading>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
           <div className="min-w-0 lg:col-span-8">
@@ -172,18 +206,20 @@ export default function ReviewsSection() {
                     </div>
                     <p>{active.text}</p>
 
-                    <div className="ml-10 border-t border-[#C88C39]/40 pt-4 sm:ml-14 lg:ml-16">
-                      <div className="flex flex-wrap items-start gap-3">
-                        <ReviewAccountAvatar size="sm" />
-                        <div className="min-w-0 flex-1">
-                          <div className="flex flex-wrap items-baseline justify-between gap-2">
-                            <span className="font-normal">{content.reviews.replyAuthorLabel}</span>
-                            <span className="text-black/80">{active.replyDate}</span>
+                    {active.replyText ? (
+                      <div className="ml-10 border-t border-[#C88C39]/40 pt-4 sm:ml-14 lg:ml-16">
+                        <div className="flex flex-wrap items-start gap-3">
+                          <ReviewAccountAvatar size="sm" />
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-baseline justify-between gap-2">
+                              <span className="font-normal">{content.reviews.replyAuthorLabel}</span>
+                              <span className="text-black/80">{active.replyDate}</span>
+                            </div>
+                            <p className="mt-2">{active.replyText}</p>
                           </div>
-                          <p className="mt-2">{active.replyText}</p>
                         </div>
                       </div>
-                    </div>
+                    ) : null}
                   </div>
                 </div>
               </div>

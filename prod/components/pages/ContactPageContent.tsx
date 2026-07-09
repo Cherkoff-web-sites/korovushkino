@@ -4,6 +4,8 @@ import type { ReactNode } from 'react'
 import Image from 'next/image'
 import { usePagesContent } from '@/hooks/usePagesContent'
 import { useSiteContent } from '@/hooks/useSiteContent'
+import { TaggedHeading } from '@/components/ui/RenderTaggedContent'
+import { resolveHeadingTag } from '@/lib/contentBlocks'
 
 function SocialIcon({
   href,
@@ -62,13 +64,21 @@ export default function ContactPageContent() {
         <div className="container">
           <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-2 lg:gap-12 xl:gap-16">
             <div>
-              <h1 className="mb-6 text-[28px] font-normal leading-tight text-[#1F1F1F] sm:mb-8 sm:text-[32px] lg:text-[36px]">
+              <TaggedHeading
+                tag={resolveHeadingTag(contact.pageTitleTag, 'h1')}
+                className="mb-6 text-[28px] font-normal leading-tight text-[#1F1F1F] sm:mb-8 sm:text-[32px] lg:text-[36px]"
+              >
                 {contact.pageTitle}
-              </h1>
+              </TaggedHeading>
 
               <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-6 lg:gap-8">
                 <div>
-                  <h2 className="mb-3 text-base font-semibold text-[#1F1F1F] sm:text-lg">{contact.supportTitle}</h2>
+                  <TaggedHeading
+                    tag={resolveHeadingTag(contact.supportTitleTag, 'h2')}
+                    className="mb-3 text-base font-semibold text-[#1F1F1F] sm:text-lg"
+                  >
+                    {contact.supportTitle}
+                  </TaggedHeading>
                   <div className="flex flex-col gap-2.5">
                     <a
                       href={contact.phoneHref}
@@ -86,7 +96,12 @@ export default function ContactPageContent() {
                 </div>
 
                 <div>
-                  <h2 className="mb-3 text-base font-semibold text-[#1F1F1F] sm:text-lg">{contact.socialTitle}</h2>
+                  <TaggedHeading
+                    tag={resolveHeadingTag(contact.socialTitleTag, 'h2')}
+                    className="mb-3 text-base font-semibold text-[#1F1F1F] sm:text-lg"
+                  >
+                    {contact.socialTitle}
+                  </TaggedHeading>
                   <div className="flex flex-wrap gap-2.5">
                     {socialLinks.map((link) => (
                       <SocialIcon key={link.id} href={link.href} label={link.label}>
@@ -100,7 +115,12 @@ export default function ContactPageContent() {
               </div>
 
               <div className="mt-8 sm:mt-10">
-                <h2 className="mb-3 text-base font-semibold text-[#1F1F1F] sm:text-lg">{contact.legalTitle}</h2>
+                <TaggedHeading
+                  tag={resolveHeadingTag(contact.legalTitleTag, 'h2')}
+                  className="mb-3 text-base font-semibold text-[#1F1F1F] sm:text-lg"
+                >
+                  {contact.legalTitle}
+                </TaggedHeading>
                 <div className="max-w-xl space-y-1 text-sm leading-relaxed text-[#232326]/75 sm:text-[15px]">
                   {contact.legalLines.map((line) => (
                     <p key={line}>{line}</p>

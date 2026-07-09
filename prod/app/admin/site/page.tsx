@@ -2,12 +2,14 @@
 
 import { FormEvent, useEffect, useState } from 'react'
 import AdminPageHeader from '@/components/admin/AdminPageHeader'
+import AdminTaggedTextField from '@/components/admin/AdminTaggedTextField'
 import { adminInputClass, adminPanelClass } from '@/components/admin/adminStyles'
 import Button from '@/components/ui/Button'
 import { useSiteContent } from '@/hooks/useSiteContent'
 import type { SiteContent } from '@/lib/siteContent'
 import { DEFAULT_SITE_CONTENT } from '@/lib/siteContent'
 import { useToast } from '@/contexts/ToastContext'
+import { resolveHeadingTag } from '@/lib/contentBlocks'
 
 function Field({
   label,
@@ -76,31 +78,30 @@ export default function SiteContentEditor() {
             <h2 className="text-sm font-semibold text-[#1F1F1F]">Подвал — рассылка</h2>
           </div>
           <div className="grid grid-cols-1 gap-4 p-4">
-            <Field label="Заголовок">
-              <input
-                className={adminInputClass}
-                value={draft.footer.newsletterTitle}
-                onChange={(e) =>
-                  update((p) => ({
-                    ...p,
-                    footer: { ...p.footer, newsletterTitle: e.target.value },
-                  }))
-                }
-              />
-            </Field>
-            <Field label="Текст">
-              <textarea
-                rows={3}
-                className={`${adminInputClass} resize-y`}
-                value={draft.footer.newsletterText}
-                onChange={(e) =>
-                  update((p) => ({
-                    ...p,
-                    footer: { ...p.footer, newsletterText: e.target.value },
-                  }))
-                }
-              />
-            </Field>
+            <AdminTaggedTextField
+              label="Заголовок"
+              value={draft.footer.newsletterTitle}
+              tag={resolveHeadingTag(draft.footer.newsletterTitleTag, 'h2')}
+              onValueChange={(newsletterTitle) =>
+                update((p) => ({ ...p, footer: { ...p.footer, newsletterTitle } }))
+              }
+              onTagChange={(newsletterTitleTag) =>
+                update((p) => ({ ...p, footer: { ...p.footer, newsletterTitleTag } }))
+              }
+            />
+            <AdminTaggedTextField
+              label="Текст"
+              value={draft.footer.newsletterText}
+              tag={resolveHeadingTag(draft.footer.newsletterTextTag, 'p')}
+              multiline
+              rows={3}
+              onValueChange={(newsletterText) =>
+                update((p) => ({ ...p, footer: { ...p.footer, newsletterText } }))
+              }
+              onTagChange={(newsletterTextTag) =>
+                update((p) => ({ ...p, footer: { ...p.footer, newsletterTextTag } }))
+              }
+            />
           </div>
         </section>
 
@@ -109,31 +110,30 @@ export default function SiteContentEditor() {
             <h2 className="text-sm font-semibold text-[#1F1F1F]">Подвал — блок «Коровушкино»</h2>
           </div>
           <div className="grid grid-cols-1 gap-4 p-4">
-            <Field label="Заголовок">
-              <input
-                className={adminInputClass}
-                value={draft.footer.brandTitle}
-                onChange={(e) =>
-                  update((p) => ({
-                    ...p,
-                    footer: { ...p.footer, brandTitle: e.target.value },
-                  }))
-                }
-              />
-            </Field>
-            <Field label="Описание">
-              <textarea
-                rows={5}
-                className={`${adminInputClass} resize-y`}
-                value={draft.footer.brandDescription}
-                onChange={(e) =>
-                  update((p) => ({
-                    ...p,
-                    footer: { ...p.footer, brandDescription: e.target.value },
-                  }))
-                }
-              />
-            </Field>
+            <AdminTaggedTextField
+              label="Заголовок"
+              value={draft.footer.brandTitle}
+              tag={resolveHeadingTag(draft.footer.brandTitleTag, 'h3')}
+              onValueChange={(brandTitle) =>
+                update((p) => ({ ...p, footer: { ...p.footer, brandTitle } }))
+              }
+              onTagChange={(brandTitleTag) =>
+                update((p) => ({ ...p, footer: { ...p.footer, brandTitleTag } }))
+              }
+            />
+            <AdminTaggedTextField
+              label="Описание"
+              value={draft.footer.brandDescription}
+              tag={resolveHeadingTag(draft.footer.brandDescriptionTag, 'p')}
+              multiline
+              rows={5}
+              onValueChange={(brandDescription) =>
+                update((p) => ({ ...p, footer: { ...p.footer, brandDescription } }))
+              }
+              onTagChange={(brandDescriptionTag) =>
+                update((p) => ({ ...p, footer: { ...p.footer, brandDescriptionTag } }))
+              }
+            />
           </div>
         </section>
 
@@ -228,44 +228,43 @@ export default function SiteContentEditor() {
             <h2 className="text-sm font-semibold text-[#1F1F1F]">Попап «Возврат продукции»</h2>
           </div>
           <div className="grid grid-cols-1 gap-4 p-4">
-            <Field label="Заголовок">
-              <input
-                className={adminInputClass}
-                value={draft.returnsModal.title}
-                onChange={(e) =>
-                  update((p) => ({
-                    ...p,
-                    returnsModal: { ...p.returnsModal, title: e.target.value },
-                  }))
-                }
-              />
-            </Field>
-            <Field label="Вступительный абзац (до телефона)">
-              <textarea
-                rows={3}
-                className={`${adminInputClass} resize-y`}
-                value={draft.returnsModal.intro}
-                onChange={(e) =>
-                  update((p) => ({
-                    ...p,
-                    returnsModal: { ...p.returnsModal, intro: e.target.value },
-                  }))
-                }
-              />
-            </Field>
-            <Field label="Текст после телефона">
-              <textarea
-                rows={3}
-                className={`${adminInputClass} resize-y`}
-                value={draft.returnsModal.afterPhoneText}
-                onChange={(e) =>
-                  update((p) => ({
-                    ...p,
-                    returnsModal: { ...p.returnsModal, afterPhoneText: e.target.value },
-                  }))
-                }
-              />
-            </Field>
+            <AdminTaggedTextField
+              label="Заголовок"
+              value={draft.returnsModal.title}
+              tag={resolveHeadingTag(draft.returnsModal.titleTag, 'h2')}
+              onValueChange={(title) =>
+                update((p) => ({ ...p, returnsModal: { ...p.returnsModal, title } }))
+              }
+              onTagChange={(titleTag) =>
+                update((p) => ({ ...p, returnsModal: { ...p.returnsModal, titleTag } }))
+              }
+            />
+            <AdminTaggedTextField
+              label="Вступительный абзац (до телефона)"
+              value={draft.returnsModal.intro}
+              tag={resolveHeadingTag(draft.returnsModal.introTag, 'p')}
+              multiline
+              rows={3}
+              onValueChange={(intro) =>
+                update((p) => ({ ...p, returnsModal: { ...p.returnsModal, intro } }))
+              }
+              onTagChange={(introTag) =>
+                update((p) => ({ ...p, returnsModal: { ...p.returnsModal, introTag } }))
+              }
+            />
+            <AdminTaggedTextField
+              label="Текст после телефона"
+              value={draft.returnsModal.afterPhoneText}
+              tag={resolveHeadingTag(draft.returnsModal.afterPhoneTextTag, 'p')}
+              multiline
+              rows={3}
+              onValueChange={(afterPhoneText) =>
+                update((p) => ({ ...p, returnsModal: { ...p.returnsModal, afterPhoneText } }))
+              }
+              onTagChange={(afterPhoneTextTag) =>
+                update((p) => ({ ...p, returnsModal: { ...p.returnsModal, afterPhoneTextTag } }))
+              }
+            />
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label="Телефон в тексте">
                 <input
@@ -320,34 +319,32 @@ export default function SiteContentEditor() {
                 }
               />
             </Field>
-            <Field label="Абзац про возврат денег">
-              <textarea
-                rows={3}
-                className={`${adminInputClass} resize-y`}
-                value={draft.returnsModal.paragraphRefund}
-                onChange={(e) =>
-                  update((p) => ({
-                    ...p,
-                    returnsModal: { ...p.returnsModal, paragraphRefund: e.target.value },
-                  }))
-                }
-              />
-            </Field>
-            <Field label="Абзац про хранение">
-              <textarea
-                rows={3}
-                className={`${adminInputClass} resize-y`}
-                value={draft.returnsModal.paragraphStorage}
-                onChange={(e) =>
-                  update((p) =>
-                    ({
-                      ...p,
-                      returnsModal: { ...p.returnsModal, paragraphStorage: e.target.value },
-                    })
-                  )
-                }
-              />
-            </Field>
+            <AdminTaggedTextField
+              label="Абзац про возврат денег"
+              value={draft.returnsModal.paragraphRefund}
+              tag={resolveHeadingTag(draft.returnsModal.paragraphRefundTag, 'p')}
+              multiline
+              rows={3}
+              onValueChange={(paragraphRefund) =>
+                update((p) => ({ ...p, returnsModal: { ...p.returnsModal, paragraphRefund } }))
+              }
+              onTagChange={(paragraphRefundTag) =>
+                update((p) => ({ ...p, returnsModal: { ...p.returnsModal, paragraphRefundTag } }))
+              }
+            />
+            <AdminTaggedTextField
+              label="Абзац про хранение"
+              value={draft.returnsModal.paragraphStorage}
+              tag={resolveHeadingTag(draft.returnsModal.paragraphStorageTag, 'p')}
+              multiline
+              rows={3}
+              onValueChange={(paragraphStorage) =>
+                update((p) => ({ ...p, returnsModal: { ...p.returnsModal, paragraphStorage } }))
+              }
+              onTagChange={(paragraphStorageTag) =>
+                update((p) => ({ ...p, returnsModal: { ...p.returnsModal, paragraphStorageTag } }))
+              }
+            />
           </div>
         </section>
 

@@ -6,6 +6,7 @@ export type AdminNavIconType =
   | 'contact'
   | 'orders'
   | 'newsletter'
+  | 'reviews'
   | 'clients'
   | 'site'
   | 'pages'
@@ -29,6 +30,7 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   { href: '/admin/leads/contact', label: 'Обратная связь', icon: 'contact', section: 'leads' },
   { href: '/admin/leads/orders', label: 'Заказы', icon: 'orders', section: 'leads' },
   { href: '/admin/leads/newsletter', label: 'Рассылка', icon: 'newsletter', section: 'leads' },
+  { href: '/admin/leads/reviews', label: 'Отзывы', icon: 'reviews', section: 'leads' },
   { href: '/admin/catalog', label: 'Товары', icon: 'catalog', section: 'catalog' },
   { href: '/admin/delivery', label: 'Доставка', icon: 'delivery', section: 'catalog' },
   { href: '/admin/home', label: 'Главная страница', icon: 'home', section: 'content' },

@@ -8,6 +8,12 @@ export type StoredClient = {
   status: string
 }
 
+export type StoredOrderItem = {
+  id: string
+  name: string
+  quantity: number
+}
+
 export type StoredOrder = {
   id: string
   date: string
@@ -16,6 +22,7 @@ export type StoredOrder = {
   email: string
   itemsCount: number
   summary: string
+  items?: StoredOrderItem[]
   status: string
   productsTotal: number
   deliveryCost: number
@@ -69,6 +76,27 @@ function writeList<T>(key: string, items: T[], eventName: string) {
 export const readStoredClients = () => readList<StoredClient>(CLIENTS_KEY)
 export const writeStoredClients = (items: StoredClient[]) =>
   writeList(CLIENTS_KEY, items, 'admin-clients-updated')
+
+export function upsertStoredClient(client: StoredClient) {
+  const normalizedEmail = client.email.trim().toLowerCase()
+  if (!normalizedEmail) return
+
+  const items = readStoredClients()
+  const index = items.findIndex(
+    (item) => item.id === client.id || item.email.trim().toLowerCase() === normalizedEmail
+  )
+
+  const next = { ...client, email: normalizedEmail }
+  if (index >= 0) {
+    const merged = { ...items[index], ...next, ordersCount: Math.max(items[index]!.ordersCount, next.ordersCount) }
+    const updated = [...items]
+    updated[index] = merged
+    writeStoredClients(updated)
+    return
+  }
+
+  writeStoredClients([next, ...items])
+}
 
 export const readStoredOrders = () => readList<StoredOrder>(ORDERS_KEY)
 export const writeStoredOrders = (items: StoredOrder[]) =>

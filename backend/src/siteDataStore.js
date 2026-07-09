@@ -8,6 +8,7 @@ const dataDir = path.join(__dirname, "..", "data");
 
 const ordersFile = path.join(dataDir, "orders.json");
 const newsletterFile = path.join(dataDir, "newsletter.json");
+const reviewsFile = path.join(dataDir, "reviews.json");
 const deliveryFile = path.join(dataDir, "delivery.json");
 
 const DEFAULT_DELIVERY = {
@@ -47,6 +48,7 @@ async function ensureDataFiles() {
   for (const [file, fallback] of [
     [ordersFile, []],
     [newsletterFile, []],
+    [reviewsFile, []],
     [deliveryFile, DEFAULT_DELIVERY],
   ]) {
     try {
@@ -103,4 +105,38 @@ export async function getDeliverySettings() {
 export async function saveDeliverySettings(settings) {
   await writeJson(deliveryFile, settings);
   return settings;
+}
+
+export async function listReviews() {
+  return readJson(reviewsFile, []);
+}
+
+export async function appendReview(review) {
+  const items = await listReviews();
+  const existingIndex = items.findIndex((item) => item.id === review.id);
+  if (existingIndex >= 0) {
+    items[existingIndex] = { ...items[existingIndex], ...review };
+  } else {
+    items.unshift(review);
+  }
+  await writeJson(reviewsFile, items);
+  return review;
+}
+
+export async function updateReview(id, patch) {
+  const items = await listReviews();
+  const index = items.findIndex((item) => item.id === id);
+  if (index < 0) {
+    return null;
+  }
+  items[index] = { ...items[index], ...patch };
+  await writeJson(reviewsFile, items);
+  return items[index];
+}
+
+export async function deleteReview(id) {
+  const items = await listReviews();
+  const next = items.filter((item) => item.id !== id);
+  await writeJson(reviewsFile, next);
+  return next.length !== items.length;
 }

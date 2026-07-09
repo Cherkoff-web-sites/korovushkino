@@ -75,14 +75,14 @@ export default function AdminLoginModal({ open, onSuccess }: AdminLoginModalProp
         </h1>
         <p className="mt-2 text-sm text-[#707070]">
           {step === 'email'
-            ? 'Введите почту из списка администраторов. Код придёт на email. Если почта недоступна — введите аварийный пароль в это же поле.'
+            ? 'Введите почту из списка администраторов. Код придёт на email.'
             : `Код отправлен на ${email}`}
         </p>
 
         {step === 'email' ? (
           <form onSubmit={handleEmailSubmit} className="mt-6 space-y-4">
             <label className="block">
-              <span className="mb-1.5 block text-xs text-[#707070]">Email или аварийный пароль</span>
+              <span className="mb-1.5 block text-xs text-[#707070]">Email</span>
               <input
                 type="text"
                 autoComplete="username"

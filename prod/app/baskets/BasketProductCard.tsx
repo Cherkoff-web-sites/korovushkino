@@ -3,17 +3,23 @@
 import Image from 'next/image'
 import FavoriteHeartButton from '@/components/FavoriteHeartButton'
 import { useCart } from '@/contexts/CartContext'
+import { TaggedHeading } from '@/components/ui/RenderTaggedContent'
+import type { HeadingTag } from '@/lib/contentBlocks'
+import { resolveHeadingTag } from '@/lib/contentBlocks'
 
 const cartIcon = '/images/header/icon-cart.svg'
 
 type BasketProductCardProps = {
   id: string
   title: string
+  titleTag?: HeadingTag
   description: string
+  descriptionTag?: HeadingTag
   nutritionPer100: string
   calories: string
   price: number
   imageSrc: string
+  imageAlt: string
   imagePriority?: boolean
 }
 
@@ -35,11 +41,14 @@ function StarRow() {
 export default function BasketProductCard({
   id,
   title,
+  titleTag,
   description,
+  descriptionTag,
   nutritionPer100,
   calories,
   price,
   imageSrc,
+  imageAlt,
   imagePriority = false,
 }: BasketProductCardProps) {
   const { addItem } = useCart()
@@ -58,11 +67,21 @@ export default function BasketProductCard({
   return (
     <article className="flex min-h-0 flex-col-reverse overflow-hidden rounded-xl border border-[#E5DECF] bg-white shadow-sm md:flex-row md:items-stretch">
       <div className="flex min-w-0 flex-1 flex-col p-6 md:p-7 lg:p-8">
-        <h2 className="text-2xl font-bold leading-tight text-[#1F1F1F] md:text-[26px]">{title}</h2>
+        <TaggedHeading
+          tag={resolveHeadingTag(titleTag, 'h2')}
+          className="text-2xl font-bold leading-tight text-[#1F1F1F] md:text-[26px]"
+        >
+          {title}
+        </TaggedHeading>
         <div className="mt-3">
           <StarRow />
         </div>
-        <p className="mt-4 text-sm leading-relaxed text-[#232326]/85 md:text-[15px]">{description}</p>
+        <TaggedHeading
+          tag={resolveHeadingTag(descriptionTag, 'p')}
+          className="mt-4 text-sm leading-relaxed text-[#232326]/85 md:text-[15px]"
+        >
+          {description}
+        </TaggedHeading>
         <div className="mt-4 space-y-1 text-sm leading-snug text-[#232326]/80 md:text-[15px]">
           <p>На 100 гр — {nutritionPer100}</p>
           <p>{calories}</p>
@@ -87,7 +106,7 @@ export default function BasketProductCard({
       <div className="relative aspect-[4/3] w-full shrink-0 bg-[#E8E8E8] md:aspect-auto md:w-[44%] md:min-h-[260px] lg:min-h-[300px]">
         <Image
           src={imageSrc}
-          alt={title}
+          alt={imageAlt || title}
           fill
           className="object-cover"
           sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"

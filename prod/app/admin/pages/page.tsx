@@ -3,18 +3,15 @@
 import { FormEvent, useEffect, useState } from 'react'
 import AdminPageHeader from '@/components/admin/AdminPageHeader'
 import AdminImageField from '@/components/admin/AdminImageField'
+import AdminTaggedTextField from '@/components/admin/AdminTaggedTextField'
+import AdminContentBlocksField from '@/components/admin/AdminContentBlocksField'
 import { adminInputClass, adminPanelClass } from '@/components/admin/adminStyles'
 import Button from '@/components/ui/Button'
 import { useToast } from '@/contexts/ToastContext'
 import { usePagesContent } from '@/hooks/usePagesContent'
 import type { AboutBlock, PagesContent } from '@/lib/pagesContent'
-import {
-  DEFAULT_PAGES_CONTENT,
-  linesToText,
-  paragraphsToText,
-  textToLines,
-  textToParagraphs,
-} from '@/lib/pagesContent'
+import { DEFAULT_PAGES_CONTENT, linesToText, textToLines } from '@/lib/pagesContent'
+import { resolveHeadingTag } from '@/lib/contentBlocks'
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -37,34 +34,26 @@ function AboutBlockEditor({
   return (
     <div className="space-y-4 rounded-lg border border-[#e8eaef] p-4">
       <h3 className="text-sm font-semibold text-[#1F1F1F]">{title}</h3>
-      <Field label="Заголовок блока">
-        <input
-          className={adminInputClass}
-          value={block.title}
-          onChange={(e) => onChange({ ...block, title: e.target.value })}
-        />
-      </Field>
-      <Field label="Текст (абзацы через пустую строку)">
-        <textarea
-          rows={5}
-          className={`${adminInputClass} resize-y`}
-          value={paragraphsToText(block.paragraphs)}
-          onChange={(e) => onChange({ ...block, paragraphs: textToParagraphs(e.target.value) })}
-        />
-      </Field>
+      <AdminTaggedTextField
+        label="Заголовок блока"
+        value={block.title}
+        tag={resolveHeadingTag(block.titleTag, 'h2')}
+        onValueChange={(value) => onChange({ ...block, title: value })}
+        onTagChange={(titleTag) => onChange({ ...block, titleTag })}
+      />
+      <AdminContentBlocksField
+        label="Текст блока (h2 / h3 / абзацы)"
+        blocks={block.blocks}
+        onChange={(blocks) => onChange({ ...block, blocks })}
+      />
       <AdminImageField
         label="Изображение"
         value={block.image}
+        alt={block.imageAlt}
         onChange={(value) => onChange({ ...block, image: value })}
+        onAltChange={(imageAlt) => onChange({ ...block, imageAlt })}
         previewAspect="video"
       />
-      <Field label="Подпись к изображению (alt)">
-        <input
-          className={adminInputClass}
-          value={block.imageAlt}
-          onChange={(e) => onChange({ ...block, imageAlt: e.target.value })}
-        />
-      </Field>
     </div>
   )
 }
@@ -114,13 +103,14 @@ export default function AdminPagesEditor() {
             <h2 className="text-sm font-semibold text-[#1F1F1F]">О нас</h2>
           </div>
           <div className="space-y-4 p-4">
-            <Field label="Заголовок страницы">
-              <input
-                className={adminInputClass}
-                value={draft.about.pageTitle}
-                onChange={(e) => update((p) => ({ ...p, about: { ...p.about, pageTitle: e.target.value } }))}
-              />
-            </Field>
+            <AdminTaggedTextField
+              label="Заголовок страницы"
+              value={draft.about.pageTitle}
+              tag={resolveHeadingTag(draft.about.pageTitleTag, 'h1')}
+              pageTitle
+              onValueChange={(pageTitle) => update((p) => ({ ...p, about: { ...p.about, pageTitle } }))}
+              onTagChange={(pageTitleTag) => update((p) => ({ ...p, about: { ...p.about, pageTitleTag } }))}
+            />
             <AboutBlockEditor
               title="Блок «С чего всё началось»"
               block={draft.about.origin}
@@ -138,28 +128,24 @@ export default function AdminPagesEditor() {
             />
             <div className="space-y-4 rounded-lg border border-[#e8eaef] p-4">
               <h3 className="text-sm font-semibold text-[#1F1F1F]">Блок «Почему мы это делаем»</h3>
-              <Field label="Заголовок">
-                <input
-                  className={adminInputClass}
-                  value={draft.about.why.title}
-                  onChange={(e) =>
-                    update((p) => ({ ...p, about: { ...p.about, why: { ...p.about.why, title: e.target.value } } }))
-                  }
-                />
-              </Field>
-              <Field label="Текст (абзацы через пустую строку)">
-                <textarea
-                  rows={5}
-                  className={`${adminInputClass} resize-y`}
-                  value={paragraphsToText(draft.about.why.paragraphs)}
-                  onChange={(e) =>
-                    update((p) => ({
-                      ...p,
-                      about: { ...p.about, why: { ...p.about.why, paragraphs: textToParagraphs(e.target.value) } },
-                    }))
-                  }
-                />
-              </Field>
+              <AdminTaggedTextField
+                label="Заголовок"
+                value={draft.about.why.title}
+                tag={resolveHeadingTag(draft.about.why.titleTag, 'h2')}
+                onValueChange={(title) =>
+                  update((p) => ({ ...p, about: { ...p.about, why: { ...p.about.why, title } } }))
+                }
+                onTagChange={(titleTag) =>
+                  update((p) => ({ ...p, about: { ...p.about, why: { ...p.about.why, titleTag } } }))
+                }
+              />
+              <AdminContentBlocksField
+                label="Текст блока"
+                blocks={draft.about.why.blocks}
+                onChange={(blocks) =>
+                  update((p) => ({ ...p, about: { ...p.about, why: { ...p.about.why, blocks } } }))
+                }
+              />
             </div>
           </div>
         </section>
@@ -169,22 +155,27 @@ export default function AdminPagesEditor() {
             <h2 className="text-sm font-semibold text-[#1F1F1F]">Контакты</h2>
           </div>
           <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2">
-            <Field label="Заголовок страницы">
-              <input
-                className={adminInputClass}
-                value={draft.contact.pageTitle}
-                onChange={(e) => update((p) => ({ ...p, contact: { ...p.contact, pageTitle: e.target.value } }))}
-              />
-            </Field>
-            <Field label="Заголовок блока поддержки">
-              <input
-                className={adminInputClass}
-                value={draft.contact.supportTitle}
-                onChange={(e) =>
-                  update((p) => ({ ...p, contact: { ...p.contact, supportTitle: e.target.value } }))
-                }
-              />
-            </Field>
+            <AdminTaggedTextField
+              label="Заголовок страницы"
+              value={draft.contact.pageTitle}
+              tag={resolveHeadingTag(draft.contact.pageTitleTag, 'h1')}
+              pageTitle
+              onValueChange={(pageTitle) => update((p) => ({ ...p, contact: { ...p.contact, pageTitle } }))}
+              onTagChange={(pageTitleTag) =>
+                update((p) => ({ ...p, contact: { ...p.contact, pageTitleTag } }))
+              }
+            />
+            <AdminTaggedTextField
+              label="Заголовок блока поддержки"
+              value={draft.contact.supportTitle}
+              tag={resolveHeadingTag(draft.contact.supportTitleTag, 'h2')}
+              onValueChange={(supportTitle) =>
+                update((p) => ({ ...p, contact: { ...p.contact, supportTitle } }))
+              }
+              onTagChange={(supportTitleTag) =>
+                update((p) => ({ ...p, contact: { ...p.contact, supportTitleTag } }))
+              }
+            />
             <Field label="Телефон (отображение)">
               <input
                 className={adminInputClass}
@@ -208,15 +199,28 @@ export default function AdminPagesEditor() {
                 onChange={(e) => update((p) => ({ ...p, contact: { ...p.contact, email: e.target.value } }))}
               />
             </Field>
-            <Field label="Заголовок соцсетей">
-              <input
-                className={adminInputClass}
-                value={draft.contact.socialTitle}
-                onChange={(e) =>
-                  update((p) => ({ ...p, contact: { ...p.contact, socialTitle: e.target.value } }))
-                }
-              />
-            </Field>
+            <AdminTaggedTextField
+              label="Заголовок соцсетей"
+              value={draft.contact.socialTitle}
+              tag={resolveHeadingTag(draft.contact.socialTitleTag, 'h2')}
+              onValueChange={(socialTitle) =>
+                update((p) => ({ ...p, contact: { ...p.contact, socialTitle } }))
+              }
+              onTagChange={(socialTitleTag) =>
+                update((p) => ({ ...p, contact: { ...p.contact, socialTitleTag } }))
+              }
+            />
+            <AdminTaggedTextField
+              label="Заголовок юридической информации"
+              value={draft.contact.legalTitle}
+              tag={resolveHeadingTag(draft.contact.legalTitleTag, 'h2')}
+              onValueChange={(legalTitle) =>
+                update((p) => ({ ...p, contact: { ...p.contact, legalTitle } }))
+              }
+              onTagChange={(legalTitleTag) =>
+                update((p) => ({ ...p, contact: { ...p.contact, legalTitleTag } }))
+              }
+            />
             <p className="text-xs text-[#707070] sm:col-span-2">
               Ссылки на соцсети редактируются в разделе «Подвал и попапы».
             </p>
@@ -224,19 +228,14 @@ export default function AdminPagesEditor() {
               <AdminImageField
                 label="Изображение справа"
                 value={draft.contact.sideImage}
+                alt={draft.contact.sideImageAlt}
                 onChange={(value) => update((p) => ({ ...p, contact: { ...p.contact, sideImage: value } }))}
+                onAltChange={(sideImageAlt) =>
+                  update((p) => ({ ...p, contact: { ...p.contact, sideImageAlt } }))
+                }
                 previewAspect="square"
               />
             </div>
-            <Field label="Подпись к изображению (alt)">
-              <input
-                className={adminInputClass}
-                value={draft.contact.sideImageAlt}
-                onChange={(e) =>
-                  update((p) => ({ ...p, contact: { ...p.contact, sideImageAlt: e.target.value } }))
-                }
-              />
-            </Field>
             <div className="sm:col-span-2">
               <Field label="Юридическая информация (каждая строка с новой строки)">
                 <textarea
@@ -260,21 +259,28 @@ export default function AdminPagesEditor() {
             <h2 className="text-sm font-semibold text-[#1F1F1F]">Доставка и оплата</h2>
           </div>
           <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2">
-            <Field label="Заголовок страницы (доставка)">
-              <input
-                className={adminInputClass}
-                value={draft.deliveryPayment.pageTitle}
-                onChange={(e) =>
-                  update((p) => ({ ...p, deliveryPayment: { ...p.deliveryPayment, pageTitle: e.target.value } }))
-                }
-              />
-            </Field>
+            <AdminTaggedTextField
+              label="Заголовок страницы (доставка)"
+              value={draft.deliveryPayment.pageTitle}
+              tag={resolveHeadingTag(draft.deliveryPayment.pageTitleTag, 'h1')}
+              pageTitle
+              onValueChange={(pageTitle) =>
+                update((p) => ({ ...p, deliveryPayment: { ...p.deliveryPayment, pageTitle } }))
+              }
+              onTagChange={(pageTitleTag) =>
+                update((p) => ({ ...p, deliveryPayment: { ...p.deliveryPayment, pageTitleTag } }))
+              }
+            />
             <div className="sm:col-span-2">
               <AdminImageField
                 label="Изображение блока доставки"
                 value={draft.deliveryPayment.sideImage}
+                alt={draft.deliveryPayment.sideImageAlt}
                 onChange={(value) =>
                   update((p) => ({ ...p, deliveryPayment: { ...p.deliveryPayment, sideImage: value } }))
+                }
+                onAltChange={(sideImageAlt) =>
+                  update((p) => ({ ...p, deliveryPayment: { ...p.deliveryPayment, sideImageAlt } }))
                 }
                 previewAspect="video"
               />
@@ -309,67 +315,59 @@ export default function AdminPagesEditor() {
                 </Field>
               </div>
             ))}
-            <Field label="Заголовок калькулятора">
-              <input
-                className={adminInputClass}
-                value={draft.deliveryPayment.calculatorTitle}
-                onChange={(e) =>
-                  update((p) => ({
-                    ...p,
-                    deliveryPayment: { ...p.deliveryPayment, calculatorTitle: e.target.value },
-                  }))
-                }
-              />
-            </Field>
-            <Field label="Текст калькулятора">
-              <textarea
-                rows={3}
-                className={`${adminInputClass} resize-y`}
-                value={draft.deliveryPayment.calculatorText}
-                onChange={(e) =>
-                  update((p) => ({
-                    ...p,
-                    deliveryPayment: { ...p.deliveryPayment, calculatorText: e.target.value },
-                  }))
-                }
-              />
-            </Field>
-            <Field label="Плейсхолдер поля адреса">
-              <input
-                className={adminInputClass}
-                value={draft.deliveryPayment.calculatorPlaceholder}
-                onChange={(e) =>
-                  update((p) => ({
-                    ...p,
-                    deliveryPayment: { ...p.deliveryPayment, calculatorPlaceholder: e.target.value },
-                  }))
-                }
-              />
-            </Field>
-            <Field label="Текст кнопки">
-              <input
-                className={adminInputClass}
-                value={draft.deliveryPayment.calculatorButton}
-                onChange={(e) =>
-                  update((p) => ({
-                    ...p,
-                    deliveryPayment: { ...p.deliveryPayment, calculatorButton: e.target.value },
-                  }))
-                }
-              />
-            </Field>
-            <Field label="Заголовок блока оплаты">
-              <input
-                className={adminInputClass}
-                value={draft.deliveryPayment.paymentTitle}
-                onChange={(e) =>
-                  update((p) => ({
-                    ...p,
-                    deliveryPayment: { ...p.deliveryPayment, paymentTitle: e.target.value },
-                  }))
-                }
-              />
-            </Field>
+            <AdminTaggedTextField
+              label="Заголовок блока тарифов"
+              value={draft.deliveryPayment.calculatorTitle}
+              tag={resolveHeadingTag(draft.deliveryPayment.calculatorTitleTag, 'h2')}
+              onValueChange={(calculatorTitle) =>
+                update((p) => ({
+                  ...p,
+                  deliveryPayment: { ...p.deliveryPayment, calculatorTitle },
+                }))
+              }
+              onTagChange={(calculatorTitleTag) =>
+                update((p) => ({
+                  ...p,
+                  deliveryPayment: { ...p.deliveryPayment, calculatorTitleTag },
+                }))
+              }
+            />
+            <AdminTaggedTextField
+              label="Текст блока тарифов"
+              value={draft.deliveryPayment.calculatorText}
+              tag={resolveHeadingTag(draft.deliveryPayment.calculatorTextTag, 'p')}
+              multiline
+              rows={3}
+              onValueChange={(calculatorText) =>
+                update((p) => ({
+                  ...p,
+                  deliveryPayment: { ...p.deliveryPayment, calculatorText },
+                }))
+              }
+              onTagChange={(calculatorTextTag) =>
+                update((p) => ({
+                  ...p,
+                  deliveryPayment: { ...p.deliveryPayment, calculatorTextTag },
+                }))
+              }
+            />
+            <AdminTaggedTextField
+              label="Заголовок блока оплаты"
+              value={draft.deliveryPayment.paymentTitle}
+              tag={resolveHeadingTag(draft.deliveryPayment.paymentTitleTag, 'h2')}
+              onValueChange={(paymentTitle) =>
+                update((p) => ({
+                  ...p,
+                  deliveryPayment: { ...p.deliveryPayment, paymentTitle },
+                }))
+              }
+              onTagChange={(paymentTitleTag) =>
+                update((p) => ({
+                  ...p,
+                  deliveryPayment: { ...p.deliveryPayment, paymentTitleTag },
+                }))
+              }
+            />
             {draft.deliveryPayment.paymentMethods.map((method, index) => (
               <div key={method.id} className="rounded-lg border border-[#e8eaef] p-3">
                 <Field label={`Способ оплаты: ${method.id}`}>
@@ -409,38 +407,48 @@ export default function AdminPagesEditor() {
             <h2 className="text-sm font-semibold text-[#1F1F1F]">Продуктовые корзины</h2>
           </div>
           <div className="space-y-4 p-4">
-            <Field label="Заголовок страницы">
-              <input
-                className={adminInputClass}
-                value={draft.baskets.pageTitle}
-                onChange={(e) => update((p) => ({ ...p, baskets: { ...p.baskets, pageTitle: e.target.value } }))}
-              />
-            </Field>
-            <Field label="Вступительный текст">
-              <textarea
-                rows={3}
-                className={`${adminInputClass} resize-y`}
-                value={draft.baskets.intro}
-                onChange={(e) => update((p) => ({ ...p, baskets: { ...p.baskets, intro: e.target.value } }))}
-              />
-            </Field>
+            <AdminTaggedTextField
+              label="Заголовок страницы"
+              value={draft.baskets.pageTitle}
+              tag={resolveHeadingTag(draft.baskets.pageTitleTag, 'h1')}
+              pageTitle
+              onValueChange={(pageTitle) => update((p) => ({ ...p, baskets: { ...p.baskets, pageTitle } }))}
+              onTagChange={(pageTitleTag) =>
+                update((p) => ({ ...p, baskets: { ...p.baskets, pageTitleTag } }))
+              }
+            />
+            <AdminTaggedTextField
+              label="Вступительный текст"
+              value={draft.baskets.intro}
+              tag={resolveHeadingTag(draft.baskets.introTag, 'p')}
+              multiline
+              rows={3}
+              onValueChange={(intro) => update((p) => ({ ...p, baskets: { ...p.baskets, intro } }))}
+              onTagChange={(introTag) => update((p) => ({ ...p, baskets: { ...p.baskets, introTag } }))}
+            />
             {draft.baskets.items.map((item, index) => (
               <div key={item.id} className="space-y-4 rounded-lg border border-[#e8eaef] p-4">
                 <h3 className="text-sm font-semibold text-[#1F1F1F]">{item.title || `Корзина ${index + 1}`}</h3>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <Field label="Название">
-                    <input
-                      className={adminInputClass}
-                      value={item.title}
-                      onChange={(e) =>
-                        update((p) => {
-                          const items = [...p.baskets.items]
-                          items[index] = { ...items[index]!, title: e.target.value }
-                          return { ...p, baskets: { ...p.baskets, items } }
-                        })
-                      }
-                    />
-                  </Field>
+                  <AdminTaggedTextField
+                    label="Название"
+                    value={item.title}
+                    tag={resolveHeadingTag(item.titleTag, 'h2')}
+                    onValueChange={(title) =>
+                      update((p) => {
+                        const items = [...p.baskets.items]
+                        items[index] = { ...items[index]!, title }
+                        return { ...p, baskets: { ...p.baskets, items } }
+                      })
+                    }
+                    onTagChange={(titleTag) =>
+                      update((p) => {
+                        const items = [...p.baskets.items]
+                        items[index] = { ...items[index]!, titleTag }
+                        return { ...p, baskets: { ...p.baskets, items } }
+                      })
+                    }
+                  />
                   <Field label="Цена, ₽">
                     <input
                       type="number"
@@ -457,20 +465,27 @@ export default function AdminPagesEditor() {
                     />
                   </Field>
                 </div>
-                <Field label="Описание">
-                  <textarea
-                    rows={4}
-                    className={`${adminInputClass} resize-y`}
-                    value={item.description}
-                    onChange={(e) =>
-                      update((p) => {
-                        const items = [...p.baskets.items]
-                        items[index] = { ...items[index]!, description: e.target.value }
-                        return { ...p, baskets: { ...p.baskets, items } }
-                      })
-                    }
-                  />
-                </Field>
+                <AdminTaggedTextField
+                  label="Описание"
+                  value={item.description}
+                  tag={resolveHeadingTag(item.descriptionTag, 'p')}
+                  multiline
+                  rows={4}
+                  onValueChange={(description) =>
+                    update((p) => {
+                      const items = [...p.baskets.items]
+                      items[index] = { ...items[index]!, description }
+                      return { ...p, baskets: { ...p.baskets, items } }
+                    })
+                  }
+                  onTagChange={(descriptionTag) =>
+                    update((p) => {
+                      const items = [...p.baskets.items]
+                      items[index] = { ...items[index]!, descriptionTag }
+                      return { ...p, baskets: { ...p.baskets, items } }
+                    })
+                  }
+                />
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <Field label="На 100 г">
                     <input
@@ -502,10 +517,18 @@ export default function AdminPagesEditor() {
                 <AdminImageField
                   label="Изображение корзины"
                   value={item.image}
+                  alt={item.imageAlt}
                   onChange={(value) =>
                     update((p) => {
                       const items = [...p.baskets.items]
                       items[index] = { ...items[index]!, image: value }
+                      return { ...p, baskets: { ...p.baskets, items } }
+                    })
+                  }
+                  onAltChange={(imageAlt) =>
+                    update((p) => {
+                      const items = [...p.baskets.items]
+                      items[index] = { ...items[index]!, imageAlt }
                       return { ...p, baskets: { ...p.baskets, items } }
                     })
                   }

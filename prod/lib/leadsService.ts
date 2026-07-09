@@ -1,4 +1,4 @@
-import { appendNewsletterSubscriber, appendStoredOrder, type StoredOrder } from '@/lib/adminDataStore'
+import { appendNewsletterSubscriber, appendStoredOrder, type StoredOrder, type StoredOrderItem } from '@/lib/adminDataStore'
 import { request } from '@/lib/api/httpClient'
 import type { CartItem } from '@/contexts/CartContext'
 import type { DeliveryAddress, DeliveryTime, PaymentMethodId } from '@/components/checkout/checkoutTypes'
@@ -36,10 +36,20 @@ function buildOrderSummary(items: CartItem[]) {
   return items.map((item) => `${item.name} × ${item.quantity}`).join('; ')
 }
 
+function toOrderItems(items: CartItem[]): StoredOrderItem[] {
+  return items.map((item) => ({
+    id: item.id,
+    name: item.name,
+    quantity: item.quantity,
+  }))
+}
+
 function toStoredOrder(payload: SubmitOrderPayload): StoredOrder {
   const paymentLabel =
     PAYMENT_METHODS.find((item) => item.id === payload.paymentMethod)?.summaryLabel ??
     payload.paymentMethod
+
+  const orderItems = toOrderItems(payload.items)
 
   return {
     id: `ord-${Date.now()}`,
@@ -49,6 +59,7 @@ function toStoredOrder(payload: SubmitOrderPayload): StoredOrder {
     email: payload.contact.email.trim(),
     itemsCount: payload.items.reduce((sum, item) => sum + item.quantity, 0),
     summary: buildOrderSummary(payload.items),
+    items: orderItems,
     status: 'Новый',
     productsTotal: payload.productsTotal,
     deliveryCost: payload.deliveryCost,

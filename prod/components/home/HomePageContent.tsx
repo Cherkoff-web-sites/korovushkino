@@ -4,8 +4,10 @@ import Image from 'next/image'
 import Link from 'next/link'
 import AboutSection from '@/components/home/AboutSection'
 import ReviewsSection from '@/components/home/ReviewsSection'
+import { TaggedHeading } from '@/components/ui/RenderTaggedContent'
 import { HIGHLIGHT_LAYOUT } from '@/lib/homeContent'
 import { useHomeContent } from '@/hooks/useHomeContent'
+import { resolveHeadingTag } from '@/lib/contentBlocks'
 
 export default function HomePageContent() {
   const { content } = useHomeContent()
@@ -16,19 +18,29 @@ export default function HomePageContent() {
       <section
         className="relative bg-cover bg-center bg-no-repeat pb-16 pt-8 sm:pb-20 sm:pt-10 lg:flex lg:h-[calc(50vw-85px)] lg:flex-col lg:justify-center lg:py-0"
         style={{ backgroundImage: `url('${hero.backgroundImage}')` }}
+        aria-label={hero.backgroundImageAlt}
       >
         <div className="container relative z-10">
           <div className="max-w-[402px]">
-            <h1 className="mb-5 text-[30px] font-normal leading-[1.2] text-[#FFFFFF] lg:mb-[40px] lg:text-[36px]">
+            <TaggedHeading
+              tag={resolveHeadingTag(hero.titleTag, 'h1')}
+              className="mb-5 text-[30px] font-normal leading-[1.2] text-[#FFFFFF] lg:mb-[40px] lg:text-[36px]"
+            >
               {hero.title}
-            </h1>
+            </TaggedHeading>
             <div className="mb-8 flex flex-col gap-4 lg:mb-[60px]">
-              <p className="text-base font-normal leading-[1.45] text-[#FFFFFF] sm:text-lg lg:text-[20px]">
+              <TaggedHeading
+                tag={resolveHeadingTag(hero.paragraph1Tag, 'p')}
+                className="text-base font-normal leading-[1.45] text-[#FFFFFF] sm:text-lg lg:text-[20px]"
+              >
                 {hero.paragraph1}
-              </p>
-              <p className="text-base font-normal leading-[1.45] text-[#FFFFFF] sm:text-lg lg:text-[20px]">
+              </TaggedHeading>
+              <TaggedHeading
+                tag={resolveHeadingTag(hero.paragraph2Tag, 'p')}
+                className="text-base font-normal leading-[1.45] text-[#FFFFFF] sm:text-lg lg:text-[20px]"
+              >
                 {hero.paragraph2}
-              </p>
+              </TaggedHeading>
             </div>
             <div className="flex">
               <Link
@@ -53,16 +65,19 @@ export default function HomePageContent() {
                 <div className="flex shrink-0 items-center justify-center">
                   <Image
                     src={item.icon}
-                    alt=""
+                    alt={item.iconAlt}
                     width={20}
                     height={20}
                     sizes="20px"
                     className="h-auto w-[20px] object-contain"
                   />
                 </div>
-                <p className="min-w-0 text-sm font-normal leading-snug text-black sm:text-[15px]">
+                <TaggedHeading
+                  tag={resolveHeadingTag(item.textTag, 'p')}
+                  className="min-w-0 text-sm font-normal leading-snug text-black sm:text-[15px]"
+                >
                   {item.text}
-                </p>
+                </TaggedHeading>
               </li>
             ))}
           </ul>
@@ -93,16 +108,19 @@ export default function HomePageContent() {
                         <div className="pointer-events-none absolute inset-0 z-[1]" aria-hidden>
                           <Image
                             src={item.backgroundImage}
-                            alt=""
+                            alt={item.backgroundImageAlt}
                             fill
                             className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.02]"
                             sizes="(max-width: 1024px) 100vw, 33vw"
                           />
                         </div>
                       ) : null}
-                      <h3 className="relative z-10 w-full self-start p-[40px] text-left text-[20px] font-bold leading-snug text-black">
+                      <TaggedHeading
+                        tag={resolveHeadingTag(item.titleTag, 'h3')}
+                        className="relative z-10 w-full self-start p-[40px] text-left text-[20px] font-bold leading-snug text-black"
+                      >
                         {item.title}
-                      </h3>
+                      </TaggedHeading>
                     </article>
                   </Link>
                 </li>

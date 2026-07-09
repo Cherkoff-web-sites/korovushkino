@@ -49,6 +49,14 @@ export default function AdminNavIcon({ type, active = false }: { type: AdminNavI
     )
   }
 
+  if (type === 'reviews') {
+    return (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.6" aria-hidden>
+        <path d="M12 3l2.2 4.5 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7L12 3z" strokeLinejoin="round" />
+      </svg>
+    )
+  }
+
   if (type === 'contact') {
     return (
       <svg className={className} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.6" aria-hidden>

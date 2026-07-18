@@ -38,6 +38,11 @@ export async function request<T>(path: string, options: RequestInit = {}): Promi
   }
 
   if (!res.ok) {
+    if (res.status === 413) {
+      throw new Error(
+        'Файл слишком большой для сохранения. Уменьшите фото или загрузите изображение поменьше.'
+      )
+    }
     throw new Error(data?.error || `Ошибка запроса (${res.status})`)
   }
 

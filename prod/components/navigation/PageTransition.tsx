@@ -27,14 +27,26 @@ function isInternalNavigationLink(anchor: HTMLAnchorElement, pathname: string) {
   return true
 }
 
+function isAdminPath(pathname: string) {
+  return pathname === '/admin' || pathname.startsWith('/admin/')
+}
+
 export default function PageTransition() {
   const pathname = usePathname()
   const [visible, setVisible] = useState(false)
   const [fadingOut, setFadingOut] = useState(false)
   const startedAtRef = useRef(0)
   const pendingRef = useRef(false)
+  const admin = isAdminPath(pathname)
 
   useEffect(() => {
+    if (admin) {
+      pendingRef.current = false
+      setVisible(false)
+      setFadingOut(false)
+      return
+    }
+
     function onClick(event: MouseEvent) {
       if (event.defaultPrevented || event.button !== 0) return
       if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
@@ -42,6 +54,15 @@ export default function PageTransition() {
       const anchor = (event.target as HTMLElement | null)?.closest('a')
       if (!(anchor instanceof HTMLAnchorElement)) return
       if (!isInternalNavigationLink(anchor, pathname)) return
+
+      // Не показываем прелоадер при переходах внутри админки
+      let url: URL
+      try {
+        url = new URL(anchor.getAttribute('href') || '', window.location.origin)
+      } catch {
+        return
+      }
+      if (isAdminPath(url.pathname)) return
 
       pendingRef.current = true
       startedAtRef.current = Date.now()
@@ -51,10 +72,10 @@ export default function PageTransition() {
 
     document.addEventListener('click', onClick, true)
     return () => document.removeEventListener('click', onClick, true)
-  }, [pathname])
+  }, [pathname, admin])
 
   useEffect(() => {
-    if (!pendingRef.current) return
+    if (admin || !pendingRef.current) return
 
     const elapsed = Date.now() - startedAtRef.current
     const wait = Math.max(0, MIN_OVERLAY_MS - elapsed)
@@ -69,9 +90,9 @@ export default function PageTransition() {
     }, wait)
 
     return () => window.clearTimeout(timer)
-  }, [pathname])
+  }, [pathname, admin])
 
-  if (!visible) return null
+  if (admin || !visible) return null
 
   return (
     <div

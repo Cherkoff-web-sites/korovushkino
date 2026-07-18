@@ -4,12 +4,14 @@ FROM node:20-alpine AS frontend-build
 WORKDIR /app
 COPY prod/package*.json ./
 
-# DevDependencies (Next, TypeScript, Tailwind) are required for `next build`.
-ENV NODE_ENV=development
-RUN npm ci --no-audit --no-fund \
-  || (echo "npm ci retry..." && sleep 5 && npm ci --no-audit --no-fund)
+# Install build deps (Next/TS/Tailwind). Do NOT leave NODE_ENV=development —
+# that makes `next build` mix runtime.dev.js + runtime.prod.js and crash with
+# "Cannot read properties of null (reading 'useContext')" during prerender.
+RUN npm ci --include=dev --no-audit --no-fund \
+  || (echo "npm ci retry..." && sleep 5 && npm ci --include=dev --no-audit --no-fund)
 
 COPY prod/ ./
+ENV NODE_ENV=production
 RUN npm run build
 
 FROM node:20-alpine

@@ -5,8 +5,8 @@ import Footer from '@/components/Footer/Footer'
 import ScrollToTop from '@/components/ScrollToTop'
 import AuthModal from '@/components/auth/AuthModal'
 import AppProviders from '@/components/providers/AppProviders'
-import MainWithTransition from '@/components/navigation/MainWithTransition'
-import PageTransition from '@/components/navigation/PageTransition'
+import NavigationLoadingIndicator from '@/components/navigation/NavigationLoadingIndicator'
+import YandexMetrika from '@/components/analytics/YandexMetrika'
 import './globals.css'
 
 const inter = Inter({
@@ -30,10 +30,11 @@ export default function RootLayout({
     <html lang="ru" className={inter.variable}>
       <body className={inter.className}>
         <AppProviders>
+          <YandexMetrika />
           <div className="flex min-h-screen flex-col">
-            <PageTransition />
+            <NavigationLoadingIndicator />
             <Header />
-            <MainWithTransition>{children}</MainWithTransition>
+            <main className="flex-grow">{children}</main>
             <Footer />
             <ScrollToTop />
             <AuthModal />
@@ -43,4 +44,3 @@ export default function RootLayout({
     </html>
   )
 }
-

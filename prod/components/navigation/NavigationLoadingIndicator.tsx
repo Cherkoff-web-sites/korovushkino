@@ -3,8 +3,12 @@
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
-const MIN_OVERLAY_MS = 280
-const FADE_OUT_MS = 220
+const MIN_VISIBLE_MS = 200
+const HIDE_DELAY_MS = 120
+
+function isAdminPath(pathname: string) {
+  return pathname === '/admin' || pathname.startsWith('/admin/')
+}
 
 function isInternalNavigationLink(anchor: HTMLAnchorElement, pathname: string) {
   if (anchor.target === '_blank' || anchor.hasAttribute('download')) return false
@@ -22,19 +26,16 @@ function isInternalNavigationLink(anchor: HTMLAnchorElement, pathname: string) {
   }
 
   if (url.origin !== window.location.origin) return false
+  if (isAdminPath(url.pathname)) return false
   if (url.pathname === pathname && url.search === window.location.search) return false
 
   return true
 }
 
-function isAdminPath(pathname: string) {
-  return pathname === '/admin' || pathname.startsWith('/admin/')
-}
-
-export default function PageTransition() {
+/** Small corner spinner on navigation — no overlay, no page animation. */
+export default function NavigationLoadingIndicator() {
   const pathname = usePathname()
   const [visible, setVisible] = useState(false)
-  const [fadingOut, setFadingOut] = useState(false)
   const startedAtRef = useRef(0)
   const pendingRef = useRef(false)
   const admin = isAdminPath(pathname)
@@ -43,7 +44,6 @@ export default function PageTransition() {
     if (admin) {
       pendingRef.current = false
       setVisible(false)
-      setFadingOut(false)
       return
     }
 
@@ -55,18 +55,8 @@ export default function PageTransition() {
       if (!(anchor instanceof HTMLAnchorElement)) return
       if (!isInternalNavigationLink(anchor, pathname)) return
 
-      // Не показываем прелоадер при переходах внутри админки
-      let url: URL
-      try {
-        url = new URL(anchor.getAttribute('href') || '', window.location.origin)
-      } catch {
-        return
-      }
-      if (isAdminPath(url.pathname)) return
-
       pendingRef.current = true
       startedAtRef.current = Date.now()
-      setFadingOut(false)
       setVisible(true)
     }
 
@@ -78,15 +68,11 @@ export default function PageTransition() {
     if (admin || !pendingRef.current) return
 
     const elapsed = Date.now() - startedAtRef.current
-    const wait = Math.max(0, MIN_OVERLAY_MS - elapsed)
+    const wait = Math.max(HIDE_DELAY_MS, MIN_VISIBLE_MS - elapsed)
 
     const timer = window.setTimeout(() => {
       pendingRef.current = false
-      setFadingOut(true)
-      window.setTimeout(() => {
-        setVisible(false)
-        setFadingOut(false)
-      }, FADE_OUT_MS)
+      setVisible(false)
     }, wait)
 
     return () => window.clearTimeout(timer)
@@ -95,11 +81,8 @@ export default function PageTransition() {
   if (admin || !visible) return null
 
   return (
-    <div
-      className={`page-transition-overlay ${fadingOut ? 'page-transition-overlay--out' : ''}`}
-      aria-hidden
-    >
-      <div className="page-transition-spinner" role="status" aria-label="Загрузка страницы" />
+    <div className="nav-loading-indicator" role="status" aria-live="polite" aria-label="Загрузка">
+      <span className="nav-loading-spinner" aria-hidden />
     </div>
   )
 }

@@ -1,27 +1,34 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { useHomeContent } from '@/hooks/useHomeContent'
 import type { ProductData } from '@/lib/api/productsData'
 import { buildPublishedReviewList, getProductRatingStats } from '@/lib/productReviews'
 import { fetchPublishedReviews, type UserReview } from '@/lib/userReviewsStore'
 
+/** Ratings for catalog cards — only published reviews API, no heavy home content. */
 export function usePublishedProductRatings(products: ProductData[]) {
-  const { content: homeContent } = useHomeContent()
   const [approvedUserReviews, setApprovedUserReviews] = useState<UserReview[]>([])
 
   useEffect(() => {
-    void fetchPublishedReviews().then(setApprovedUserReviews)
+    let cancelled = false
+    void fetchPublishedReviews().then((reviews) => {
+      if (!cancelled) setApprovedUserReviews(reviews)
+    })
     const onUpdate = () => {
-      void fetchPublishedReviews().then(setApprovedUserReviews)
+      void fetchPublishedReviews().then((reviews) => {
+        if (!cancelled) setApprovedUserReviews(reviews)
+      })
     }
     window.addEventListener('user-reviews-updated', onUpdate)
-    return () => window.removeEventListener('user-reviews-updated', onUpdate)
+    return () => {
+      cancelled = true
+      window.removeEventListener('user-reviews-updated', onUpdate)
+    }
   }, [])
 
   const publishedReviews = useMemo(
-    () => buildPublishedReviewList(homeContent.reviews.items, approvedUserReviews),
-    [approvedUserReviews, homeContent.reviews.items]
+    () => buildPublishedReviewList([], approvedUserReviews),
+    [approvedUserReviews]
   )
 
   const ratingsByProductId = useMemo(() => {

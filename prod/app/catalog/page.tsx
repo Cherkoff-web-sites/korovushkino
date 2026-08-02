@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import { getCatalogProducts } from '@/lib/api/productsData'
 import CatalogPageContent from './CatalogPageContent'
+import CatalogGridSkeleton from './components/CatalogGridSkeleton'
 
 export const metadata: Metadata = {
   title: 'Каталог | Коровушкино',
@@ -12,7 +13,13 @@ function CatalogFallback() {
   return (
     <section className="py-6 sm:py-8 lg:py-10">
       <div className="container">
-        <p className="text-sm text-[#232326]/60 sm:text-[15px]">Загрузка каталога…</p>
+        <div className="skeleton-pulse mb-4 h-9 w-64 max-w-full rounded-lg bg-[#E8E0D4]" />
+        <div className="mb-8 flex flex-wrap gap-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="skeleton-pulse h-9 w-24 rounded-full bg-[#E8E0D4]" />
+          ))}
+        </div>
+        <CatalogGridSkeleton count={6} />
       </div>
     </section>
   )

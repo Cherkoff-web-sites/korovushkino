@@ -58,6 +58,80 @@ function rowToProduct(row) {
   return row?.data ? row.data : null;
 }
 
+let productsCache = null;
+let productsCacheAt = 0;
+const PRODUCTS_CACHE_TTL_MS = 15_000;
+
+export function invalidateProductsCache() {
+  productsCache = null;
+  productsCacheAt = 0;
+}
+
+export function isDataImageUrl(value) {
+  return typeof value === "string" && value.startsWith("data:image/");
+}
+
+export function catalogImageUrl(productId, index = 0) {
+  return `/api/products/${encodeURIComponent(productId)}/image/${index}`;
+}
+
+/** Lightweight card for public catalog grid — no base64 blobs in JSON. */
+export function toCatalogCard(product) {
+  if (!product?.id) return null;
+  const images = Array.isArray(product.images) ? product.images : [];
+  const main = String(images[0] || "").trim();
+  const resolvedImage = !main
+    ? "/images/home/hero-bg.png"
+    : isDataImageUrl(main)
+      ? catalogImageUrl(product.id, 0)
+      : main;
+
+  const teaser =
+    String(product.catalogCardTeaser || "").trim() ||
+    String(product.briefDescription || "").trim() ||
+    String(product.description || "").trim().slice(0, 160);
+
+  return {
+    id: product.id,
+    name: product.name,
+    series: product.series,
+    category: product.category,
+    categorySlug: product.categorySlug,
+    price: product.price,
+    description: String(product.description || "").slice(0, 400),
+    briefDescription: product.briefDescription || "",
+    catalogCardTeaser: teaser,
+    modalNutrition: product.modalNutrition || undefined,
+    urlSlug: product.urlSlug || product.id,
+    images: [resolvedImage],
+    imageAlts: Array.isArray(product.imageAlts) && product.imageAlts[0]
+      ? [product.imageAlts[0]]
+      : [product.name],
+    breadcrumbs: Array.isArray(product.breadcrumbs) ? product.breadcrumbs : [],
+  };
+}
+
+export function parseDataUrl(dataUrl) {
+  const match = String(dataUrl || "").match(/^data:([^;]+);base64,(.+)$/);
+  if (!match) return null;
+  return {
+    contentType: match[1],
+    buffer: Buffer.from(match[2], "base64"),
+  };
+}
+
+export async function getProductImage(idOrSlug, index = 0) {
+  const product = await getProduct(idOrSlug);
+  if (!product) return null;
+  const images = Array.isArray(product.images) ? product.images : [];
+  const src = String(images[index] || images[0] || "").trim();
+  if (!src) return null;
+  if (isDataImageUrl(src)) {
+    return parseDataUrl(src);
+  }
+  return { redirectTo: src };
+}
+
 export async function getProductsRecord() {
   const products = await listProducts();
   return Object.fromEntries(products.map((product) => [product.id, product]));
@@ -69,10 +143,22 @@ export async function getProductOrder() {
   return result.rows.map((row) => row.id);
 }
 
-export async function listProducts() {
+export async function listProducts({ bypassCache = false } = {}) {
   await ensureSeeded();
+  const now = Date.now();
+  if (!bypassCache && productsCache && now - productsCacheAt < PRODUCTS_CACHE_TTL_MS) {
+    return productsCache;
+  }
   const result = await query("SELECT data FROM products ORDER BY sort_order ASC, created_at ASC, id ASC");
-  return result.rows.map(rowToProduct).filter(Boolean);
+  const products = result.rows.map(rowToProduct).filter(Boolean);
+  productsCache = products;
+  productsCacheAt = now;
+  return products;
+}
+
+export async function listCatalogCards() {
+  const products = await listProducts();
+  return products.map(toCatalogCard).filter(Boolean);
 }
 
 export async function getProduct(idOrSlug) {
@@ -100,6 +186,7 @@ export async function createProduct(product) {
      VALUES ($1, $2, $3, $4::jsonb)`,
     [product.id, productUrlSlug(product), Number(order.rows[0]?.next_order || 0), JSON.stringify(product)]
   );
+  invalidateProductsCache();
   return product;
 }
 
@@ -126,6 +213,7 @@ export async function updateProduct(id, product) {
         JSON.stringify(product),
       ]
     );
+    invalidateProductsCache();
     return product;
   }
 
@@ -135,6 +223,7 @@ export async function updateProduct(id, product) {
      WHERE id = $1`,
     [id, productUrlSlug(product), JSON.stringify(product)]
   );
+  invalidateProductsCache();
   return product;
 }
 
@@ -144,6 +233,7 @@ export async function deleteProduct(id) {
   if (removed.rowCount === 0) {
     throw new Error("Товар не найден");
   }
+  invalidateProductsCache();
 }
 
 export async function replaceCatalog(productsRecord, order) {
@@ -161,5 +251,6 @@ export async function replaceCatalog(productsRecord, order) {
     );
   }
   seeded = true;
+  invalidateProductsCache();
   return { products: productsRecord, order: orderedIds };
 }

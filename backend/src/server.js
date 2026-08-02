@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
+import zlib from "zlib";
 import { fileURLToPath } from "url";
 import authRoutes from "./authRoutes.js";
 import adminAuthRoutes from "./adminAuthRoutes.js";
@@ -24,6 +25,30 @@ app.use(cors());
 // Product/content saves embed images as base64 data URLs — default 100kb is too small.
 app.use(express.json({ limit: "25mb" }));
 app.use(express.urlencoded({ extended: true, limit: "25mb" }));
+
+/** Lightweight gzip for JSON API responses (catalog especially). */
+app.use((req, res, next) => {
+  const accept = String(req.headers["accept-encoding"] || "");
+  if (!accept.includes("gzip") || req.method === "HEAD") return next();
+
+  const originalJson = res.json.bind(res);
+  res.json = (body) => {
+    try {
+      const payload = Buffer.from(JSON.stringify(body));
+      if (payload.length < 1024) {
+        return originalJson(body);
+      }
+      const compressed = zlib.gzipSync(payload);
+      res.setHeader("Content-Type", "application/json; charset=utf-8");
+      res.setHeader("Content-Encoding", "gzip");
+      res.setHeader("Vary", "Accept-Encoding");
+      return res.send(compressed);
+    } catch {
+      return originalJson(body);
+    }
+  };
+  return next();
+});
 
 app.use((req, res, next) => {
   const start = Date.now();

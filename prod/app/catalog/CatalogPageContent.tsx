@@ -9,8 +9,9 @@ import {
   type CategorySlug,
   type ProductData,
 } from '@/lib/api/productsData'
-import { fetchCatalogProducts } from '@/lib/api/productsClient'
+import { fetchCatalogProducts, peekCachedCatalogProducts } from '@/lib/api/productsClient'
 import CatalogGridCard from './components/CatalogGridCard'
+import CatalogGridSkeleton from './components/CatalogGridSkeleton'
 import ProductQuickViewModal from './components/ProductQuickViewModal'
 import { usePublishedProductRatings } from '@/hooks/usePublishedProductRatings'
 
@@ -18,35 +19,49 @@ const categoryEntries = Object.entries(CATEGORY_LABELS) as [CategorySlug, string
 
 export default function CatalogPageContent({ allProducts }: { allProducts: ProductData[] }) {
   const [previewProduct, setPreviewProduct] = useState<ProductData | null>(null)
-  const [products, setProducts] = useState<ProductData[]>(allProducts)
+  const [products, setProducts] = useState<ProductData[]>([])
+  const [loading, setLoading] = useState(true)
   const searchParams = useSearchParams()
   const raw = searchParams.get('category')?.trim() ?? ''
   const activeSlug: CategorySlug | null = raw && isCategorySlug(raw) ? raw : null
 
   useEffect(() => {
     let cancelled = false
+    const cached = peekCachedCatalogProducts()
+    if (cached?.length) {
+      setProducts(cached)
+      setLoading(false)
+    }
 
-    fetchCatalogProducts()
+    void fetchCatalogProducts()
       .then((nextProducts) => {
-        if (!cancelled && nextProducts.length > 0) {
+        if (cancelled) return
+        if (nextProducts.length > 0) {
           setProducts(nextProducts)
+        } else if (!cached?.length && allProducts.length > 0) {
+          setProducts(allProducts)
         }
       })
       .catch(() => {
-        // Оставляем статический fallback из сборки
+        if (!cancelled && !cached?.length && allProducts.length > 0) {
+          setProducts(allProducts)
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
       })
 
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [allProducts])
 
   const filteredProducts = useMemo(() => {
     if (!activeSlug) return products
     return products.filter((p) => p.categorySlug === activeSlug)
   }, [products, activeSlug])
 
-  const { ratingsByProductId } = usePublishedProductRatings(products)
+  const { ratingsByProductId } = usePublishedProductRatings(loading ? [] : products)
 
   const categoryTitle = activeSlug ? CATEGORY_LABELS[activeSlug] : 'Все категории'
 
@@ -110,7 +125,9 @@ export default function CatalogPageContent({ allProducts }: { allProducts: Produ
           ))}
         </div>
 
-        {filteredProducts.length === 0 ? (
+        {loading ? (
+          <CatalogGridSkeleton count={6} />
+        ) : filteredProducts.length === 0 ? (
           <p className="text-sm text-[#232326]/75 sm:text-[15px]">В этой категории пока нет позиций.</p>
         ) : (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
